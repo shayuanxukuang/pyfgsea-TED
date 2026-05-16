@@ -1,7 +1,7 @@
 audit_item	description	status	detail
 repository_remote	Git remote URL is configured	pass	https://github.com/shayuanxukuang/pyfgsea-TED.git
-fixed_commit	Release working commit is recorded	pass	de4d06cd317a712e58a094d1430d4a2fe1bfe094
-release_tag	Versioned release tag exists for archived code	pass	ted-gb-rc2
+fixed_commit	Release commit is recorded in GitHub release metadata	pass	resolved by tag ted-gb-rc4
+release_tag	Versioned release tag exists for archived code	pass	ted-gb-rc4
 permanent_code_archive	DOI-providing code archive exists	pass	https://doi.org/10.5281/zenodo.20224518
 permanent_processed_output_archive	Selected processed outputs, figure source data and tables are archived	pass	https://doi.org/10.5281/zenodo.20224518
 osi_license	OSI-compliant license is present	pass	MIT License
@@ -13,5 +13,5 @@ direct_external_baseline_entry	Direct baseline execution manifest is included	pa
 direct_external_baseline_container_run	tradeSeq, GSVA, AUCell and POT direct wrappers execute in Docker baseline runtime	pass	reproducibility_check_report.md
 reproducibility_report	Reproducibility check report is included	pass	reproducibility_check_report.md
 checksum_manifest	SHA256 processed-output manifest is included	pass	sha256_processed_outputs.tsv
-working_tree_clean	Release companion repository is clean at archived release tag	pass	ted-gb-rc2
+working_tree_clean	Release companion repository is clean at the archived release tag	pass	pyfgsea-TED release repository clean at tag ted-gb-rc4
 strict_level4_positive_control	Matched functional positive control is available for Level 4 calibration	not_evaluable_current_release	future validation requirement
