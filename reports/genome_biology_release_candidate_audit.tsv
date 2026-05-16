@@ -1,6 +1,9 @@
 audit_item	description	status	detail
-repository_remote	Git remote URL is configured	pass	https://github.com/shayuanxukuang/pyfgsea.git
-fixed_commit	Release working commit is recorded	pass	101646898449dd933c09dce30fc0c3aff71cd22b
+repository_remote	Git remote URL is configured	pass	https://github.com/shayuanxukuang/pyfgsea-TED.git
+fixed_commit	Release working commit is recorded	pass	711408f6f3cd3e77df8fba2da32d53030145c804
+release_tag	Versioned release tag exists for archived code	pass	ted-gb-rc1
+permanent_code_archive	DOI-providing code archive exists	pass	https://doi.org/10.5281/zenodo.20224518
+permanent_processed_output_archive	Selected processed outputs, figure source data and tables are archived	pass	https://doi.org/10.5281/zenodo.20224518
 osi_license	OSI-compliant license is present	pass	MIT License
 main_environment	Conda environment is included	pass	environment.yml
 baseline_environment	Direct external baseline conda environment is included	pass	environment.baselines.yml
@@ -9,8 +12,5 @@ baseline_container_recipe	Direct external baseline Dockerfile is included	pass	D
 direct_external_baseline_entry	Direct baseline execution manifest is included	pass	direct_external_baseline_execution_manifest.tsv
 reproducibility_report	Reproducibility check report is included	pass	reproducibility_check_report.md
 checksum_manifest	SHA256 processed-output manifest is included	pass	sha256_processed_outputs.tsv
-working_tree_clean	Release commit contains all files and working tree is clean	needs_action	create a clean release commit before formal submission
-release_tag	Versioned release tag exists for archived code	needs_action	suggested tag: ted-gb-rc1 after final commit
-permanent_code_archive	DOI-providing code archive exists	needs_action	archive GitHub release through Zenodo/OSF/Figshare
-permanent_processed_output_archive	DOI-providing processed-output archive exists	needs_action	archive processed outputs, source data and supplementary tables
+working_tree_clean	Release companion repository is clean at archived release tag	pass	ted-gb-rc1
 strict_level4_positive_control	Matched functional positive control is available for Level 4 calibration	not_evaluable_current_release	future validation requirement

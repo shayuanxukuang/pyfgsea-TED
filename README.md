@@ -2,6 +2,8 @@
 
 This repository contains the code, benchmark entry points, selected result tables and figure source data for TED: a claim-aware framework for dynamic pathway event interpretation in single-cell genomics.
 
+Archived release DOI: [10.5281/zenodo.20224518](https://doi.org/10.5281/zenodo.20224518)
+
 TED converts dynamic single-cell pathway/module signals into auditable event-and-claim objects. A TED event object records effect direction, event-FDR, block robustness, matched-state evidence, negative-control behavior, event mode, identifiability and claim ceiling.
 
 ## What is included
