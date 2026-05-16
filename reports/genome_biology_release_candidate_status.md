@@ -1,8 +1,8 @@
 # Genome Biology Release Candidate Audit
 
 - Repository: `https://github.com/shayuanxukuang/pyfgsea-TED.git`
-- Release tag: `ted-gb-rc5`
-- Release commit: recorded in GitHub release metadata for tag `ted-gb-rc5`
+- Release tag: `ted-gb-rc6`
+- Release commit: recorded in GitHub release metadata for tag `ted-gb-rc6`
 - Zenodo DOI: `10.5281/zenodo.20224518`
 - License: MIT
 - Passed audit items: 14/15
