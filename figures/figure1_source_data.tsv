@@ -1,0 +1,24 @@
+figure	panel	element	role
+Figure 1	A	trajectory / pseudotime	input
+Figure 1	A	real time / day	input
+Figure 1	A	perturbation / genotype	input
+Figure 1	A	lineage / fate scaffold	input
+Figure 1	A	adapter pseudobulk	input
+Figure 1	B	reference activity curve	dynamic input
+Figure 1	B	perturbed activity curve	dynamic input
+Figure 1	B	area between curves	event effect
+Figure 1	C	direction	event object field
+Figure 1	C	timing	event object field
+Figure 1	C	event-FDR	event object field
+Figure 1	C	block robustness	event object field
+Figure 1	C	matched-state evidence	event object field
+Figure 1	C	negative controls	event object field
+Figure 1	C	event mode	event object field
+Figure 1	C	claim ceiling	event object field
+Figure 1	D	L1	descriptive
+Figure 1	D	L2	event supported
+Figure 1	D	L2.5	scaffold / adapter
+Figure 1	D	L3	robust event
+Figure 1	D	L3.5	mechanism candidate
+Figure 1	D	L4	functional validation
+Figure 1	D	L4B	public functional-style

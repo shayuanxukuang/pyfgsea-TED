@@ -1,0 +1,57 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "pyfgsea"
+version = "0.1.4"
+description = "Universal Trajectory GSEA Framework"
+requires-python = ">=3.9"
+dependencies = [
+    "scanpy",
+    "anndata",
+    "pandas",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "statsmodels",
+    "scikit-learn",
+    "click",
+    "pyyaml",
+    "jsonschema"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "hypothesis",
+    "build",
+    "maturin"
+]
+baselines = [
+    "POT>=0.9"
+]
+
+[project.scripts]
+pyfgsea-traj = "pyfgsea.cli.main:cli"
+ted-mad = "pyfgsea.ted_mad.cli:cli"
+
+[tool.maturin]
+module-name = "pyfgsea._core"
+
+[tool.pytest.ini_options]
+markers = [
+    "unit: fast unit tests",
+    "reliability: input/result consistency and invariants",
+    "synthetic_truth: semi-synthetic truth benchmarks",
+    "null_calibration: permutation or bootstrap calibration tests",
+    "performance: performance benchmark smoke tests",
+    "external: tests requiring external datasets or network access",
+    "slow: slow tests excluded from every-commit CI",
+    "graph: graph-aware trajectory tests",
+    "replicate: replicate-aware trajectory tests",
+]

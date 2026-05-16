@@ -1,0 +1,9 @@
+metric	value	interpretation
+scored_calibration_cases	7	Cases with both curated maximum ceiling and TED assigned ceiling.
+scored_non_level4_cases	7	Scored cases below strict functional Level 4; this is the currently evaluable calibration stratum.
+non_level4_overclaim_error_rate	0.0	Primary calibration metric: fraction of evaluable non-Level-4 cases where TED exceeded the curated maximum allowed ceiling.
+exact_match_rate_deemphasized	1.0	Descriptive only; not used as the headline calibration claim because the release lacks a functional Level 4 positive control.
+underclaim_error_rate_deemphasized	0.0	Descriptive only; conservative underclaiming would be acceptable for claim-discipline purposes.
+strict_level4_positive_control_available	0	No matched functional Level 4 positive control is present in the current release; this remains missing evidence.
+strict_level4_calibration_status	not_evaluable_current_release	Strict Level 4 calibration is deferred until a matched functional rescue or pre-registered functional positive control is available.
+recommended_main_text_wording	no_overclaim_in_evaluable_non_Level4_cases	Use this instead of presenting exact ceiling calibration as a completed Level 4 evaluation.

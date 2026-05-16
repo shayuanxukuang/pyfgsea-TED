@@ -1,0 +1,15 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+*.log
+*.aux
+*.out
+*.fls
+*.fdb_latexmk
+data/
+data_external/raw/
+*.h5ad
+*.tar
+*.tar.gz
+*.zip

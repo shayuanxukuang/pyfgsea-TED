@@ -1,0 +1,11 @@
+gate	completed	status	evidence_file	evidence_metric_or_note	impact_on_claim_ceiling
+same-cell RNA/ATAC matrix availability	True	passed	osmotic_multiome_upgrade_readiness.tsv	ATAC_barcodes; ATAC_matrix; ATAC_peaks; RNA_barcodes; RNA_features; RNA_matrix; RNA_peaks	required input gate
+RNA-layer stress/development event	True	passed	rna_event_table.tsv	n_gene_events=32833	supports Level 3
+ATAC/peak-layer event	True	passed	atac_event_table.tsv	n_peak_events=93561	supports Level 3 multiome upgrade
+peak-to-gene links attempted	True	passed	peak_to_gene_event_concordance.tsv	n_links=5000	required for Level 3.5 attempt
+peak-to-gene event concordance strong	False	not_passed_or_not_available	peak_to_gene_event_concordance.tsv	not strong enough in current run	blocks Level 3.5
+motif activity evidence	False	not_passed_or_not_available	motif_activity_event.tsv	proxy_only	proxy-only blocks Level 3.5
+motif-target concordance	False	not_passed_or_not_available	motif_target_concordance.tsv	marker-proxy only	requires real motif annotation
+shuffled peak-gene null	True	passed	shuffled_peak_gene_null.tsv	empirical_p_value=0.0049751243781094	passes null gate
+cell-type-specific lag	False	not_passed_or_not_available	not_available_in_current_matrix_summary	not yet computed	blocks stronger chromatin-first claim
+final chromatin-first claim ceiling	True	passed	chromatin_first_claim_ceiling.tsv	Level 3 RNA/peak-layer event candidate	current allowed claim

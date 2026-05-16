@@ -1,0 +1,23 @@
+field	type	definition	source_or_example	maintext_status
+event_id	string	Stable event identifier.	All TED event tables	Required
+dataset	string	Dataset accession or benchmark label.	All real-data outputs	Required
+organism	string	Species or biological system.	cross-system grammar	Recommended
+event_family	string	Pathway, module, lineage, perturbation, or multiome event family.	event grammar tables	Required
+event_mode	categorical	Best single event mode when identifiable.	delay_vs_loss_classifier; event_mode_classifier	Required
+event_type_conformal_set	set[string]	Calibrated set of plausible event modes.	event_type_conformal_set.tsv	Recommended for ambiguous cases
+event_score	float	Signed or absolute event strength depending on module.	dynamic_event_table; rna_event_table; atac_event_table	Required
+effect_direction	categorical	Direction such as up, down, delay, target-down-alt-up, or artifact.	event tables	Required
+onset_time	float/string	Estimated event onset in real time or pseudotime.	dynamic event and lag tables	Optional when time exists
+peak_time	float/string	Estimated peak event time.	dynamic event and classifier tables	Optional
+q_value	float	Event-level FDR or comparable adjusted p-value.	event_fdr tables	Required for Level 2+
+block_stability	float	Sample, embryo, donor, or block-level robustness measure.	block_or_sample_robustness tables	Required for Level 3+
+matched_state_effect	float	Matched or counterfactual effect after state adjustment.	counterfactual and matched-state outputs	Required when composition artifact is plausible
+identifiability_score	float	Design-level recognizability score.	ted_identifiability_score.tsv	Recommended
+negative_control_margin	float	Margin over random, irrelevant, ribosome, stress, or shuffled controls.	negative controls and stress tests	Recommended
+evidence_gates	string/list	Boolean gates used by ClaimCeiling.	claim_ceiling_evidence_matrix.tsv	Required
+formal_claim_ceiling	categorical	Strongest allowed claim level.	claim ceiling outputs	Required
+allowed_claim	string	Plain-language biological claim allowed.	claim ceiling outputs	Required
+forbidden_claim	string	Claim explicitly blocked by missing gates.	claim ceiling outputs	Required
+missing_evidence	string/list	Evidence needed for next claim level.	claim ceiling outputs	Required
+source_modality	categorical	RNA, ATAC, multiome, lineage, perturbation, metadata scaffold.	all outputs	Recommended
+provenance_file	path	Source file used to produce this object.	manifests	Recommended

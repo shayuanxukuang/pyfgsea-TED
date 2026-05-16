@@ -1,0 +1,13 @@
+FROM mambaorg/micromamba:1.5.10
+
+WORKDIR /workspace
+
+COPY environment.baselines.yml /tmp/environment.baselines.yml
+RUN micromamba install -y -n base -f /tmp/environment.baselines.yml && micromamba clean -a -y
+
+COPY . /workspace
+
+ENV PATH=/opt/conda/bin:$PATH
+SHELL ["/bin/bash", "-lc"]
+
+CMD ["bash", "-lc", "python scripts/run_direct_external_baseline_suite.py --quick && python scripts/run_full_benchmark_suite.py --quick"]
