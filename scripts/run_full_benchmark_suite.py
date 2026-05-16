@@ -139,6 +139,12 @@ def run_step(step: BenchmarkStep, log_dir: Path) -> dict[str, object]:
 def write_report(manifest: pd.DataFrame, output: Path, quick: bool) -> None:
     passed = int((manifest["status"] == "pass").sum())
     total = int(len(manifest))
+    def render_table(df: pd.DataFrame) -> str:
+        try:
+            return df.to_markdown(index=False)
+        except ImportError:
+            return df.to_csv(sep="\t", index=False).strip()
+
     report = [
         "# TED Full Benchmark Suite Report",
         "",
@@ -148,7 +154,7 @@ def write_report(manifest: pd.DataFrame, output: Path, quick: bool) -> None:
         "",
         "## Step Summary",
         "",
-        manifest[["step", "status", "exit_code", "runtime_seconds", "log"]].to_markdown(index=False),
+        render_table(manifest[["step", "status", "exit_code", "runtime_seconds", "log"]]),
         "",
         "## Interpretation",
         "",

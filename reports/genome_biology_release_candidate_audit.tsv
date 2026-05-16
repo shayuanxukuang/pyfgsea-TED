@@ -10,6 +10,7 @@ baseline_environment	Direct external baseline conda environment is included	pass
 main_container_recipe	Main Dockerfile is included	pass	Dockerfile
 baseline_container_recipe	Direct external baseline Dockerfile is included	pass	Dockerfile.baselines
 direct_external_baseline_entry	Direct baseline execution manifest is included	pass	direct_external_baseline_execution_manifest.tsv
+direct_external_baseline_container_run	tradeSeq, GSVA, AUCell and POT direct wrappers execute in Docker baseline runtime	pass	reproducibility_check_report.md
 reproducibility_report	Reproducibility check report is included	pass	reproducibility_check_report.md
 checksum_manifest	SHA256 processed-output manifest is included	pass	sha256_processed_outputs.tsv
 working_tree_clean	Release companion repository is clean at archived release tag	pass	ted-gb-rc1

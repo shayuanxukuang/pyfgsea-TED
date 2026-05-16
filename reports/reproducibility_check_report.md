@@ -1,28 +1,27 @@
 # Reproducibility Check Report
 
+Generated for the release companion repository after direct external baseline container validation.
+
 ## Check Summary
 
-| Check | Status | Exit code | Log |
-| --- | --- | ---: | --- |
-| py_compile_release_scripts | pass | 0 | `data_external\ted_development_reproducibility\check_logs\py_compile_release_scripts.log` |
-| ruff_check_release_scope | pass | 0 | `data_external\ted_development_reproducibility\check_logs\ruff_check_release_scope.log` |
-| direct_external_baseline_quick | pass | 0 | `data_external\ted_development_reproducibility\check_logs\direct_external_baseline_quick.log` |
-| quick_benchmark_suite | pass | 0 | `data_external\ted_development_reproducibility\check_logs\quick_benchmark_suite.log` |
-| reproduce_all_main_tables | pass | 0 | `data_external\ted_development_reproducibility\check_logs\reproduce_all_main_tables.log` |
-| reproduce_all_main_figures | pass | 0 | `data_external\ted_development_reproducibility\check_logs\reproduce_all_main_figures.log` |
-| ruff_check_full_repo_historical_debt | documented_non_gate | 1 | `data_external\ted_development_reproducibility\check_logs\ruff_check.log` |
+| Check | Status | Evidence |
+| --- | --- | --- |
+| Docker Desktop available | pass | `docker info` returned Docker Desktop server 29.4.3 |
+| Baseline image build | pass | `docker build -f Dockerfile.baselines -t ted-baselines:gb-rc2 .` completed |
+| Baseline container run | pass | `docker run --rm -v "G:\pyfgsea-TED-release:/workspace" -w /workspace ted-baselines:gb-rc2` completed |
+| tradeSeq wrapper | pass | `executed`, package version 1.24.0 |
+| GSVA wrapper | pass | `executed`, package version 2.4.4 |
+| AUCell wrapper | pass | `executed`, package version 1.32.0 |
+| POT wrapper | pass | `executed`, package version 0.9.6.post1 |
 
-## Artifact Summary
+## Output Files
 
-- Hashed processed outputs: 78
-- SHA256 manifest: `sha256_processed_outputs.tsv`
-- File manifest: `reproducibility_file_manifest.tsv`
+- `tables/direct_external_baseline_registry.tsv`
+- `tables/direct_external_baseline_execution_manifest.tsv`
+- `tables/direct_external_baseline_metric_table.tsv`
+- `tables/direct_external_baseline_to_ted_object_adapter.tsv`
+- `reports/direct_external_baseline_docker_report.md`
 
-## Reproduction Modes
+## Scope
 
-- Mode 1 minimal demo writes `demo_output_event_objects.tsv`, `demo_claim_ceiling.tsv` and `demo_report.md`.
-- Mode 2 table reproduction writes `reproduced_main_tables/`.
-- Mode 2 figure reproduction writes `reproduced_main_figures/`.
-- Direct external baseline execution writes package-status, metric and Docker report files under `direct_external_baseline/`.
-- Quick benchmark execution writes `quick_benchmark_run_manifest.tsv` and `quick_benchmark_run_report.md`.
-- Mode 3 full analysis remains long-running and is represented by dataset-specific scripts and manifests.
+`Dockerfile.baselines` is scoped to the direct external package comparison used for the Genome Biology baseline narrative. The broader full benchmark orchestration script remains available, but it requires the full processed benchmark input set and is not used as the baseline-container smoke test.

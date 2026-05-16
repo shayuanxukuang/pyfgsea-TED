@@ -217,6 +217,12 @@ def build_failure_modes(registry: pd.DataFrame) -> pd.DataFrame:
 
 def write_docker_report(outdir: Path, registry: pd.DataFrame, manifest: pd.DataFrame) -> None:
     docker_available = shutil.which("docker") is not None
+    def render_table(df: pd.DataFrame) -> str:
+        try:
+            return df.to_markdown(index=False)
+        except ImportError:
+            return df.to_csv(sep="\t", index=False).strip()
+
     report = [
         "# Direct External Baseline Docker Report",
         "",
@@ -227,22 +233,23 @@ def write_docker_report(outdir: Path, registry: pd.DataFrame, manifest: pd.DataF
         "",
         "- `Dockerfile.baselines` installs `environment.baselines.yml`.",
         "- The baseline environment includes R/Bioconductor tradeSeq, GSVA and AUCell plus Python POT.",
-        "- The local execution manifest records which packages were available in the current workstation environment.",
+        "- The execution manifest records direct package wrappers run in the active baseline runtime.",
+        "- When this report is generated inside the container, Docker CLI availability is expected to be false and is not used as a success criterion.",
         "",
         "## Reviewer commands",
         "",
         "```bash",
         "docker build -f Dockerfile.baselines -t ted-external-baselines .",
-        "docker run --rm -v \"$PWD/data_external:/workspace/data_external\" ted-external-baselines",
+        "docker run --rm -v \"$PWD:/workspace\" -w /workspace ted-external-baselines",
         "```",
         "",
-        "## Local execution summary",
+        "## Direct package execution summary",
         "",
-        registry[["method", "direct_package", "local_status", "package_version"]].to_markdown(index=False),
+        render_table(registry[["method", "direct_package", "local_status", "package_version"]]),
         "",
-        "## Commands executed locally",
+        "## Commands executed in the active runtime",
         "",
-        manifest[["method", "status", "exit_code", "runtime_seconds", "log"]].to_markdown(index=False),
+        render_table(manifest[["method", "status", "exit_code", "runtime_seconds", "log"]]),
         "",
     ]
     (outdir / "direct_external_baseline_docker_report.md").write_text("\n".join(report), encoding="utf-8")

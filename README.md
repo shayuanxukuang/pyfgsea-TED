@@ -25,17 +25,18 @@ This repository intentionally excludes article text, journal letters, compiled a
 ```bash
 python -m py_compile scripts/run_direct_external_baseline_suite.py scripts/run_full_benchmark_suite.py
 python scripts/run_direct_external_baseline_suite.py --quick
-python scripts/run_full_benchmark_suite.py --quick --keep-going
 ```
 
 ## Direct external baselines
 
 ```bash
 docker build -f Dockerfile.baselines -t ted-external-baselines .
-docker run --rm -v "$PWD/data_external:/workspace/data_external" ted-external-baselines
+docker run --rm -v "$PWD:/workspace" -w /workspace ted-external-baselines
 ```
 
-The local workstation used for the draft executed POT directly and recorded missing R/Bioconductor packages rather than substituting internal approximations. `Dockerfile.baselines` defines the complete reviewer-side baseline environment.
+The baseline container has been smoke-tested with the release scripts. The direct package wrappers executed successfully for tradeSeq 1.24.0, GSVA 2.4.4, AUCell 1.32.0 and POT 0.9.6.post1; see `tables/direct_external_baseline_registry.tsv` and `reports/direct_external_baseline_docker_report.md`.
+
+The broader `scripts/run_full_benchmark_suite.py` entry point is retained for project-level benchmark orchestration, but it expects the full processed benchmark input set. The baseline Dockerfile is intentionally scoped to the direct external package comparison.
 
 ## License
 

@@ -1,5 +1,5 @@
 method	direct_package	language	native_task	selected_for_main_comparison	local_status	package_version	docker_baseline_environment
-tradeSeq	tradeSeq	R/Bioconductor	trajectory gene dynamics	True	not_run_missing_R_package		Dockerfile.baselines + environment.baselines.yml
-GSVA	GSVA	R/Bioconductor	pathway activity scoring	True	not_run_missing_R_package		Dockerfile.baselines + environment.baselines.yml
-AUCell	AUCell	R/Bioconductor	sparse gene-set activity	False	not_run_missing_R_package		Dockerfile.baselines + environment.baselines.yml
-POT_OT	POT	Python	optimal transport state matching	True	executed	0.9.4	Dockerfile.baselines + environment.baselines.yml
+tradeSeq	tradeSeq	R/Bioconductor	trajectory gene dynamics	True	executed	1.24.0	Dockerfile.baselines + environment.baselines.yml
+GSVA	GSVA	R/Bioconductor	pathway activity scoring	True	executed	2.4.4	Dockerfile.baselines + environment.baselines.yml
+AUCell	AUCell	R/Bioconductor	sparse gene-set activity	False	executed	1.32.0	Dockerfile.baselines + environment.baselines.yml
+POT_OT	POT	Python	optimal transport state matching	True	executed	0.9.6.post1	Dockerfile.baselines + environment.baselines.yml
