@@ -2,8 +2,8 @@ audit_item	description	status	detail
 repository_remote	Git remote URL is configured	pass	https://github.com/shayuanxukuang/pyfgsea-TED.git
 fixed_commit	Release commit is recorded in GitHub release metadata	pass	resolved by tag ted-gb-rc6
 release_tag	Versioned release tag exists for archived code	pass	ted-gb-rc6
-permanent_code_archive	DOI-providing code archive exists	pass	https://doi.org/10.5281/zenodo.20224518
-permanent_processed_output_archive	Selected processed outputs, figure source data and tables are archived	pass	https://doi.org/10.5281/zenodo.20224518
+permanent_code_archive	DOI-providing code archive exists	pass	https://doi.org/10.5281/zenodo.20228741
+permanent_processed_output_archive	Selected processed outputs, figure source data and tables are archived	pass	https://doi.org/10.5281/zenodo.20228741
 osi_license	OSI-compliant license is present	pass	MIT License
 main_environment	Conda environment is included	pass	environment.yml
 baseline_environment	Direct external baseline conda environment is included	pass	environment.baselines.yml
