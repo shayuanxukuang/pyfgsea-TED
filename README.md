@@ -4,6 +4,10 @@ Public software/data companion for TED: an evidence-gated framework for dynamic 
 
 This repository intentionally excludes article manuscripts, cover letters, compiled submission PDFs, LaTeX submission packages, and journal-specific internal documents. It contains only code, configuration, tests, selected result tables, figure source data, and reproducibility manifests needed for archival release and review.
 
+## Archived release
+
+The manuscript-facing archived release is `ted-gb-rc7`, commit `3ffec1a1dcb4261303fc130b81ccd6b29a2fa34f`, archived at Zenodo DOI [10.5281/zenodo.20378158](https://doi.org/10.5281/zenodo.20378158). The release audit tables in `tables/` use this version-specific DOI and commit.
+
 ## Current release content
 
 - Core `pyfgsea`/TED Python package code.
@@ -13,6 +17,7 @@ This repository intentionally excludes article manuscripts, cover letters, compi
 - Direct external baseline wrappers and Docker/conda environments.
 - Machine-readable event-object, benchmark, claim-boundary, source-data and release-audit tables.
 - Main figure PDFs/PNGs and source-data TSV files.
+- Benchmark audit table with truth sources, scored units, uncertainty reporting, frozen status and threshold-optimization role.
 
 ## Not included
 

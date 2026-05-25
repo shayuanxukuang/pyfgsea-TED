@@ -1,6 +1,6 @@
 benchmark_dimension	TED_value	simpler_baseline_value	interpretation	source_table
 Event signal recovery	0.945	0.876	Both detect dynamic signal, but TED remains competitive while adding event-and-claim auditing.	phase4_6_baseline_metric_table.tsv mean across six benchmark tasks; TED-Development vs score_smooth_baseline
-Event-type accuracy	0.923	0.364	TED interprets detected signals as event modes rather than only smoothed activity changes.	phase4_6_baseline_metric_table.tsv mean across six benchmark tasks; TED-Development vs score_smooth_baseline
+Event-mode accuracy	0.923	0.364	TED interprets detected signals as event modes rather than only smoothed activity changes.	phase4_6_baseline_metric_table.tsv mean across six benchmark tasks; TED-Development vs score_smooth_baseline
 Artifact rejection	0.910	0.409	TED rejects control-driven artifacts more effectively than score-smooth event calling.	phase4_6_baseline_metric_table.tsv mean across six benchmark tasks; TED-Development vs score_smooth_baseline
 Overclaim rate	0.039	0.400	TED's claim boundary and evidence gates reduce claim inflation.	phase4_6_baseline_metric_table.tsv mean across six benchmark tasks; TED-Development vs score_smooth_baseline
 Low-signal adversarial overclaim rate	0.030	0.455	In signal_strength=0.1 stress tests, TED keeps overclaiming low while score-then-smooth frequently overclaims.	phase4_5_performance_ci.tsv; signal_strength=0.1; TED-Development vs score_then_smooth

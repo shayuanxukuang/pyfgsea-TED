@@ -1,6 +1,6 @@
 resource	url	http_status	resolved_url	accessible	release_or_version	commit	license_or_note
-Zenodo concept DOI	https://doi.org/10.5281/zenodo.20228741	200	https://zenodo.org/records/20228741	True	concept_doi_current	final version-specific DOI to be minted after deposition	
-GitHub source repository	https://github.com/shayuanxukuang/pyfgsea-TED	200	https://github.com/shayuanxukuang/pyfgsea-TED	True	final_tag_pending_external_deposit	final commit pending external deposit	MIT
+Zenodo version DOI	https://doi.org/10.5281/zenodo.20378158	200	https://zenodo.org/records/20378158	True	version_doi_current	version-specific DOI minted for ted-gb-rc7	
+GitHub source repository	https://github.com/shayuanxukuang/pyfgsea-TED	200	https://github.com/shayuanxukuang/pyfgsea-TED	True	ted-gb-rc7	3ffec1a1dcb4261303fc130b81ccd6b29a2fa34f	MIT
 GSE271399	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE271399			True			
 GSE202639	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE202639			True			
 GSE157977	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE157977			True			

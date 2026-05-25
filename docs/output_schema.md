@@ -34,7 +34,7 @@ Important columns:
 
 - `closest_baseline`: the most relevant task-specific existing-method proxy.
 - `TED_additional_object`: what TED contributes beyond the baseline output.
-- `event_type_accuracy_mean`: whether the method distinguishes delay, loss, artifact, lag, or lineage mode.
+- `event_mode_accuracy_mean`: whether the method distinguishes delay, loss, artifact, lag, or lineage mode.
 - `overclaim_rate_mean`: estimated rate of stronger-than-supported claims.
 - `coverage_fraction`: fraction of TED object capabilities natively covered by the method.
 
