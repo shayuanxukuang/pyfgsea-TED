@@ -1,0 +1,99 @@
+immune_evasion_antigen_presentation:
+  role: primary_event_axis
+  expected_direction: perturbation_specific
+  positive_markers:
+    - HLA-A
+    - HLA-B
+    - HLA-C
+    - B2M
+    - TAP1
+    - TAP2
+    - PSMB8
+    - PSMB9
+    - NLRC5
+  protein_outcomes:
+    - HLA_A
+    - CD274
+    - CD58
+
+ifn_jak_stat_response:
+  role: primary_event_axis
+  expected_direction: perturbation_specific
+  positive_markers:
+    - IFIT1
+    - IFIT2
+    - IFIT3
+    - ISG15
+    - IRF1
+    - STAT1
+    - CXCL10
+    - CXCL9
+    - JAK1
+    - JAK2
+    - IFNGR1
+    - IFNGR2
+  protein_outcomes:
+    - CD119
+    - CD274
+    - HLA_A
+
+t_cell_interaction_or_cytokine_response:
+  role: primary_event_axis
+  expected_direction: perturbation_specific
+  positive_markers:
+    - CXCL9
+    - CXCL10
+    - CCL5
+    - ICAM1
+    - CD274
+    - CD58
+  protein_outcomes:
+    - CD274
+    - CD58
+    - CD47
+    - CD59
+
+melanoma_state_or_stress_control:
+  role: control_or_covariate_axis
+  expected_direction: control
+  positive_markers:
+    - MITF
+    - MLANA
+    - PMEL
+    - TYR
+    - SOX10
+    - HSPA1A
+    - HSP90AA1
+    - JUN
+    - FOS
+  protein_outcomes:
+    - CD44
+    - CD47
+
+negative_controls:
+  ribosome:
+    positive_markers:
+      - RPL3
+      - RPL4
+      - RPL5
+      - RPL7
+      - RPS3
+      - RPS6
+      - RPS8
+      - RPS12
+  mitochondrial:
+    positive_markers:
+      - MT-CO1
+      - MT-CO2
+      - MT-CO3
+      - MT-CYB
+      - MT-ND1
+      - MT-ND2
+      - MT-ATP6
+  housekeeping:
+    positive_markers:
+      - ACTB
+      - GAPDH
+      - PPIA
+      - RPLP0
+      - B2M

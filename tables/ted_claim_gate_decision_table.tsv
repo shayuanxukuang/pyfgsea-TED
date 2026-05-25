@@ -1,0 +1,9 @@
+evidence_tier	required_gate	primary_fields_checked	allowed_wording	forbidden_wording
+tier_descriptive_trend	activity/effect estimate exists	none	descriptive trend only	mechanism, robust event, functional claim
+tier_event_FDR_supported	event-FDR <= 0.10 and gene-set/module retained	event_q; detected gene count	event-supported signal	block-robust or mechanistic claim
+tier_scaffold_or_adapter_candidate	valid annotation, matrix scaffold or adapter evidence, but incomplete full TED design	runability grade; missing required fields	scaffold or adapter candidate	full event mechanism
+tier_robust_event	event-supported tier plus >=3 effective blocks and block q <= 0.10 or CI excluding zero, with direction stability >=0.80	n_blocks; block_q; CI; direction_stability	block/replicate/time robust event	functional causality
+tier_computational_mechanism_candidate	robust-event tier plus perturbation, lineage, multiome, matched-state or external directional support and negative-control margin > 0	perturbation evidence; matched-state pass; negative-control margin	computational mechanism candidate	rescue-validated causal mechanism
+tier_matched_functional_validation	matched functional rescue or intervention in the relevant system restores predicted axes and passes negative controls	rescue contrast; targeted RNA/flow/functional readout	functional validation in tested system	independently replicated causal mechanism
+tier_public_functional_style_alignment	public rescue/restoration-like contrast aligns with TED predicted rescue direction but is not the matched primary rescue	public contrast map; axis reversal; control margin	public functional-style alignment candidate	matched functional validation
+tier_independent_causal_replication	matched validation plus independent replication or orthogonal causal validation	independent replicate; orthogonal assay	independently replicated causal mechanism	unqualified universal mechanism

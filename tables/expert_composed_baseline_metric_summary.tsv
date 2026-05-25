@@ -1,0 +1,4 @@
+method	event_recovery_mean	event_mode_accuracy_mean	artifact_rejection_mean	overclaim_rate_mean	block_generalization_mean	interpretation
+TED-Development	0.948	0.922	0.913	0.036	0.887	full auditable event-object framework
+expert_composed_best_practice	0.928	0.751	0.877	0.141	0.617	composed upper-bound baseline from upstream signal, block, matched-state, negative-control and manual claim-rule components
+score_then_smooth	0.876	0.364	0.409	0.4	0.494	minimal signal-detection baseline

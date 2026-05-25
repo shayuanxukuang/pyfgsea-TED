@@ -9,7 +9,6 @@ dependencies:
   - scipy>=1.13
   - scikit-learn>=1.7
   - statsmodels>=0.14
-  - tabulate>=0.9
   - pot>=0.9
   - r-base>=4.4
   - r-essentials

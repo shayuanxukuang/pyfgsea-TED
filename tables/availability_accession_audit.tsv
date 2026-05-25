@@ -1,0 +1,13 @@
+resource	url	http_status	resolved_url	accessible	release_or_version	commit	license_or_note
+Zenodo concept DOI	https://doi.org/10.5281/zenodo.20228741	200	https://zenodo.org/records/20228741	True	concept_doi_current	final version-specific DOI to be minted after deposition	
+GitHub source repository	https://github.com/shayuanxukuang/pyfgsea-TED	200	https://github.com/shayuanxukuang/pyfgsea-TED	True	final_tag_pending_external_deposit	final commit pending external deposit	MIT
+GSE271399	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE271399			True			
+GSE202639	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE202639			True			
+GSE157977	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE157977			True			
+GSE123013	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE123013			True			
+GSE155254	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE155254			True			
+GSE93735	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE93735			True			
+GSE137412	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE137412			True			
+GSE292039	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE292039			True			
+STOmicsDB STT0000176	https://db.cngb.org/stomics/project/STT0000176/spatialGeneExpression			True			
+CNGB CNP0005964	https://db.cngb.org/data_resources/project/CNP0005964			True			

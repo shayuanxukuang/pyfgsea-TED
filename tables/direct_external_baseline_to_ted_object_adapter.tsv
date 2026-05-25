@@ -1,4 +1,0 @@
-direct_method	native_output	ted_adapter_input	ted_object_fields_added
-tradeSeq	gene-level pseudotime dynamics	gene/module dynamic statistic	pathway-family compression;event_mode;negative_controls;claim_ceiling
-GSVA/AUCell	sample/cell gene-set activity	module score matrix	event-FDR;artifact audit;block gates;claim_ceiling
-POT	optimal-transport coupling and matched-state effect	matched event delta	event_mode;family support;claim_ceiling;forbidden claim

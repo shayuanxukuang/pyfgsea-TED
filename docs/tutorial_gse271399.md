@@ -23,8 +23,8 @@ GSE271399 is the disease-relevant TED mechanism benchmark. It links GATA1s/T21 c
 The appropriate current level is:
 
 ```text
-maximum Level 3.5: block-robust, counterfactual-supported, mediation-supported,
-prioritized candidate for future functional testing
+Level 3.5+: block-robust, counterfactual-supported, mediation-supported,
+wet-lab-design-ready mechanistic candidate
 ```
 
 It should not be promoted to Level 4 until full-length GATA1 rescue plus targeted RNA, flow, or hemoglobinization recovery is completed.

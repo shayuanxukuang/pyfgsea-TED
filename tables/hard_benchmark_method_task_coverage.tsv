@@ -1,0 +1,9 @@
+method_or_adapter	native_task	same_input_supported	native_signal_available	event_mode_available	artifact_gate_available	block_robustness_available	claim_boundary_available	interpretation
+TED-Development	event-and-claim layer	True	True	True	True	True	True	Primary method for TED-object task.
+score_then_smooth	module score smoothing	True	True	False	False	False	False	Detects signal but does not define event-mode or claim boundary.
+trajectory_GAM_like/tradeSeq	trajectory gene dynamics	True	True	False	False	False	False	Strong native trajectory-DE task; TED consumes or compares downstream summaries.
+GSVA/pathway_activity_smoothing	pathway activity scoring	True	True	False	False	False	False	Scores modules/pathways but does not natively gate claims.
+AUCell	sparse gene-set activity	True	True	False	False	False	False	Sparse module activity; no event object by itself.
+OT_matched_state_contrast/POT	state matching / optimal transport	True	True	False	True	False	False	Useful matching component, not full event-and-claim output.
+fate_lineage_association/CellRank-like	fate probability association	True	True	True	False	False	False	Can support fate-associated signals; not a claim-boundary engine.
+block_mixed_model_baseline	block-aware signal testing	True	True	False	True	True	False	Handles block structure but lacks event-mode/claim permission.

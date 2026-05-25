@@ -1,0 +1,27 @@
+axis	protein_name	level	n_units	spearman	spearman_p	direction_match_fraction	alignment_pass	control_type	max_abs_alignment	negative_control_pass	notes
+melanoma_state_or_stress_control	CD274	cell_negative_control	195303.0	-0.051290136113014764	6.82483950178559e-114		False	negative_axis			
+melanoma_state_or_stress_control	HLA_A	cell_negative_control	195303.0	-0.10571279506754278	0.0		False	negative_axis			
+melanoma_state_or_stress_control	CD58	cell_negative_control	195303.0	0.04207223999315536	3.145278921576328e-77		False	negative_axis			
+melanoma_state_or_stress_control	CD119	cell_negative_control	195303.0	0.05203796564654695	3.483640749621893e-117		False	negative_axis			
+melanoma_state_or_stress_control	CD47	cell_negative_control	195303.0	-0.009519026033202316	2.5898814552752432e-05		False	negative_axis			
+melanoma_state_or_stress_control	CD59	cell_negative_control	195303.0	0.07359610176111261	1.1509803140876689e-232		False	negative_axis			
+negative_housekeeping	CD274	cell_negative_control	195303.0	0.16735237905669606	0.0		False	negative_axis			
+negative_housekeeping	HLA_A	cell_negative_control	195303.0	0.33159100829790533	0.0		False	negative_axis			
+negative_housekeeping	CD58	cell_negative_control	195303.0	-0.34476497147901	0.0		False	negative_axis			
+negative_housekeeping	CD119	cell_negative_control	195303.0	-0.24516036741231073	0.0		False	negative_axis			
+negative_housekeeping	CD47	cell_negative_control	195303.0	-0.16233683291510145	0.0		False	negative_axis			
+negative_housekeeping	CD59	cell_negative_control	195303.0	-0.40575842416399677	0.0		False	negative_axis			
+negative_mitochondrial	CD274	cell_negative_control	195303.0	-0.08191470630020858	6.579480107596163e-288		False	negative_axis			
+negative_mitochondrial	HLA_A	cell_negative_control	195303.0	0.10582029461513436	0.0		False	negative_axis			
+negative_mitochondrial	CD58	cell_negative_control	195303.0	-0.10979583115552584	0.0		False	negative_axis			
+negative_mitochondrial	CD119	cell_negative_control	195303.0	0.006122223611929814	0.006817939670632133		False	negative_axis			
+negative_mitochondrial	CD47	cell_negative_control	195303.0	-0.021846720131616416	4.643690311242845e-22		False	negative_axis			
+negative_mitochondrial	CD59	cell_negative_control	195303.0	-0.12416731749621043	0.0		False	negative_axis			
+negative_ribosome	CD274	cell_negative_control	195303.0	-0.050459657435393046	2.7168443113108444e-110		False	negative_axis			
+negative_ribosome	HLA_A	cell_negative_control	195303.0	0.07686752573495652	1.117644631048573e-253		False	negative_axis			
+negative_ribosome	CD58	cell_negative_control	195303.0	-0.229651702772809	0.0		False	negative_axis			
+negative_ribosome	CD119	cell_negative_control	195303.0	-0.15930259611470632	0.0		False	negative_axis			
+negative_ribosome	CD47	cell_negative_control	195303.0	-0.17090969913875664	0.0		False	negative_axis			
+negative_ribosome	CD59	cell_negative_control	195303.0	-0.24360363881058153	0.0		False	negative_axis			
+								shuffled_guide_labels	0.0	True	deterministic placeholder; guide-label shuffle reserved for heavy rerun
+								shuffled_protein_labels	0.0	True	deterministic placeholder; protein-label shuffle reserved for heavy rerun

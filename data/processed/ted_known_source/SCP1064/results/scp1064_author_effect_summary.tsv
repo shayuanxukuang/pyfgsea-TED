@@ -1,0 +1,5 @@
+axis	max_abs_spearman	mean_direction_match	n_matrices	author_effect_support
+ifn_jak_stat_response	0.45610857424827494	0.5953016727036965	3	True
+immune_evasion_antigen_presentation	0.3790681952469826	0.6084553104557845	3	True
+melanoma_state_or_stress_control	0.3085633313240798	0.5488468405853703	3	True
+t_cell_interaction_or_cytokine_response	0.583574835713111	0.6180182055150981	3	True

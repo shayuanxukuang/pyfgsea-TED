@@ -1,0 +1,3 @@
+dataset	axis	candidate_event	role	activation_score	n_detected_genes
+GSE93735	lps_proinflammatory_axis	LPS_inflammatory_activation	primary_positive_reversal_axis	5.321634280081405	15
+GSE93735	chemokine_cytokine_axis	LPS_inflammatory_activation	secondary_positive_reversal_axis	5.688824923746889	13

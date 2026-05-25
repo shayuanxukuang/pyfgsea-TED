@@ -1,6 +1,6 @@
 # TED release-candidate Python dependency snapshot.
-# Generated from the local release/reproducibility environment used for the
-# current submission package. This is intentionally separate from
+# Captured from the tested reproducibility environment for this release
+# candidate. This is intentionally separate from
 # `environment.yml`, which remains a more portable conda environment.
 #
 # Tested Python: 3.12.7

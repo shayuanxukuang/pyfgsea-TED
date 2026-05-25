@@ -1,0 +1,22 @@
+parameter	default_value	scope	notes
+minimum_detected_genes_per_gene_set	3	Gene-set/module retention	Gene sets with fewer detected genes are recorded as unavailable rather than tested.
+minimum_cells_per_condition_bin	30	Trajectory/time-bin event testing	Bins below this threshold are excluded from event-FDR and reported as low identifiability.
+default_window_cell_count	200	Rolling trajectory windows	Adaptive windows may use 100-500 cells; selected values are recorded in output manifests.
+default_pseudotime_window_span	0.10	Rolling trajectory windows	Span is expressed on normalized pseudotime from 0 to 1.
+default_window_step_fraction	0.50	Rolling trajectory windows	Adjacent windows overlap unless an analysis is explicitly time-bin based.
+matched_state_smd_threshold	0.20	Matched-state comparability	Covariate standardized mean differences above this threshold trigger downgrade or low-overlap status.
+minimum_effective_blocks	3	Block-robust event gate	Samples, embryos, donors, libraries or guide blocks are counted as blocks depending on design.
+default_block_permutations	1000	General block permutation FDR	High-priority family analyses may use more permutations; GSE271399 family block FDR used 5000.
+gse271399_family_block_permutations	5000	Primary GSE271399 family block permutation	Recorded in gse271399_family_block_permutation_fdr.tsv.
+bootstrap_resamples	1000	Block confidence intervals and stability summaries	Used when raw block-level effects are available; held-out summaries are used for adapter datasets.
+event_fdr_threshold	0.10	event-supported tier event-supported gate	Events above this threshold may remain descriptive or scaffold-level candidates.
+block_perm_q_threshold	0.10	robust-event tier block-robust gate	Must be combined with direction stability or confidence interval support.
+direction_stability_threshold	0.80	Block and variant stability gate	Fraction of bootstrap, held-out or variant estimates with the primary direction.
+negative_control_margin_threshold	0.00	Negative-control audit	Primary event effect must exceed matched random, housekeeping, stress/proliferation or not-comparable controls.
+artifact_attenuation_threshold	0.50	Composition-artifact classifier	If matched-state adjustment removes at least half of the raw effect, the event is downgraded or labeled artifact-sensitive.
+delay_peak_shift_bins	1	Developmental-delay event mode	Perturbed peak must shift later by at least one ordered time/pseudotime bin.
+late_recovery_fraction	0.30	Delay versus true-loss distinction	Late partial recovery above this fraction supports delay rather than permanent loss.
+family_gene_overlap_jaccard	0.25	Family compression	Overlapping gene sets above this Jaccard threshold can be merged if event direction is concordant.
+family_profile_correlation	0.60	Family compression	Dynamic profiles above this correlation can be grouped into the same event family.
+low_identifiability_cutoff	0.25	Identifiability score	Below this product score, absence of signal is interpreted as not identifiable rather than negative.
+high_identifiability_cutoff	0.50	Identifiability score	Above this product score, event calls can pass regular boundary gates if other evidence is present.

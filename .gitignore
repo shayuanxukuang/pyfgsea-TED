@@ -7,9 +7,14 @@ __pycache__/
 *.out
 *.fls
 *.fdb_latexmk
-data/
-data_external/raw/
 *.h5ad
 *.tar
 *.tar.gz
 *.zip
+GenomeBiology*/
+NCS*/
+latex_submission_package/
+*_submission_package/
+*manuscript*
+*cover_letter*
+*supplementary_information*

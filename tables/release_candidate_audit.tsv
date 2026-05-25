@@ -1,0 +1,15 @@
+audit_item	description	status	detail
+repository_remote	Git remote URL is configured	pass	https://github.com/shayuanxukuang/pyfgsea-TED.git
+submission_package_version	Current manuscript package version is recorded	pass	TED-GB-known-source-2026-05-25
+archived_software_version	Version-specific GitHub/Zenodo release for formal submission	pending_external_deposit	Record final release tag, commit and version DOI after GitHub/Zenodo deposition
+permanent_code_archive	Public Zenodo concept DOI exists	available	https://doi.org/10.5281/zenodo.20228741
+permanent_processed_output_archive	Submission machine-readable ZIP contains selected processed outputs, figure source data and tables	included_in_submission_package	Final Zenodo version DOI should point to the same files
+osi_license	OSI-compliant license is present	pass	MIT License
+main_environment	Conda environment is included	pass	environment.yml
+baseline_environment	Direct external baseline conda environment is included	pass	environment.baselines.yml
+main_container_recipe	Main Dockerfile is included	pass	Dockerfile
+baseline_container_recipe	Direct external baseline Dockerfile is included	pass	Dockerfile.baselines
+direct_external_baseline_entry	Direct baseline execution manifest is included	pass	direct_external_baseline_execution_manifest.tsv
+reproducibility_report	Reproducibility check report is included	pass	reproducibility_check_report.md
+checksum_manifest	SHA256 processed-output manifest is included	pass	sha256_processed_outputs.tsv
+upload_package_manifest	Upload package manifest records submitted files	pass	upload_package_manifest.tsv

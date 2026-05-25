@@ -1,0 +1,46 @@
+stress_axis:
+  genes:
+    - HSPA1A
+    - HSPA1B
+    - HSP90AA1
+    - DNAJB1
+    - JUN
+    - FOS
+    - ATF3
+    - DDIT3
+
+ribosome_axis:
+  genes:
+    - RPL3
+    - RPL4
+    - RPL5
+    - RPL7
+    - RPL8
+    - RPL10
+    - RPL13A
+    - RPS3
+    - RPS6
+    - RPS8
+    - RPS12
+    - RPS18
+
+mitochondrial_axis:
+  genes:
+    - MT-CO1
+    - MT-CO2
+    - MT-CO3
+    - MT-CYB
+    - MT-ND1
+    - MT-ND2
+    - MT-ND3
+    - MT-ATP6
+
+random_matched_gene_sets:
+  n_sets: 100
+  set_size: 20
+  expression_matched: false
+
+expression_matched_random_gene_sets:
+  n_sets: 100
+  set_size: 20
+  expression_matched: true

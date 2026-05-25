@@ -43,4 +43,4 @@ Important columns:
 - `main_table_manifest.tsv`: source-to-main-table map.
 - `main_figure_manifest.tsv`: source-to-main-figure map.
 
-These manifests are intended as the audit trail between raw Phase 4 outputs and release-ready artifacts.
+These manifests are intended as the audit trail between raw Phase 4 outputs and manuscript-ready artifacts.

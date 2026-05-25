@@ -1,0 +1,9 @@
+dataset	input_type	ted_role	what_ted_found	what_ted_blocked	placement
+GSE271399	trajectory hematopoiesis	main event-interpretation case study	erythroid event-loss candidate with block and matched-state support	functional causality or rescue-validated disease mechanism	main text
+ZSCAPE	perturbation, real time and embryo/block summaries	event-mode utility case	delay, loss, redirection and mixed event-mode classes	new perturbation-specific causal mechanisms from summary-level holdouts	main text
+GSE157977	in vivo Perturb-seq adapter	locked independent adapter validation	9 guide-level candidates, 10 downgraded and 22 rejected/control-sensitive outcomes	validated ASD/NDD neural fate mechanisms	main text
+plant multiome/RNA-ATAC scaffold	RNA/ATAC scaffold or matrix-level multiome	supplementary format-ingestion and downgrade case	RNA/peak-layer candidate and missing-evidence record	chromatin-first developmental mechanism without same-cell/null-gated evidence	supplement
+GSE123013	Arabidopsis root mutant scRNA-seq	supplementary boundary-audit case	fate-like signal attenuated by stress/wound controls	strong root-hair causal mechanism	supplement
+STT0000176 Bombyx wing disc	Stereo-seq tissue GEM plus spatial bin metadata	supplementary non-mammalian spatial/trajectory localization benchmark	ECM/cuticle localization; supportive 20E windows	direct hormonal causality or new metamorphosis mechanism from enrichment alone	supplement
+GSE155254	negative-control/not-comparable design	rejection and artifact-control case	not-comparable or rejected developmental event claims	developmental mechanism	supplement
+public rescue-style gate	bulk/proxy public functional-style contrast	functional-style upgrade audit	axis coverage and mapping recorded; upgrade blocked when alignment fails	substitute for matched rescue in the primary system	supplement

@@ -1,0 +1,2 @@
+dataset	claim_boundary	status	reason	matched_rescue_design	same_system	level4_causal_rescue
+GSE153056	outcome_supported_event	pass	baseline_effect=0.03327; spearman_event_pdl1=0.7846; direction_match=0.769; negative_controls=True	False	False	False

@@ -1,0 +1,4 @@
+metric_type	examples	why_not_circular	evaluation_use
+ground_truth_correctness	synthetic event mode; synthetic artifact label; stress-null rejection	truth labels are generated outside TED outputs and are fixed before scoring	event-mode accuracy, artifact rejection and low-signal downgrade behavior
+held_out_or_locked_behavior	ZSCAPE held-out perturbation/time/block units; GSE157977 locked adapter validation	split units, event families, negative controls and boundary gates are fixed before interpretation	event-mode preservation, candidate/downgrade/rejection counts and claim-boundary behavior
+reporting_completeness	event mode, block support, negative-control margin, missing evidence and supported/unsupported interpretation fields	evaluated as an auditable reporting layer, not as native-task superiority over upstream tools	whether a reader can audit a biological event claim from the output table

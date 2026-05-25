@@ -1,0 +1,3 @@
+dataset	axis	candidate_event	role	reversal_score	reversal_fraction	reversal_class
+GSE93735	lps_proinflammatory_axis	LPS_inflammatory_activation	primary_positive_reversal_axis	1.79599067843783	0.3374885578214437	partial_reversal
+GSE93735	chemokine_cytokine_axis	LPS_inflammatory_activation	secondary_positive_reversal_axis	2.078645453486846	0.365391004530645	partial_reversal

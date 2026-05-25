@@ -1,0 +1,7 @@
+dataset	specificity_vs_random	specificity_vs_stress	specificity_vs_ribosome	specificity_vs_mitochondrial	negative_control_pass	negative_control_pass_rate	primary_max_abs_alignment	negative_max_abs_alignment	lightweight_shuffle_max_abs_null	lightweight_shuffle_pass	heavy_shuffle_status	lightweight_shuffle_n_gate_pairs
+GSE133344	not_computed_in_lightweight_run	not_available	not_available	not_available	False	0.0						
+GSE153056	not_computed_in_lightweight_run	available	available	available	True	1.0						
+GSE90063	not_computed_in_lightweight_run	not_available	not_available	not_available	False	0.0						
+GSE90546	not_computed_in_lightweight_run	not_available	not_available	not_available	False	0.0						
+GSE93735	not_computed_in_lightweight_run	not_available	available	not_available	True	1.0						
+SCP1064	completed_lightweight_label_shuffle_pass	covered_by_melanoma_state_or_stress_control	pass	pass	True		0.5650246315588918	0.4057584241639967	0.2330053222039284	True	deferred_exhaustive_heavy_shuffle	15

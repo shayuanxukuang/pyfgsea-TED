@@ -1,0 +1,7 @@
+machine_readable_boundary	manuscript_evidence_tier	meaning	not_equivalent_to
+robust_event	block/replicate/time robust event	robust event without outcome validation	causality
+known_source_supported_event	perturbation-supported computational candidate	known source and expected direction pass	functional validation
+outcome_supported_event	orthogonal outcome-supported event	event aligns with protein or other outcome readout	matched rescue
+reversal_supported_event	public intervention/reversal-supported event	intervention reverses or attenuates event	primary-system rescue unless same system
+cross_dataset_supported_event	cross-dataset computational mechanism support	independent direction support	matched functional validation
+level4_causal_rescue	matched functional validation in relevant system	same-system matched rescue plus phenotype restoration	public proxy or cross-dataset support alone

@@ -1,0 +1,37 @@
+robust_event:
+  requires:
+    q_value_max: 0.05
+    direction_stability_min: 0.8
+    block_support_min: 0.6
+    negative_control_pass: true
+
+known_source_supported_event:
+  requires:
+    robust_event: true
+    expected_direction_match: true
+    known_source_metadata: true
+
+outcome_supported_event:
+  requires:
+    known_source_supported_event: true
+    outcome_alignment_pass: true
+
+reversal_supported_event:
+  requires:
+    robust_event: true
+    intervention_reversal_pass: true
+    negative_control_reversal_pass: true
+
+cross_dataset_supported_event:
+  requires:
+    primary_event_robust: true
+    independent_dataset_direction_consistency_min: 0.6
+    no_global_negative_control_failure: true
+
+level4_causal_rescue:
+  requires:
+    matched_rescue_design: true
+    same_system: true
+    event_family_restoration: true
+    phenotype_restoration: true
+    negative_control_pass: true

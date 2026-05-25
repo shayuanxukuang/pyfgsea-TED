@@ -1,0 +1,13 @@
+file_name	exists	readable	size_bytes	qc_status	notes
+all_sgRNA_assignments.txt	True	True	5430572	pass	read_ok
+RNA_metadata.csv	True	True	12221677	pass	read_ok
+RNA_UMAP_cluster.csv	True	True	6974854	pass	read_ok
+Protein_expression.csv.gz	True	True	5494738	pass	gzip_ok
+raw_CITE_expression.csv.gz	True	True	3685393	pass	gzip_ok
+frangieh_2021_rna.h5ad	True	True	1458928348	pass	h5ad_ok
+frangieh_2021_protein.h5ad	True	True	24714445	pass	h5ad_ok
+untreated_regulatory_matrix.csv	True	True	9550025	pass	read_ok
+treated_regulatory_matrix.csv	True	True	10550769	pass	read_ok
+cocx_regulatory_matrix.csv	True	True	10400533	pass	read_ok
+Fig4C_pvals_heatmap_values.csv	True	True	5127404	pass	read_ok
+file_supplemental_info.tsv	True	True	1082	pass	read_ok

@@ -1,0 +1,4 @@
+dataset	negative_control	max_abs_effect_size	negative_control_pass
+GSE153056	stress_axis	0.16461766109030557	True
+GSE153056	ribosome_axis	0.5754900168518629	True
+GSE153056	mitochondrial_axis	0.31594033718210224	True

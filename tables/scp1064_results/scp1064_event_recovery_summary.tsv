@@ -1,0 +1,5 @@
+axis	n_targets	n_significant_targets	max_abs_effect	median_direction_stability	robust_event	known_source_metadata
+ifn_jak_stat_response	246	6	0.2956979171484814	0.6666666666666666	True	True
+immune_evasion_antigen_presentation	246	13	0.6784162031259166	0.6666666666666666	True	True
+melanoma_state_or_stress_control	246	2	0.09545916787406294	0.6666666666666666	True	True
+t_cell_interaction_or_cytokine_response	246	10	0.23269368209874886	0.6666666666666666	True	True

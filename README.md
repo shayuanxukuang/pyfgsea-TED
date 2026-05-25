@@ -1,47 +1,43 @@
 # pyfgsea-TED
 
-This repository contains the code, benchmark entry points, selected result tables and figure source data for TED: a claim-aware framework for dynamic pathway event interpretation in single-cell genomics.
+Public software/data companion for TED: an evidence-gated framework for dynamic pathway event interpretation in single-cell genomics.
 
-Archived release DOI: [10.5281/zenodo.20228741](https://doi.org/10.5281/zenodo.20228741)
+This repository intentionally excludes article manuscripts, cover letters, compiled submission PDFs, LaTeX submission packages, and journal-specific internal documents. It contains only code, configuration, tests, selected result tables, figure source data, and reproducibility manifests needed for archival release and review.
 
-TED converts dynamic single-cell pathway/module signals into auditable event-and-claim objects. A TED event object records effect direction, event-FDR, block robustness, matched-state evidence, negative-control behavior, event mode, identifiability and claim ceiling.
+## Current release content
 
-## What is included
+- Core `pyfgsea`/TED Python package code.
+- Known-source validation scripts for GSE153056, GSE93735 and SCP1064.
+- SCP1064 lightweight label-shuffle audit (`scripts/223_run_scp1064_lightweight_shuffles.py`) and result tables.
+- GATA1/GATA1s cross-dataset support scripts and tables.
+- Direct external baseline wrappers and Docker/conda environments.
+- Machine-readable event-object, benchmark, claim-boundary, source-data and release-audit tables.
+- Main figure PDFs/PNGs and source-data TSV files.
 
-- Core Python package code under `pyfgsea/`.
-- Benchmark and baseline scripts under `scripts/`.
-- Direct external baseline wrappers for tradeSeq, GSVA, AUCell and POT under `scripts/baselines/`.
-- Conda and Docker environments, including `Dockerfile.baselines`.
-- Selected machine-readable result tables under `tables/`.
-- Main figure images and source data under `figures/`.
-- Reproducibility and release audit reports under `reports/`.
+## Not included
 
-## What is not included
+- Manuscript text or PDFs.
+- Cover letters.
+- Supplementary Information PDFs or LaTeX submission packages.
+- Large raw public datasets; raw data remain available from GEO/SCP/STOmicsDB/CNGB accessions listed in the manifests.
 
-This repository intentionally excludes article text, journal letters, compiled article PDFs, and submission-specific documents. It is intended as a software/data companion suitable for archival release.
-
-## Quick checks
-
-```bash
-python -m py_compile scripts/run_direct_external_baseline_suite.py scripts/run_full_benchmark_suite.py
-python scripts/run_direct_external_baseline_suite.py --quick
-```
-
-## Direct external baselines
+## Quick validation
 
 ```bash
-docker build -f Dockerfile.baselines -t ted-external-baselines .
-docker run --rm -v "$PWD:/workspace" -w /workspace ted-external-baselines
+python -m pytest tests/test_scp1064_file_qc.py tests/test_scp1064_cell_alignment.py tests/test_scp1064_event_outcome_alignment.py tests/test_scp1064_claim_boundary.py tests/test_ted_known_source_validation.py
 ```
 
-The baseline container has been smoke-tested with the release scripts. The direct package wrappers executed successfully for tradeSeq 1.24.0, GSVA 2.4.4, AUCell 1.32.0 and POT 0.9.6.post1; see `tables/direct_external_baseline_registry.tsv` and `reports/direct_external_baseline_docker_report.md`.
+## Key outputs
 
-The broader `scripts/run_full_benchmark_suite.py` entry point is retained for project-level benchmark orchestration, but it expects the full processed benchmark input set. The baseline Dockerfile is intentionally scoped to the direct external package comparison.
+- `tables/ted_dataset_level_claim_boundary.tsv`
+- `tables/scp1064_lightweight_shuffle_summary.tsv`
+- `tables/scp1064_specificity_summary.tsv`
+- `tables/known_source_boundary_mapping.tsv`
+- `tables/dynamic_pathway_event_table.tsv`
+- `figures/figure2_known_source_validation.pdf`
+- `figures/figure4_gse271399_gata1_cross_dataset_support.pdf`
+- `figures/figure5_claim_upgrade_block_audit.pdf`
 
 ## License
 
 MIT License.
-
-## Remote
-
-Prepared for: https://github.com/shayuanxukuang/pyfgsea-TED.git

@@ -1,0 +1,8 @@
+event_type	minimum_boundary	upgrade_evidence	supported_interpretation_template	unsupported_interpretation_template	n_rows
+onset	tier_event_FDR_supported	block/branch support plus negative-control margin	pathway onset event	causal initiation mechanism	8
+peak	tier_event_FDR_supported	dynamic gain over static baseline plus null support	pathway peak/localization event	mechanism from curve maximum alone	14
+shutdown	tier_robust_event_or_computational_candidate	block robust persistent loss plus matched-state and negative-control gates	pathway shutdown or event-loss family	validated irreversible pathway termination	10
+branch-specific	tier_branch_event_candidate	expected-program support, branch permutation, independent validation	branch-specific pathway event	validated fate-determining mechanism	14
+spatial-localized	tier_spatial_localization_candidate	section consistency, matched-expression null, spatial block shuffle	spatial/trajectory pathway localization event	direct spatial or hormonal causality	6
+rescued-extension	tier_public_or_matched_intervention_candidate	matched rescue/intervention reversal with negative controls	matched rescue/restoration event	primary-system functional causality without matched validation	0
+failed-rescue-extension	tier_rescue_prediction_or_failed_gate	matched rescue experiment that passes reversal and specificity gates	rescue-axis prediction or failed rescue gate	completed functional rescue validation	4

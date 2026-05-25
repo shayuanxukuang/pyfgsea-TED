@@ -1,0 +1,9 @@
+dataset	negative_control	max_abs_effect_size	negative_control_pass	activation_score	reversal_score	reversal_fraction	reversal_class	primary_recovery_fraction	max_negative_control_recovery_fraction	status	reason
+GSE153056	stress_axis	0.1646176610903055	True								
+GSE153056	ribosome_axis	0.5754900168518629	True								
+GSE153056	mitochondrial_axis	0.3159403371821022	True								
+GSE93735	housekeeping_negative_control		True	0.2416305859599319	-0.1498487561722612	-0.6201564076706321	weak_or_no_reversal	0.3374885578214437	0.1623591571088093		
+GSE93735	ribosome_negative_control		True	-0.417684343058756	-0.0678148778765663	0.1623591571088093	weak_or_no_reversal	0.3374885578214437	0.1623591571088093		
+GSE90546			False							pending	GSE90546 raw expression matrix not downloaded in first-pass audit
+GSE90063			False							pending	supplementary adapter prepared from WT UMI summaries only
+GSE133344			False							pending	supplementary scalability adapter has metadata but no expression matrix in first-pass audit

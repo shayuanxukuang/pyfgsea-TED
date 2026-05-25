@@ -1,0 +1,2 @@
+dataset	accession	name	public_metadata	cell_count	gene_count	n_study_files	expected_source	expected_event	expected_outcome	access_status	recommended_use
+SCP1064	SCP1064	Multi-modal pooled Perturb-CITE-Seq screens in patient models define novel mechanisms of cancer immune evasion	True	218331	23712	16	melanoma_CRISPR_perturbation_TIL_coculture	immune_evasion_modules	T_cell_killing_or_susceptibility	metadata_public_file_endpoint_401	deferred_high_value_extension_not_main_benchmark

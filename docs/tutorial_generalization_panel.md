@@ -1,6 +1,6 @@
 # Tutorial: TED Generalization Panel
 
-This tutorial describes how the generalization panel should be reproduced from processed outputs.
+This tutorial describes how the manuscript generalization panel should be reproduced from processed outputs.
 
 ## Inputs
 

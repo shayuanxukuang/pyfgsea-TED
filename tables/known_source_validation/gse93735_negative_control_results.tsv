@@ -1,0 +1,3 @@
+dataset	negative_control	activation_score	reversal_score	reversal_fraction	reversal_class	negative_control_pass	primary_recovery_fraction	max_negative_control_recovery_fraction
+GSE93735	housekeeping_negative_control	0.2416305859599319	-0.1498487561722612	-0.6201564076706321	weak_or_no_reversal	True	0.3374885578214437	0.1623591571088093
+GSE93735	ribosome_negative_control	-0.417684343058756	-0.0678148778765663	0.1623591571088093	weak_or_no_reversal	True	0.3374885578214437	0.1623591571088093

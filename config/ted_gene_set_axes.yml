@@ -1,0 +1,94 @@
+gata1_cross_dataset_axes:
+  erythroid_output_axis:
+    expected_direction: down_in_GATA1s_or_T21_GATA1s
+    genes:
+      - HBA1
+      - HBA2
+      - HBB
+      - HBD
+      - AHSP
+      - ALAS2
+      - SLC4A1
+      - EPB42
+      - GYPA
+      - KLF1
+  heme_iron_axis:
+    expected_direction: down_in_GATA1s_or_T21_GATA1s
+    genes:
+      - ALAS2
+      - FECH
+      - UROS
+      - HMBS
+      - PPOX
+      - CPOX
+      - SLC25A37
+      - TFRC
+      - FTH1
+      - FTL
+  maturation_axis:
+    expected_direction: down_or_delayed_in_GATA1s_or_T21_GATA1s
+    genes:
+      - SLC4A1
+      - EPB42
+      - ANK1
+      - SPTA1
+      - SPTB
+      - ADD2
+      - GYPA
+      - GYPB
+      - RHAG
+      - XK
+  regulatory_axis:
+    expected_direction: disrupted_in_GATA1s_or_T21_GATA1s
+    genes:
+      - GATA1
+      - KLF1
+      - TAL1
+      - LMO2
+      - EPOR
+      - NFE2
+      - ZFPM1
+      - GFI1B
+      - MYB
+      - GATA2
+
+known_source_axes:
+  ifng_jak_stat_pdl1_event:
+    expected_direction: up_with_IFNg_and_modulated_by_regulators
+    genes:
+      - CD274
+      - IRF1
+      - STAT1
+      - STAT2
+      - JAK2
+      - IFNGR1
+      - IFNGR2
+      - CXCL10
+      - GBP1
+      - TAP1
+  lps_inflammatory_event:
+    expected_direction: up_with_LPS_and_down_with_Dex_LPS
+    genes:
+      - IL1B
+      - IL6
+      - TNF
+      - CXCL1
+      - CXCL2
+      - CCL2
+      - CCL3
+      - CCL4
+      - PTGS2
+      - NOS2
+  upr_er_stress_branch:
+    expected_direction: branch_specific
+    genes:
+      - ATF4
+      - DDIT3
+      - HSPA5
+      - XBP1
+      - DNAJB9
+      - HERPUD1
+      - ATF6
+      - ERN1
+      - EIF2AK3
+      - PPP1R15A

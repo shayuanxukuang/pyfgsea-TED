@@ -1,0 +1,7 @@
+metric	value
+n_cells_union	218331
+rna_metadata_guide_intersection	195303
+rna_protein_guide_intersection	195303
+cell_id_alignment_mode	explicit_CELL_id
+cell_level_alignment_allowed	True
+duplicate_cell_ids	0

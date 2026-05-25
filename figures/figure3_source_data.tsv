@@ -1,17 +1,28 @@
-family_id	trajectory	contrast_or_effect	family_delta_auc	family_q	block_ci_lower	block_ci_upper	direction_stability	day_robustness	matched_state_pass	stratified_null_pass	fake_placebo_pass	specificity_percentile	signed_driver_support	driver_dependency_pass	gse214810_validation_pass	marderstein_multiome_support	claim_level	source_panel	driver_module	genes	supports_T21_effect	supports_GATA1s_effect	supports_interaction_effect	supports_pairwise_T21_GATA1s_loss	dependency_score	dependency_score_T21	dependency_score_GATA1s	dependency_score_interaction	dependency_score_pairwise_T21_GATA1s_loss	mechanism_layer	mechanism_interpretation	variant	variant_label	erythroid_family_delta	block_CI_low	block_CI_high	block_perm_q	proliferation_adjusted_delta	negative_control_margin	regulatory_axis_support	maturation_axis_support	heme_iron_axis_support	claim_ceiling	decision	missing_evidence	strict_level4
-ERYTHROID_EVENT_LOSS_FAMILY	erythroid	T21_GATA1s_vs_T21_wtGATA1	-0.2452915260797743	1.7560975609756098e-300	-0.3393662566536116	-0.1603973175633515	1.0	1.0	True	True	True	0.75	1.0	True	True	True	internal_block_robust;gata1_perturbation_supported;t21_multiome_supported;mechanism_candidate	B																												
-ERYTHROID_EVENT_LOSS_FAMILY	mk	T21_GATA1s_vs_T21_wtGATA1	-0.253077017171462	1.7560975609756098e-300	-0.2854923341901536	-0.1392822553484481	1.0	1.0	True	True	True	0.75	1.0	True	True	True	internal_block_robust;gata1_perturbation_supported;t21_multiome_supported;mechanism_candidate	B																												
-ERYTHROID_EVENT_LOSS_FAMILY	myeloid	T21_GATA1s_vs_T21_wtGATA1	-0.2885197482009558	1.7560975609756098e-300	-0.2658512913657931	-0.085726000737456	1.0	1.0	True	True	True	0.75	1.0	True	True	True	internal_block_robust;gata1_perturbation_supported;t21_multiome_supported;mechanism_candidate	B																												
-																		C	regulatory_axis	KLF1,TAL1,ZFPM1,NFE2,EPOR,LMO2,GFI1B	True	False	True	True	0.3402336877174898	0.2304669161333568	-0.0447456395111655	0.3402336877174898	0.0718511002529691	upstream_regulatory	T21-context regulatory component of GATA1s-associated erythroid failure															
-																		C	maturation_membrane_axis	ANK1,GYPC,GYPB,GYPA,RHAG,RHD,ERMAP	True	True	False	False	0.2032005965034068	0.1024895273667404	0.2032005965034068	-0.3745206858860388	0.0282291375366219	erythroid_maturation_output	downstream erythroid maturation output collapse															
-																		C	heme_iron_axis	ALAS2,TFRC,SLC25A37,FECH,ABCB10,STEAP3,SLC25A38,SLC11A2,FTH1,FTL	False	True	False	False	0.1236643429325312	-0.1215504681410923	0.1236643429325312	-0.2063812316210144	0.0237051421019859	heme_iron_output	downstream heme/iron output collapse															
-							1.0											D														V0	Locked TED-current	-0.2452915260797743	-0.3393662566536116	-0.1603973175633515	0.0007998400319936	-0.2302360375362538	0.190733866508258	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-							1.0											D														V1	TED-RobustRank	-0.2354798650365833	-0.3257916063874671	-0.1539814248608174	0.0007998400319936	-0.2210265960348036	0.220733866508258	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-							1.0											D														V2	TED-PseudobulkBlock	-0.2281211192541901	-0.3156106186878588	-0.1491695053339169	0.0007998400319936	-0.214119514908716	0.216733866508258	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-							1.0											D														V3	TED-AdaptiveWindow+	-0.2403856955581788	-0.3325789315205393	-0.1571893712120844	0.0047998400319936	-0.2256313167855287	0.1827338665082579	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-							0.98											D														V4	TED-ChangePointEvent	-0.2207623734717969	-0.3054296309882504	-0.1443575858070163	0.0247998400319936	-0.2072124337826284	0.160733866508258	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-							1.0											D														V5	TED-OTMatched	-0.2305740345149878	-0.3190042812543949	-0.1507734785095504	0.0007998400319936	-0.2164218752840785	0.2427338665082579	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-							1.0											D														V6	TED-ConformalMode	-0.2452915260797743	-0.3393662566536116	-0.1603973175633515	0.0007998400319936	-0.2302360375362538	0.2087338665082579	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-							1.0											D														V7	TED-MultiNull	-0.2256682039933923	-0.3122169561213226	-0.1475655321582833	0.0007998400319936	-0.2118171545333535	0.245733866508258	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-							1.0											D														V8	TED-EnsembleEvidence	-0.237932780297381	-0.3291852689540032	-0.1555853980364509	0.0007998400319936	-0.2233289564101661	0.240733866508258	supported	supported	supported	Level_3.5_not_Level_4	preserved		
-																		E																									Level 3.5		matched functional rescue	not_met
+panel	section	method_or_field	metric	value	source_or_interpretation
+A	two_layer_benchmark	native_upstream_task	output_scope	trajectory_DE_module_scores_sparse_activity_OT_matching	Native tools evaluated on native tasks.
+A	two_layer_benchmark	TED_object_task	output_scope	event_mode_artifact_gates_block_robustness_evidence_boundary	Downstream event-object layer.
+B	expert_comparator	TED	event_mode_accuracy	0.922	Same input/split benchmark summary.
+B	expert_comparator	expert_composed	event_mode_accuracy	0.751	Composite upstream + block + matched-state + controls workflow.
+B	expert_comparator	score_smooth	event_mode_accuracy	0.364	Score-then-smooth baseline.
+C	field_coverage	native_package	signal	yes	Native packages provide upstream signal outputs.
+C	field_coverage	native_package	mode	no	Not a native field for most upstream tools.
+C	field_coverage	native_package	block	no	Not a native field for most upstream tools.
+C	field_coverage	native_package	controls	no	Not a native field for most upstream tools.
+C	field_coverage	native_package	claim	no	Not a native field for most upstream tools.
+C	field_coverage	expert_composed	signal	yes	Manually composable workflow.
+C	field_coverage	expert_composed	mode	manual	Manual event-mode interpretation.
+C	field_coverage	expert_composed	block	manual	Manual block-support assembly.
+C	field_coverage	expert_composed	controls	manual	Manual negative-control assembly.
+C	field_coverage	expert_composed	claim	manual	Manual claim-cap assignment.
+C	field_coverage	TED	signal	yes	Standardized event-object field.
+C	field_coverage	TED	mode	yes	Standardized event-object field.
+C	field_coverage	TED	block	yes	Standardized event-object field.
+C	field_coverage	TED	controls	yes	Standardized event-object field.
+C	field_coverage	TED	claim	yes	Standardized event-object field.
+D	non_circular_metrics	ground_truth_correctness	metric_source	synthetic_labels_held_out_splits_stress_nulls	Biological correctness metrics use external truth or held-out/null designs.
+D	non_circular_metrics	reporting_completeness	metric_source	mode_availability_claim_boundary_missing_evidence	Reporting fields are summarized separately from biological correctness.
+E	low_identifiability	TED	downgrade_rate	0.788	Low-signal adversarial regime.
+E	low_identifiability	baseline	downgrade_rate	0.026	Low-signal adversarial regime.
+E	low_identifiability	TED	overclaim_rate	0.030	Low-signal adversarial regime.
+E	low_identifiability	baseline	overclaim_rate	0.455	Low-signal adversarial regime.
+F	interpretation	TED	downstream_layer	native_output_to_event_object_to_claim_boundary	Reporting-field availability is separated from biological correctness.

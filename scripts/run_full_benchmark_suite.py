@@ -139,12 +139,6 @@ def run_step(step: BenchmarkStep, log_dir: Path) -> dict[str, object]:
 def write_report(manifest: pd.DataFrame, output: Path, quick: bool) -> None:
     passed = int((manifest["status"] == "pass").sum())
     total = int(len(manifest))
-    def render_table(df: pd.DataFrame) -> str:
-        try:
-            return df.to_markdown(index=False)
-        except ImportError:
-            return df.to_csv(sep="\t", index=False).strip()
-
     report = [
         "# TED Full Benchmark Suite Report",
         "",
@@ -154,11 +148,11 @@ def write_report(manifest: pd.DataFrame, output: Path, quick: bool) -> None:
         "",
         "## Step Summary",
         "",
-        render_table(manifest[["step", "status", "exit_code", "runtime_seconds", "log"]]),
+        manifest[["step", "status", "exit_code", "runtime_seconds", "log"]].to_markdown(index=False),
         "",
         "## Interpretation",
         "",
-        "This entry point is intended for reviewer-visible benchmark execution. The quick mode uses fewer synthetic replicates and is appropriate for smoke testing. The full mode uses the release default replicate counts and regenerates adversarial benchmark, serious baseline, ablation and algorithm-sensitivity outputs.",
+        "This entry point is intended for reviewer-visible benchmark execution. The quick mode uses fewer synthetic replicates and is appropriate for smoke testing. The full mode uses the manuscript default replicate counts and regenerates adversarial benchmark, serious baseline, ablation and algorithm-sensitivity outputs.",
         "",
     ]
     output.write_text("\n".join(report), encoding="utf-8")
