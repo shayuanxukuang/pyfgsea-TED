@@ -4,9 +4,9 @@ build-backend = "maturin"
 
 [project]
 name = "pyfgsea"
-version = "0.1.4"
-description = "Universal Trajectory GSEA Framework"
-requires-python = ">=3.9"
+version = "1.0.0"
+description = "Trajectory Pathway Event Discovery (TED) and PyFgsea"
+requires-python = ">=3.10"
 dependencies = [
     "scanpy",
     "anndata",
@@ -19,7 +19,12 @@ dependencies = [
     "scikit-learn",
     "click",
     "pyyaml",
-    "jsonschema"
+    "jsonschema",
+    "requests>=2.28",
+    "openpyxl>=3.1",
+    "pyarrow>=14",
+    "zarr>=2.16",
+    "scrublet==0.2.3"
 ]
 
 [project.optional-dependencies]
@@ -28,6 +33,8 @@ dev = [
     "mypy",
     "pytest",
     "pytest-cov",
+    "pytest-timeout>=2.4",
+    "pytest-xdist>=3.8",
     "hypothesis",
     "build",
     "maturin"
@@ -38,14 +45,18 @@ baselines = [
 
 [project.scripts]
 pyfgsea-traj = "pyfgsea.cli.main:cli"
+ted = "pyfgsea.cli.main:cli"
 ted-mad = "pyfgsea.ted_mad.cli:cli"
 
 [tool.maturin]
 module-name = "pyfgsea._core"
+include = ["pyfgsea/schemas/*.json"]
 
 [tool.pytest.ini_options]
 markers = [
     "unit: fast unit tests",
+    "integration: multi-component integration tests",
+    "external_data: tests over archived public-data fixtures (no live download)",
     "reliability: input/result consistency and invariants",
     "synthetic_truth: semi-synthetic truth benchmarks",
     "null_calibration: permutation or bootstrap calibration tests",

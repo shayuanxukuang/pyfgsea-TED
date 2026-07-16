@@ -65,7 +65,7 @@ def run_command(name: str, command: list[str], outdir: Path) -> dict[str, object
         "exit_code": proc.returncode,
         "runtime_seconds": elapsed,
         "command": " ".join(command),
-        "log": str(log.relative_to(ROOT)),
+        "log": str(log.relative_to(ROOT)) if log.is_relative_to(ROOT) else str(log),
         "completed_utc": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -203,7 +203,7 @@ def build_failure_modes(registry: pd.DataFrame) -> pd.DataFrame:
             action = "consume as upstream evidence; do not treat native score as claim ceiling"
         else:
             failure = "local package missing or not executed"
-            action = "use Dockerfile.baselines/environment.baselines.yml for package-complete reviewer execution"
+            action = "use Dockerfile.baselines/environment.baselines.yml for package-complete release execution"
         rows.append(
             {
                 "method": row["method"],
@@ -215,13 +215,24 @@ def build_failure_modes(registry: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def frame_to_markdown(frame: pd.DataFrame) -> str:
+    """Render a small Markdown table without pandas' optional tabulate dependency."""
+    headers = [str(column).replace("|", "\\|") for column in frame.columns]
+    rows = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
+    for values in frame.itertuples(index=False, name=None):
+        cells = [str(value).replace("\n", " ").replace("|", "\\|") for value in values]
+        rows.append("| " + " | ".join(cells) + " |")
+    return "\n".join(rows)
+
+
 def write_docker_report(outdir: Path, registry: pd.DataFrame, manifest: pd.DataFrame) -> None:
     docker_available = shutil.which("docker") is not None
     report = [
         "# Direct External Baseline Docker Report",
         "",
         f"Generated UTC: {datetime.now(timezone.utc).isoformat()}",
-        f"Local Docker CLI available: {docker_available}",
+        f"Docker CLI visible to the current Python process: {docker_available}",
+        "A false value is expected when this report is generated inside the already-running baseline container.",
         "",
         "## Baseline environment",
         "",
@@ -229,7 +240,7 @@ def write_docker_report(outdir: Path, registry: pd.DataFrame, manifest: pd.DataF
         "- The baseline environment includes R/Bioconductor tradeSeq, GSVA and AUCell plus Python POT.",
         "- The local execution manifest records which packages were available in the current workstation environment.",
         "",
-        "## Reviewer commands",
+        "## Release-validation commands",
         "",
         "```bash",
         "docker build -f Dockerfile.baselines -t ted-external-baselines .",
@@ -238,11 +249,11 @@ def write_docker_report(outdir: Path, registry: pd.DataFrame, manifest: pd.DataF
         "",
         "## Local execution summary",
         "",
-        registry[["method", "direct_package", "local_status", "package_version"]].to_markdown(index=False),
+        frame_to_markdown(registry[["method", "direct_package", "local_status", "package_version"]]),
         "",
         "## Commands executed locally",
         "",
-        manifest[["method", "status", "exit_code", "runtime_seconds", "log"]].to_markdown(index=False),
+        frame_to_markdown(manifest[["method", "status", "exit_code", "runtime_seconds", "log"]]),
         "",
     ]
     (outdir / "direct_external_baseline_docker_report.md").write_text("\n".join(report), encoding="utf-8")

@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_reference_prediction_run_v1.schema.json",
+  "title": "T21 condition-blind reference prediction run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_name", "schema_version", "run_id", "created_at_utc", "sampling_frame_id",
+    "outcome_blinded", "real_pathway_results_inspected", "condition_used_for_annotation",
+    "candidate_pathway_genes_used_for_annotation", "cell_identifier_used_as_feature",
+    "library_identifier_used_as_feature", "cell_manifest_used_for_join_only_after_prediction",
+    "model_feature_space", "blinding_record", "cell_manifest", "expression_inputs", "model",
+    "prediction_plan", "runner_script", "feature_audit", "prediction_table",
+    "software", "runtime"
+  ],
+  "properties": {
+    "schema_name": {"const": "t21_condition_blind_reference_prediction_run"},
+    "schema_version": {"type": "string", "pattern": "^1\\."},
+    "run_id": {"type": "string", "minLength": 1},
+    "created_at_utc": {"type": "string", "minLength": 1},
+    "sampling_frame_id": {"const": "t21_fetal_liver_cd45_primary_v1"},
+    "outcome_blinded": {"const": true},
+    "real_pathway_results_inspected": {"const": false},
+    "condition_used_for_annotation": {"const": false},
+    "candidate_pathway_genes_used_for_annotation": {"const": false},
+    "cell_identifier_used_as_feature": {"const": false},
+    "library_identifier_used_as_feature": {"const": false},
+    "cell_manifest_used_for_join_only_after_prediction": {"const": true},
+    "model_feature_space": {"const": "gene_expression_only"},
+    "blinding_record": {"$ref": "#/$defs/file"},
+    "cell_manifest": {"$ref": "#/$defs/file"},
+    "expression_inputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/expressionInput"}},
+    "model": {"$ref": "#/$defs/model"},
+    "prediction_plan": {"$ref": "#/$defs/predictionPlan"},
+    "runner_script": {"$ref": "#/$defs/file"},
+    "feature_audit": {"$ref": "#/$defs/file"},
+    "prediction_table": {"$ref": "#/$defs/file"},
+    "software": {
+      "type": "object",
+      "required": ["name", "version", "celltypist_version", "sklearn_version", "anndata_version", "annotation_mode", "majority_voting", "input_normalization", "normalization_target_sum", "model_input_matrix", "feature_identifier", "duplicate_gene_symbol_policy", "mapping_confidence", "runner_script_sha256", "prediction_plan_sha256"],
+      "properties": {
+        "name": {"const": "CellTypist"},
+        "version": {"const": "1.7.1"},
+        "celltypist_version": {"const": "1.7.1"},
+        "sklearn_version": {"type": "string", "minLength": 1},
+        "anndata_version": {"type": "string", "minLength": 1},
+        "annotation_mode": {"const": "best_match"},
+        "majority_voting": {"const": false},
+        "input_normalization": {"const": "normalize_total_target_sum_10000_then_log1p"},
+        "normalization_target_sum": {"const": 10000},
+        "model_input_matrix": {"const": "X"},
+        "feature_identifier": {"const": "gene_symbol"},
+        "duplicate_gene_symbol_policy": {"const": "sum_raw_counts_preserve_first_symbol_order"},
+        "mapping_confidence": {"const": "predicted_class_probability"},
+        "runner_script_sha256": {"$ref": "#/$defs/sha256"},
+        "prediction_plan_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "runtime": {
+      "type": "object", "additionalProperties": false,
+      "required": ["python_version", "platform", "implementation", "python_executable_sha256", "n_expression_inputs", "n_prediction_rows"],
+      "properties": {
+        "python_version": {"type": "string", "minLength": 1},
+        "platform": {"type": "string", "minLength": 1},
+        "implementation": {"type": "string", "minLength": 1},
+        "python_executable_sha256": {"$ref": "#/$defs/sha256"},
+        "n_expression_inputs": {"type": "integer", "minimum": 1},
+        "n_prediction_rows": {"type": "integer", "minimum": 1}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "file": {"type": "object", "additionalProperties": false, "required": ["relative_path", "bytes", "sha256"], "properties": {"relative_path": {"type": "string", "minLength": 1}, "bytes": {"type": "integer", "minimum": 1}, "sha256": {"$ref": "#/$defs/sha256"}}},
+    "fileFields": {"type": "object", "required": ["relative_path", "bytes", "sha256"], "properties": {"relative_path": {"type": "string", "minLength": 1}, "bytes": {"type": "integer", "minimum": 1}, "sha256": {"$ref": "#/$defs/sha256"}}},
+    "expressionInput": {"unevaluatedProperties": false, "allOf": [{"$ref": "#/$defs/fileFields"}, {"type": "object", "required": ["role", "shard_order", "n_cells", "n_genes"], "properties": {"role": {"const": "condition_blind_expression_h5ad"}, "shard_order": {"type": "integer", "minimum": 0}, "n_cells": {"type": "integer", "minimum": 1}, "n_genes": {"type": "integer", "minimum": 1}}}]},
+    "model": {"unevaluatedProperties": false, "allOf": [{"$ref": "#/$defs/fileFields"}, {"type": "object", "required": ["model_id", "serialization", "deserialized_by_adjudicator"], "properties": {"model_id": {"type": "string", "minLength": 1}, "serialization": {"type": "string", "minLength": 1}, "deserialized_by_adjudicator": {"const": false}}}]},
+    "predictionPlan": {"unevaluatedProperties": false, "allOf": [{"$ref": "#/$defs/fileFields"}, {"type": "object", "required": ["plan_id"], "properties": {"plan_id": {"type": "string", "minLength": 1}}}]}
+  }
+}

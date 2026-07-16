@@ -1,0 +1,6 @@
+metric	value
+processing_status	metadata_only_raw_required_not_present
+raw_tar_present	False
+n_series_matrix_files	2
+n_upr_branch_rows	12
+analysis_caveat	Expression matrix is not emitted until GSE90546_RAW.tar is downloaded and unpacked

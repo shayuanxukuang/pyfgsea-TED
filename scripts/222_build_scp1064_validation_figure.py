@@ -10,6 +10,9 @@ import pandas as pd
 from scp1064_utils import GLOBAL_FIGURES, GLOBAL_TABLES, RESULTS
 
 
+plt.rcParams.update({"pdf.fonttype": 42, "ps.fonttype": 42})
+
+
 def read_tsv(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame()
@@ -171,7 +174,7 @@ def main() -> None:
     ax.axvline(0, color="black", linewidth=0.7)
     ax.set_xlabel("RNA event / protein Spearman rho")
     ax.set_title("D. SCP1064 source-to-protein readouts", loc="left", fontweight="bold")
-    fig.suptitle("Public known-source benchmarks validate outcome and reversal boundaries", fontsize=16, fontweight="bold", x=0.02, ha="left")
+    fig.suptitle("Public known-source benchmarks validated outcome and reversal boundaries", fontsize=16, fontweight="bold", x=0.02, ha="left")
     fig.tight_layout(rect=(0, 0, 1, 0.95))
     fig.savefig(GLOBAL_FIGURES / "figure2_known_source_validation.png", dpi=180, bbox_inches="tight")
     fig.savefig(GLOBAL_FIGURES / "figure2_known_source_validation.pdf", bbox_inches="tight")

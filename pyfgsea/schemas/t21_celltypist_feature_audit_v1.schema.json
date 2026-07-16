@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_celltypist_feature_audit_v1.schema.json",
+  "title": "T21 condition-blind CellTypist feature audit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_name", "schema_version", "plan_id", "runner_script_sha256",
+    "prediction_plan_sha256", "model_id", "model_sha256",
+    "model_features_ordered_sha256", "model_features", "inputs", "summary"
+  ],
+  "properties": {
+    "schema_name": {"const": "t21_condition_blind_celltypist_feature_audit"},
+    "schema_version": {"type": "string", "pattern": "^1\\."},
+    "plan_id": {"type": "string", "minLength": 1},
+    "runner_script_sha256": {"$ref": "#/$defs/sha256"},
+    "prediction_plan_sha256": {"$ref": "#/$defs/sha256"},
+    "model_id": {"type": "string", "minLength": 1},
+    "model_sha256": {"$ref": "#/$defs/sha256"},
+    "model_features_ordered_sha256": {"$ref": "#/$defs/sha256"},
+    "model_features": {
+      "type": "array", "minItems": 6971, "maxItems": 6971,
+      "uniqueItems": true, "items": {"type": "string", "minLength": 1}
+    },
+    "inputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/inputAudit"}},
+    "summary": {"$ref": "#/$defs/summary"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "inputAudit": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "file_name", "bytes", "sha256", "n_cells", "n_features_original",
+        "n_gene_symbols_unique", "n_duplicate_symbol_groups",
+        "n_duplicate_feature_rows_collapsed", "raw_count_sum",
+        "collapsed_count_sum", "n_model_features_total",
+        "n_model_features_matched", "n_model_features_missing",
+        "missing_model_features", "feature_overlap"
+      ],
+      "properties": {
+        "file_name": {"type": "string", "pattern": "^annotation_shard_[0-9]{3}\\.h5ad$"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "n_cells": {"type": "integer", "minimum": 1},
+        "n_features_original": {"type": "integer", "minimum": 6971},
+        "n_gene_symbols_unique": {"type": "integer", "minimum": 6971},
+        "n_duplicate_symbol_groups": {"type": "integer", "minimum": 0},
+        "n_duplicate_feature_rows_collapsed": {"type": "integer", "minimum": 0},
+        "raw_count_sum": {"type": "integer", "minimum": 0},
+        "collapsed_count_sum": {"type": "integer", "minimum": 0},
+        "n_model_features_total": {"const": 6971},
+        "n_model_features_matched": {"const": 6971},
+        "n_model_features_missing": {"const": 0},
+        "missing_model_features": {"const": []},
+        "feature_overlap": {"const": "6971/6971"}
+      }
+    },
+    "summary": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "n_expression_inputs", "n_cells", "n_model_features_total",
+        "n_model_features_matched_per_shard", "n_model_features_missing_per_shard",
+        "required_feature_overlap", "n_duplicate_symbol_groups",
+        "n_duplicate_feature_rows_collapsed", "raw_count_sum", "collapsed_count_sum"
+      ],
+      "properties": {
+        "n_expression_inputs": {"type": "integer", "minimum": 1},
+        "n_cells": {"type": "integer", "minimum": 1},
+        "n_model_features_total": {"const": 6971},
+        "n_model_features_matched_per_shard": {"const": 6971},
+        "n_model_features_missing_per_shard": {"const": 0},
+        "required_feature_overlap": {"const": "6971/6971"},
+        "n_duplicate_symbol_groups": {"type": "integer", "minimum": 0},
+        "n_duplicate_feature_rows_collapsed": {"type": "integer", "minimum": 0},
+        "raw_count_sum": {"type": "integer", "minimum": 0},
+        "collapsed_count_sum": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

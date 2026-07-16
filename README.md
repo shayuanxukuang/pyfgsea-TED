@@ -1,117 +1,82 @@
-# pyfgsea-TED
+# Trajectory Pathway Event Discovery (TED)
 
-Software and reproducibility companion for **TED**, an evidence-gated framework for dynamic pathway event interpretation in single-cell genomics.
+TED is a structured evidence protocol for dynamic pathway interpretation in single-cell genomics. It converts pathway, module, or perturbation activity profiles into auditable event objects with explicit biological-mode, artifact, identifiability, within-study E-support, and external V-provenance fields.
 
-TED starts from pathway, module or perturbation activity profiles and writes them as row-wise event objects. Each event row records the event type or mode, event-level evidence, block support, matched-state and negative-control behavior, and the evidence boundary supported by the analysis design. The goal is to make dynamic pathway interpretation reproducible: a changed pathway score becomes a structured event call with explicit support, controls and missing evidence.
+This repository is the software and machine-readable evidence companion for the manuscript. PyFgsea is included as an optional Rust-backed upstream activity engine; TED also accepts activity matrices from other methods.
 
-## Release
+## Release identity
 
-The archived release for review and citation is:
-
-- Git tag: `ted-gb-rc7`
-- Commit: `3ffec1a1dcb4261303fc130b81ccd6b29a2fa34f`
-- Zenodo DOI: [10.5281/zenodo.20378158](https://doi.org/10.5281/zenodo.20378158)
+- Release tag: `ted-v1.0.0`
+- Software version: `1.0.0`
 - License: MIT
 
-The tables under `tables/` and the audit files in this repository refer to this archived release.
+The version-specific Zenodo DOI is recorded here only after Zenodo has reserved or minted it. No provisional DOI is used.
 
-## What is in this repository
+## Evidence contract
 
-| Path | Purpose |
-| --- | --- |
-| `pyfgsea/` | Python package code for PyFgsea and TED event-analysis components. |
-| `scripts/` | Reproducibility scripts for known-source validation, GATA1/GATA1s support, external baselines, benchmarks and figure generation. |
-| `tests/` | Unit and validation tests used for the release snapshot. |
-| `config/` | Event axes, negative-control axes, claim-boundary rules and preregistration cards. |
-| `tables/` | Machine-readable event objects, benchmark summaries, claim-boundary outputs, validation summaries and release-audit tables. |
-| `figures/` | Main figure PDFs/PNGs and their source-data TSV files. |
-| `reproducibility/` | Minimal demo entry point and reviewer-facing reproducibility helpers. |
-| `Dockerfile`, `Dockerfile.baselines`, `environment*.yml` | Runtime environments for TED analyses and direct external baseline execution. |
+TED separates five targets that must not be collapsed into one label:
 
-Journal submission files are managed separately from this software archive. Large public raw datasets are also kept at their original repositories; the manifests in `tables/` record accessions, file provenance and processed-output checks.
+1. biological event mode: activation, suppression, delay, loss, or redirection;
+2. artifact classification: none, composition, stress, or other declared artifacts;
+3. identifiability: identifiable, ambiguous, or not identifiable;
+4. within-study support: E0, E1, or E2 with a reason code and test status;
+5. external provenance: outcome, reversal, rescue, or replication tags.
+
+Controlled simulations use the neutral term **controlled packet class** only for legacy combined-class comparisons. Rule variations are reported as **rule-perturbation sensitivity profiles**.
 
 ## Quick start
 
-Create the Python environment:
-
 ```bash
-conda env create -f environment.yml
-conda activate ted-development
+git clone https://github.com/shayuanxukuang/pyfgsea-TED.git
+cd pyfgsea-TED
+python -m pip install -e ".[dev]"
+python -I scripts/run_ted_validation_demo.py --outdir ted_demo
+ted validate ted_demo/demo_activity.tsv --kind activity --report ted_demo/activity_validation.tsv
+ted validate ted_demo/demo_events_v2.tsv --kind event --report ted_demo/event_validation.tsv
 ```
 
-Run the smallest local check:
+## Verified test groups
+
+The release suite is divided into independently bounded jobs:
 
 ```bash
-python reproducibility/run_minimal_demo.py
+pytest -q -m "not integration and not slow and not external_data"
+pytest -q -m integration
+pytest -q -m slow
+pytest -q -m external_data
 ```
 
-Run the release validation tests used most often for the known-source analyses:
+Every job has a 120-second per-test timeout in CI. Public-data tests use archived, fixed local fixtures and do not download data during test execution.
+
+## Containers
 
 ```bash
-python -m pytest \
-  tests/test_scp1064_file_qc.py \
-  tests/test_scp1064_cell_alignment.py \
-  tests/test_scp1064_event_outcome_alignment.py \
-  tests/test_scp1064_claim_boundary.py \
-  tests/test_ted_known_source_validation.py
+docker build --no-cache -t ted:1.0.0 .
+docker build --no-cache -f Dockerfile.baselines -t ted-baselines:1.0.0 .
+docker run --rm ted:1.0.0 ted --help
+docker run --rm ted:1.0.0
 ```
 
-For the external baseline environment:
+The main image runs the release validation demo by default. The baseline image runs the quick direct external-baseline suite.
 
-```bash
-docker build -f Dockerfile.baselines -t ted-external-baselines .
-docker run --rm ted-external-baselines
-```
+## Main release evidence
 
-## Key validation outputs
-
-TED was evaluated with a combination of same-input benchmarks, public known-source datasets and claim-boundary audits. The most useful starting points are:
-
-| File | What it records |
+| Path | Purpose |
 | --- | --- |
-| `tables/known_source_validation_summary.tsv` | Public known-source validation results for GSE153056, GSE93735 and SCP1064. |
-| `tables/ted_dataset_level_claim_boundary.tsv` | Dataset-level evidence boundaries assigned by TED. |
-| `tables/benchmark_audit_table.tsv` | Benchmark truth sources, scored units, uncertainty reporting and frozen/optimization status. |
-| `tables/benchmark_non_circular_evaluation_table.tsv` | Separation of biological correctness metrics from reporting-completeness fields. |
-| `tables/dynamic_pathway_event_table.tsv` | Standardized dynamic pathway-event grammar rows. |
-| `tables/scp1064_lightweight_shuffle_summary.tsv` | Lightweight label-shuffle audit for SCP1064 outcome alignment. |
-| `tables/gata1_cross_dataset_support_summary.tsv` | Independent GATA1/GATA1s directional-support summary. |
-| `figures/figure2_known_source_validation.pdf` | Public known-source outcome and reversal validation figure. |
-| `figures/figure4_gse271399_gata1_cross_dataset_support.pdf` | GSE271399 and independent GATA1/GATA1s support figure. |
-| `figures/figure5_claim_upgrade_block_audit.pdf` | Claim-boundary upgrade/block audit figure. |
+| `results/ted_adaptive_window_multiplicity/` | Full adaptive-window search simulation with per-event max-window + BH, family-wide maxT, FDR, FWER, power, and timing error. |
+| `results/ted_factorized_ablation/` | Factorized biological-mode, artifact, identifiability, E-support, V-provenance, gate-ablation, reason-code, and schema audits. |
+| `results/ted_current_task_benchmark/` | Current benchmark and supervised baseline comparisons with evidence-risk metrics. |
+| `results/ted_real_data_upstream_sensitivity/` | Real-data upstream-method disagreement and E2 fail-closed checks. |
+| `results/ted_submission_calibration/` | Controlled truth, E benchmark, external outcome, baseline comparison, and rule-perturbation sensitivity profiles. |
+| `results/ted_post_freeze_protocol_candidate/` | Draft, not-activated protocol candidate; not evidence of prospective validation. |
+| `results/bib_manuscript_revision/figure_source_data/` | Machine-readable source data for manuscript figures. |
+| `schemas/ted_event_report_v2.schema.json` | E0/test-status compatible event-object schema. |
+| `RELEASE_MANIFEST.tsv` | File sizes and SHA256 checksums for the release tree. |
 
-## Public known-source validation snapshot
+## Claim boundaries
 
-| Dataset | Known source | Readout | TED boundary |
-| --- | --- | --- | --- |
-| GSE153056 | IFNG stimulation and PD-L1 regulator perturbation | PD-L1 protein outcome; event-protein Spearman correlation 0.7846 | `outcome_supported_event` |
-| GSE93735 | LPS plus dexamethasone intervention | Dexamethasone-associated reversal; primary reversal fraction 0.3375 | `reversal_supported_event` |
-| SCP1064 | CRISPR guide identity in Perturb-CITE-seq | RNA immune-evasion event aligned with CITE-seq protein readouts in 195,303 source-labeled cells | `outcome_supported_event` |
-
-These examples test whether TED can assign stronger event boundaries when source, outcome or reversal evidence is present. Matched same-system rescue claims remain governed by the stricter claim-boundary rules in `config/ted_claim_boundary_rules.yml`.
-
-## Direct external baselines
-
-The direct external baseline suite includes wrappers for representative upstream tools, including tradeSeq, GSVA, AUCell and POT. These runs are used to check executable upstream outputs and to define how native outputs can be carried into the downstream TED-object comparison.
-
-```bash
-python scripts/run_direct_external_baseline_suite.py --quick
-```
-
-For the package-complete baseline image, use `Dockerfile.baselines`.
-
-## Data access
-
-The release uses public datasets from GEO, Single Cell Portal, STOmicsDB/CNGB and related public resources. Raw public archives are not mirrored here. The relevant accessions, download status, checksums and analysis roles are tracked in:
-
-- `tables/availability_accession_audit.tsv`
-- `tables/candidate_download_manifest.tsv`
-- `RELEASE_MANIFEST.tsv`
+TED is not presented as the most accurate packet classifier. Supervised classifiers optimize packet-level prediction, whereas TED provides a fail-closed evidence contract with abstention, reason codes, explicit evidence boundaries, and auditable external provenance. GSE271399 and related GATA1/T21 evidence remain below a direct matched-rescue claim unless the predeclared functional gate passes.
 
 ## Citation
 
-If this archive is used before the journal article is available, cite the Zenodo release:
-
-> pyfgsea-TED release `ted-gb-rc7`, Zenodo DOI [10.5281/zenodo.20378158](https://doi.org/10.5281/zenodo.20378158).
-
-After publication, please cite the article together with the archived release.
+Use the version-specific Zenodo DOI listed in this section after final publication of `ted-v1.0.0`, together with the journal article when available.

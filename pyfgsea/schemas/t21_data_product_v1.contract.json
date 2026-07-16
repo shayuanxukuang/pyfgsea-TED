@@ -1,0 +1,118 @@
+{
+  "schema_name": "t21_data_product_contract",
+  "schema_version": "1.0.0",
+  "publication_rule": "formal filenames are emitted only after every cross-artifact gate passes",
+  "artifacts": {
+    "t21_scRNA_analysis_ready_v1.h5ad": {
+      "required_layer": "counts",
+      "counts_contract": "sparse_nonnegative_exact_integer",
+      "cell_id_contract": "E-MTAB-13067|library_id|original_barcode",
+      "required_obs": [
+        "cell_id",
+        "donor_id",
+        "source_donor_id",
+        "condition",
+        "condition_original",
+        "pcw",
+        "sex",
+        "tissue",
+        "sort_gate",
+        "sort_gate_original",
+        "library_id",
+        "technical_batch",
+        "original_cell_type",
+        "original_cell_type_source",
+        "analysis_cell_type",
+        "lineage_inclusion",
+        "lineage_inclusion_reason",
+        "original_barcode"
+      ],
+      "conditional_source_contracts": {
+        "condition_blind_reference_mapping": {
+          "required_obs_audit": [
+            "mapping_confidence",
+            "annotation_uncertain",
+            "predicted_doublet",
+            "annotation_row_id",
+            "annotation_plan_id",
+            "reference_mapping_id",
+            "annotation_run_id",
+            "model_id",
+            "model_sha256",
+            "label_mapping_sha256",
+            "prediction_table_sha256",
+            "cell_manifest_sha256"
+          ],
+          "required_assembly_inputs": [
+            "annotation_adjudication",
+            "annotation_adjudication_checksum",
+            "reference_label_mapping"
+          ],
+          "author_label_claim_allowed": false,
+          "model_loading_policy": "hash_only_never_deserialize_in_adjudicator"
+        }
+      },
+      "required_var": [
+        "gene_id_original",
+        "gene_symbol",
+        "feature_type",
+        "chromosome",
+        "is_chr21",
+        "genome_build",
+        "gene_mapping_status"
+      ]
+    },
+    "t21_donor_design_v1.tsv": {
+      "row_unit": "confirmed biological donor; unresolved accessions remain namespaced",
+      "required_columns": [
+        "donor_id",
+        "condition",
+        "pcw",
+        "sex",
+        "available_tissues",
+        "available_sort_gates",
+        "available_modalities",
+        "number_of_cells_by_gate",
+        "number_of_cells_in_primary_lineage",
+        "donor_correspondence_status",
+        "trajectory_bin_coverage_fraction"
+      ]
+    },
+    "t21_trajectory_draws_v1.zarr": {
+      "arrays": [
+        "axes/cell_id",
+        "axes/trajectory_draw_id",
+        "pseudotime",
+        "mapped",
+        "axes/donor_id",
+        "axes/bin_left",
+        "axes/bin_center",
+        "axes/bin_right",
+        "donor_bin/cell_count",
+        "donor_bin/available",
+        "draw_metadata/json"
+      ],
+      "pseudotime_contract": "mapped values in [0,1]; unmapped values NaN",
+      "primary_draw_blinding": "no condition information and no candidate pathway genes"
+    },
+    "t21_fate_probabilities_v1.parquet": {
+      "required_columns": [
+        "cell_id",
+        "erythroid_probability",
+        "megakaryocyte_probability",
+        "myeloid_probability",
+        "other_probability",
+        "fate_eligible",
+        "fate_ineligibility_reason",
+        "fate_model_id",
+        "trajectory_draw_id",
+        "terminal_definition_hash"
+      ],
+      "probability_contract": "eligible rows finite in [0,1] and sum to one; ineligible rows null"
+    },
+    "t21_data_provenance_manifest.json": {
+      "json_schema": "t21_data_provenance_manifest_v1.schema.json",
+      "self_hash_policy": "manifest hash is written only to an external checksum sidecar"
+    }
+  }
+}

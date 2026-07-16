@@ -1016,8 +1016,14 @@ def call_claim_boundary() -> pd.DataFrame:
     lightweight_shuffle_pass = bool(
         specificity.get("lightweight_shuffle_pass", pd.Series([True])).astype(str).str.lower().isin(["true", "pass"]).all()
     )
+    heavy_status = str(specificity.get("heavy_shuffle_status", pd.Series(["not_run"])).iloc[0])
+    heavy_shuffle_pass = bool(
+        specificity.get("heavy_shuffle_pass", pd.Series([True])).astype(str).str.lower().isin(["true", "pass"]).all()
+    )
+    heavy_required = heavy_status.startswith("completed")
+    shuffle_gate_pass = lightweight_shuffle_pass and (heavy_shuffle_pass if heavy_required else True)
     author_support = bool(author.get("author_effect_support", pd.Series([False])).astype(str).str.lower().isin(["true", "pass"]).any())
-    if robust_event and outcome_alignment_pass and negative_control_pass and lightweight_shuffle_pass:
+    if robust_event and outcome_alignment_pass and negative_control_pass and shuffle_gate_pass:
         boundary = "outcome_supported_event"
         status = "pass"
     elif robust_event:
@@ -1036,6 +1042,8 @@ def call_claim_boundary() -> pd.DataFrame:
                 "outcome_alignment_pass": outcome_alignment_pass,
                 "negative_control_pass": negative_control_pass,
                 "lightweight_shuffle_pass": lightweight_shuffle_pass,
+                "heavy_shuffle_status": heavy_status,
+                "heavy_shuffle_pass": heavy_shuffle_pass if heavy_required else False,
                 "author_effect_support": author_support,
                 "claim_boundary": boundary,
                 "status": status,
@@ -1045,6 +1053,7 @@ def call_claim_boundary() -> pd.DataFrame:
                 "reason": (
                     f"robust_event={robust_event}; outcome_alignment_pass={outcome_alignment_pass}; "
                     f"negative_control_pass={negative_control_pass}; lightweight_shuffle_pass={lightweight_shuffle_pass}; "
+                    f"heavy_shuffle_status={heavy_status}; heavy_shuffle_pass={heavy_shuffle_pass if heavy_required else 'not_required_yet'}; "
                     f"author_effect_support={author_support}"
                 ),
             }

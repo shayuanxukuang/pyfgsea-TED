@@ -152,7 +152,7 @@ def write_report(manifest: pd.DataFrame, output: Path, quick: bool) -> None:
         "",
         "## Interpretation",
         "",
-        "This entry point is intended for reviewer-visible benchmark execution. The quick mode uses fewer synthetic replicates and is appropriate for smoke testing. The full mode uses the manuscript default replicate counts and regenerates adversarial benchmark, serious baseline, ablation and algorithm-sensitivity outputs.",
+        "This entry point is intended for release-validation benchmark execution. The quick mode uses fewer synthetic replicates and is appropriate for smoke testing. The full mode uses the manuscript default replicate counts and regenerates adversarial benchmark, serious baseline, ablation and algorithm-sensitivity outputs.",
         "",
     ]
     output.write_text("\n".join(report), encoding="utf-8")
@@ -161,7 +161,7 @@ def write_report(manifest: pd.DataFrame, output: Path, quick: bool) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run TED full benchmark suite entry point.")
     parser.add_argument("--root", type=Path, default=DEFAULT_ROOT)
-    parser.add_argument("--quick", action="store_true", help="Use reduced replicate counts for reviewer smoke testing.")
+    parser.add_argument("--quick", action="store_true", help="Use reduced replicate counts for release smoke testing.")
     parser.add_argument("--keep-going", action="store_true", help="Continue after a failed step and record all statuses.")
     args = parser.parse_args()
 

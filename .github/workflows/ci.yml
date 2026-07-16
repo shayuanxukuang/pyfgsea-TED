@@ -1,0 +1,117 @@
+name: TED release CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, "codex/**"]
+    tags: ["ted-v*"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  CARGO_NET_RETRY: 10
+  CARGO_HTTP_TIMEOUT: 60
+  PYTEST_ADDOPTS: "--timeout=120 --timeout-method=thread"
+
+jobs:
+  wheel:
+    name: Wheel / Python ${{ matrix.python-version }} / Linux
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: dtolnay/rust-toolchain@stable
+      - run: python -m pip install --upgrade pip maturin
+      - run: maturin build --release --out dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ted-wheel-py${{ matrix.python-version }}
+          path: dist/*.whl
+
+  tests:
+    name: Tests / ${{ matrix.group }} / Linux
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: unit
+            expression: "not integration and not slow and not external_data"
+          - group: integration
+            expression: "integration"
+          - group: slow
+            expression: "slow"
+          - group: external-data
+            expression: "external_data"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[dev]"
+      - name: Run tests outside the source tree
+        working-directory: /tmp
+        run: pytest -q --import-mode=importlib -m "${{ matrix.expression }}" "$GITHUB_WORKSPACE/tests" --rootdir="$GITHUB_WORKSPACE" --junitxml="$GITHUB_WORKSPACE/test-${{ matrix.group }}.xml"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.group }}
+          path: test-${{ matrix.group }}.xml
+
+  schema-demo:
+    name: Schema validation and release demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[dev]"
+      - name: Run release demo from installed wheel
+        working-directory: /tmp
+        run: python -I "$GITHUB_WORKSPACE/scripts/run_ted_validation_demo.py" --outdir "$GITHUB_WORKSPACE/ci_ted_demo"
+      - run: ted validate ci_ted_demo/demo_activity.tsv --kind activity --report ci_ted_demo/activity_validation.tsv
+      - run: ted validate ci_ted_demo/demo_events_v2.tsv --kind event --report ci_ted_demo/event_validation.tsv
+      - name: Run schema tests outside the source tree
+        working-directory: /tmp
+        run: pytest -q --import-mode=importlib "$GITHUB_WORKSPACE/tests/test_ted_schema.py" --rootdir="$GITHUB_WORKSPACE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ted-release-demo
+          path: ci_ted_demo/**
+
+  docker:
+    name: Docker smoke / ${{ matrix.image }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ted
+            dockerfile: Dockerfile
+          - image: ted-baselines
+            dockerfile: Dockerfile.baselines
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --no-cache -f "${{ matrix.dockerfile }}" -t "${{ matrix.image }}:1.0.0" .
+      - run: docker run --rm "${{ matrix.image }}:1.0.0" python --version
+      - if: matrix.image == 'ted'
+        run: docker run --rm "${{ matrix.image }}:1.0.0" ted --help
+      - if: matrix.image == 'ted'
+        run: docker run --rm "${{ matrix.image }}:1.0.0"
+      - if: matrix.image == 'ted-baselines'
+        run: docker run --rm "${{ matrix.image }}:1.0.0"

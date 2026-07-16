@@ -5,19 +5,18 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCP = ROOT / "data" / "processed" / "ted_known_source" / "SCP1064"
+FIXTURES = ROOT / "tests" / "fixtures" / "external_data"
 
 
-def test_scp1064_ted_input_files_exist():
-    for path in [
-        SCP / "ted_inputs" / "ted_rna_event_input.h5ad",
-        SCP / "ted_inputs" / "ted_cell_metadata.tsv",
-        SCP / "ted_inputs" / "ted_protein_outcome_table.tsv.gz",
-        SCP / "metadata" / "perturbation_metadata.tsv",
-        SCP / "metadata" / "guide_assignment.tsv",
-    ]:
-        assert path.exists(), path
-        assert path.stat().st_size > 0, path
+def test_scp1064_fixed_fixtures_are_manifested():
+    manifest = pd.read_csv(FIXTURES / "fixture_manifest.tsv", sep="\t")
+    expected = {
+        "tests/fixtures/external_data/scp1064_cell_metadata_100.tsv",
+        "tests/fixtures/external_data/scp1064_protein_outcome_100.tsv",
+    }
+    assert expected.issubset(set(manifest["fixture_path"]))
+    assert manifest["source_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
+    assert manifest["fixture_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
 
 
 def test_scp1064_event_axes_include_primary_and_negative_controls():
@@ -34,8 +33,8 @@ def test_scp1064_event_axes_include_primary_and_negative_controls():
         assert control in axes["negative_controls"]
 
 
-def test_scp1064_protein_outcome_table_is_nonempty():
-    outcome = pd.read_csv(SCP / "ted_inputs" / "ted_protein_outcome_table.tsv.gz", sep="\t", nrows=100)
+def test_scp1064_protein_outcome_fixture_has_required_schema():
+    outcome = pd.read_csv(FIXTURES / "scp1064_protein_outcome_100.tsv", sep="\t")
     required = {
         "cell_id",
         "guide_id",
@@ -45,4 +44,4 @@ def test_scp1064_protein_outcome_table_is_nonempty():
         "protein_value_normalized",
     }
     assert required.issubset(outcome.columns)
-    assert not outcome.empty
+    assert len(outcome) == 100

@@ -1,20 +1,70 @@
+# Python
 __pycache__/
-.pytest_cache/
-.ruff_cache/
-*.pyc
-*.log
-*.aux
-*.out
-*.fls
-*.fdb_latexmk
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.dll
+*.dylib
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Rust
+target/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Bioinfo large files (prevent accidental commit)
 *.h5ad
-*.tar
-*.tar.gz
+!repro/data/toy_trajectory.h5ad
+*.bam
+*.fastq
+*.fastq.gz
+*.gz
 *.zip
-GenomeBiology*/
-NCS*/
-latex_submission_package/
-*_submission_package/
-*manuscript*
-*cover_letter*
-*supplementary_information*
+*.rds
+*.gct
+*.cls
+
+# Output
+results/*
+!results/bib_manuscript_revision/
+!results/gata1_cross_dataset_support/
+!results/ted_adaptive_window_multiplicity/
+!results/ted_current_task_benchmark/
+!results/ted_factorized_ablation/
+!results/ted_known_source_validation/
+!results/ted_post_freeze_protocol_candidate/
+!results/ted_real_data_upstream_sensitivity/
+!results/ted_submission_calibration/
+!results/ted_validation_demo/
+*.log
+/bioinfor0208/
+
+# Virtual Env
+.venv/
+.venv_rel/
+venv/
+env/
+.release_validation/

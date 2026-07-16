@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_calibration_report_v1.schema.json",
+  "title": "T21 pre-unblinding calibration report v1",
+  "type": "object",
+  "required": [
+    "schema_name",
+    "schema_version",
+    "report_id",
+    "created_at_utc",
+    "outcome_blinded",
+    "input_bindings",
+    "scenario_metrics",
+    "power_metrics",
+    "execution",
+    "output_artifacts"
+  ],
+  "properties": {
+    "schema_name": {"const": "t21_pre_unblinding_calibration_report"},
+    "schema_version": {"type": "string", "pattern": "^1\\."},
+    "report_id": {"type": "string", "minLength": 1},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "outcome_blinded": {"const": true},
+    "input_bindings": {
+      "type": "object",
+      "required": [
+        "analysis_plan_sha256",
+        "calibration_policy_sha256",
+        "runner_spec_sha256",
+        "scrna_sha256",
+        "donor_design_sha256",
+        "fates_sha256",
+        "scrna_cell_id_set_hash",
+        "scrna_gene_order_hash",
+        "donor_set_hash",
+        "scrna_donor_set_hash",
+        "trajectory_tree_digest_sha256",
+        "trajectory_grid_hash",
+        "pathway_universe_relative_path",
+        "pathway_universe_sha256",
+        "pathway_universe_logical_sha256",
+        "code_commit",
+        "code_dirty"
+      ],
+      "properties": {
+        "runner_spec_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "scrna_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "donor_design_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "fates_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pathway_universe_relative_path": {
+          "const": "reference/t21_pathway_universe_v1.tsv"
+        },
+        "pathway_universe_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pathway_universe_logical_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "code_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "code_dirty": {"type": "boolean"},
+        "code_patch_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": true
+    },
+    "scenario_metrics": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["scenario", "n_replicates"],
+        "properties": {
+          "scenario": {"type": "string"},
+          "n_replicates": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": true
+      }
+    },
+    "power_metrics": {
+      "type": "object",
+      "required": [
+        "n_replicates_per_point",
+        "target_effect_standardized",
+        "power_at_target_effect",
+        "minimum_detectable_effect_standardized",
+        "minimum_resolvable_onset_shift",
+        "leave_one_control_out_power",
+        "extreme_donor_empirical_fwer"
+      ],
+      "additionalProperties": true
+    },
+    "execution": {
+      "type": "object",
+      "required": ["real_pathway_results_read"],
+      "properties": {
+        "real_pathway_results_read": {"const": false}
+      },
+      "additionalProperties": true
+    },
+    "output_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["role", "relative_path", "bytes", "sha256"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

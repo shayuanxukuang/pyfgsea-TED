@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_data_provenance_manifest_v1.schema.json",
+  "title": "T21 data provenance manifest v1",
+  "type": "object",
+  "required": [
+    "schema_name",
+    "schema_version",
+    "release_id",
+    "release_status",
+    "created_at_utc",
+    "command",
+    "sources",
+    "source_repositories",
+    "transformations",
+    "outputs",
+    "cross_artifact_contract",
+    "validation_gates",
+    "blockers",
+    "claim_policy"
+  ],
+  "properties": {
+    "schema_name": {
+      "const": "t21_data_provenance_manifest"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\."
+    },
+    "release_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "release_status": {
+      "enum": [
+        "incomplete_preflight_not_for_biological_discovery",
+        "validated_release_candidate",
+        "final"
+      ]
+    },
+    "created_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "repository_relative_paths_only": {
+      "const": true
+    },
+    "command": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "role",
+          "source_url",
+          "original_file_name",
+          "repository_relative_path",
+          "bytes",
+          "sha256",
+          "checksum_origin"
+        ],
+        "properties": {
+          "repository_relative_path": {
+            "type": "string",
+            "not": {
+              "pattern": "^(?:[A-Za-z]:|/|\\\\)"
+            }
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "source_repositories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["repository", "url", "commit", "dirty", "status"],
+        "additionalProperties": true
+      }
+    },
+    "transformations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["step_id", "script", "parameters", "seed"],
+        "additionalProperties": true
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role", "format", "relative_path", "bytes"],
+        "properties": {
+          "relative_path": {
+            "type": "string",
+            "not": {
+              "pattern": "^(?:[A-Za-z]:|/|\\\\)"
+            }
+          }
+        },
+        "anyOf": [
+          {"required": ["sha256"]},
+          {"required": ["tree_digest_sha256"]}
+        ],
+        "additionalProperties": true
+      }
+    },
+    "cross_artifact_contract": {
+      "type": "object",
+      "required": [
+        "sampling_frame_id",
+        "primary_trajectory_draw_id",
+        "cell_id_set_hash",
+        "gene_order_hash",
+        "donor_set_hash",
+        "scrna_donor_set_hash",
+        "trajectory_grid_hash"
+      ],
+      "properties": {
+        "trajectory_tree_digest_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pathway_universe_relative_path": {
+          "const": "reference/t21_pathway_universe_v1.tsv"
+        },
+        "pathway_universe_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "pathway_universe_logical_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": true
+    },
+    "validation_gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["gate", "status", "observed"],
+        "additionalProperties": true
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["blocker_id", "status", "detail", "required_for"],
+        "additionalProperties": true
+      }
+    },
+    "claim_policy": {
+      "type": "object",
+      "required": ["allowed", "forbidden"],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "release_status": {"const": "validated_release_candidate"}
+        },
+        "required": ["release_status"]
+      },
+      "then": {
+        "properties": {
+          "cross_artifact_contract": {
+            "required": [
+              "trajectory_tree_digest_sha256",
+              "pathway_universe_relative_path",
+              "pathway_universe_sha256",
+              "pathway_universe_logical_sha256"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

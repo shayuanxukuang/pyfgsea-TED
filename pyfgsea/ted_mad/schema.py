@@ -10,7 +10,8 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
 
-SCHEMA_DIR = Path(__file__).resolve().parents[2] / "schemas"
+PACKAGE_SCHEMA_DIR = Path(__file__).resolve().parents[1] / "schemas"
+REPOSITORY_SCHEMA_DIR = Path(__file__).resolve().parents[2] / "schemas"
 
 ALLOWED_EVIDENCE_FAMILIES = {
     "family_block_robustness",
@@ -34,9 +35,10 @@ class TedMadValidationError(ValueError):
 
 
 def load_schema(name: str) -> dict[str, Any]:
-    """Load a JSON schema from the repository-level schemas directory."""
+    """Load a schema from the installed package, with a source-tree fallback."""
 
-    path = SCHEMA_DIR / name
+    package_path = PACKAGE_SCHEMA_DIR / name
+    path = package_path if package_path.exists() else REPOSITORY_SCHEMA_DIR / name
     return json.loads(path.read_text(encoding="utf-8"))
 
 

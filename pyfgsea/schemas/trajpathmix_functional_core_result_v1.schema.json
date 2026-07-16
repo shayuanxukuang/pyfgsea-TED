@@ -1,0 +1,439 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "bin_indices": {
+      "items": {
+        "type": "integer"
+      },
+      "type": "array"
+    },
+    "claim_scope": {
+      "additionalProperties": false,
+      "properties": {
+        "band_coverage_scope": {
+          "const": "complete_null_zero_curve_only"
+        },
+        "finite_sample_exact": {
+          "const": false
+        },
+        "functional_core_only": {
+          "const": true
+        },
+        "fwer_scope": {
+          "const": "complete_null_weak_fwer_only"
+        },
+        "nonzero_curve_coverage_claimed": {
+          "const": false
+        },
+        "nuisance_block_invariant": {
+          "const": false
+        },
+        "reference_type": {
+          "type": "string"
+        },
+        "strong_fwer_claimed": {
+          "const": false
+        },
+        "timing_computed": {
+          "const": false
+        },
+        "timing_fields_present": {
+          "const": false
+        }
+      },
+      "required": [
+        "functional_core_only",
+        "timing_computed",
+        "timing_fields_present",
+        "finite_sample_exact",
+        "reference_type",
+        "nuisance_block_invariant",
+        "strong_fwer_claimed",
+        "fwer_scope",
+        "nonzero_curve_coverage_claimed",
+        "band_coverage_scope"
+      ],
+      "type": "object"
+    },
+    "design_diagnostics": {
+      "additionalProperties": false,
+      "properties": {
+        "all_estimable": {
+          "type": "boolean"
+        },
+        "bins": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "active_experiment_ids": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "available_donor_indices": {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              "bin_index": {
+                "type": "integer"
+              },
+              "condition_column_index": {
+                "type": "integer"
+              },
+              "condition_information": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "condition_vif": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "dropped_bin_all_zero_experiment_ids": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "estimable": {
+                "type": "boolean"
+              },
+              "full_rank": {
+                "type": "integer"
+              },
+              "full_rank_threshold": {
+                "type": "number"
+              },
+              "n_case": {
+                "type": "integer"
+              },
+              "n_control": {
+                "type": "integer"
+              },
+              "reasons": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "reduced_rank": {
+                "type": "integer"
+              },
+              "reduced_rank_threshold": {
+                "type": "number"
+              },
+              "residual_df": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "bin_index",
+              "available_donor_indices",
+              "active_experiment_ids",
+              "dropped_bin_all_zero_experiment_ids",
+              "reduced_rank",
+              "full_rank",
+              "condition_column_index",
+              "residual_df",
+              "n_case",
+              "n_control",
+              "condition_information",
+              "condition_vif",
+              "reduced_rank_threshold",
+              "full_rank_threshold",
+              "estimable",
+              "reasons"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "donor_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "dropped_global_all_zero_experiment_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "experiment_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "no_intercept": {
+          "const": true
+        },
+        "rank_relative_tolerance": {
+          "const": 1e-10
+        },
+        "retained_experiment_ids": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "donor_ids",
+        "experiment_ids",
+        "retained_experiment_ids",
+        "dropped_global_all_zero_experiment_ids",
+        "rank_relative_tolerance",
+        "no_intercept",
+        "all_estimable",
+        "bins"
+      ],
+      "type": "object"
+    },
+    "donor_ids": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "effect_curve": {
+      "items": {
+        "items": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "integrated_effect": {
+      "items": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "type": "array"
+    },
+    "mapping_audit": {
+      "additionalProperties": false,
+      "properties": {
+        "attainable_exact_p_resolution": {
+          "type": "number"
+        },
+        "availability_signature_width": {
+          "type": "integer"
+        },
+        "identity_included": {
+          "const": false
+        },
+        "mapping_stream_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "n_immobile_donors": {
+          "type": "integer"
+        },
+        "n_mappings": {
+          "type": "integer"
+        },
+        "n_mobile_donors": {
+          "type": "integer"
+        },
+        "n_unique_mapping_hashes": {
+          "type": "integer"
+        },
+        "n_unique_nonidentity_mappings": {
+          "type": "integer"
+        },
+        "n_unique_signatures": {
+          "type": "integer"
+        },
+        "orbit_size": {
+          "type": "integer"
+        },
+        "same_mapping_all_bins_and_pathways": {
+          "const": true
+        },
+        "sampled_p_resolution": {
+          "type": "number"
+        },
+        "seed": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "n_mappings",
+        "seed",
+        "n_unique_signatures",
+        "n_mobile_donors",
+        "n_immobile_donors",
+        "orbit_size",
+        "n_unique_nonidentity_mappings",
+        "attainable_exact_p_resolution",
+        "sampled_p_resolution",
+        "identity_included",
+        "same_mapping_all_bins_and_pathways",
+        "availability_signature_width",
+        "n_unique_mapping_hashes",
+        "mapping_stream_sha256"
+      ],
+      "type": "object"
+    },
+    "p_curve_maxT": {
+      "items": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "type": "array"
+    },
+    "p_family_maxT": {
+      "items": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "type": "array"
+    },
+    "p_integrated": {
+      "items": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "type": "array"
+    },
+    "pathway_ids": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "pointwise_lower": {
+      "items": {
+        "items": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "pointwise_upper": {
+      "items": {
+        "items": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "q_by": {
+      "items": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "type": "array"
+    },
+    "schema_name": {
+      "const": "trajpathmix_functional_core_result"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "simultaneous_critical": {
+      "type": "number"
+    },
+    "simultaneous_lower": {
+      "items": {
+        "items": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "simultaneous_upper": {
+      "items": {
+        "items": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "standard_error_curve": {
+      "items": {
+        "items": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "type": "array"
+      },
+      "type": "array"
+    },
+    "support_mask": {
+      "items": {
+        "items": {
+          "type": "boolean"
+        },
+        "type": "array"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_name",
+    "schema_version",
+    "donor_ids",
+    "bin_indices",
+    "pathway_ids",
+    "effect_curve",
+    "standard_error_curve",
+    "pointwise_lower",
+    "pointwise_upper",
+    "simultaneous_lower",
+    "simultaneous_upper",
+    "simultaneous_critical",
+    "integrated_effect",
+    "p_curve_maxT",
+    "p_integrated",
+    "p_family_maxT",
+    "q_by",
+    "support_mask",
+    "design_diagnostics",
+    "mapping_audit",
+    "claim_scope"
+  ],
+  "title": "TrajPathMix functional-core result v1",
+  "type": "object"
+}

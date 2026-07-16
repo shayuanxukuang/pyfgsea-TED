@@ -1,0 +1,9 @@
+metric	value
+processing_status	pass
+pooled_cells	20729
+arrayed_cells	16695
+pooled_conditions	IFNg
+arrayed_conditions	IFNg;control;other
+genes_in_expression_matrix	18649
+proteins_in_adt_matrix	4
+analysis_caveat	pooled ECCITE metadata is IFNg-only; IFNg-vs-control baseline is available through arrayed metadata

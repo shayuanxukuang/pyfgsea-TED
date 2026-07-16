@@ -1,8 +1,14 @@
-# PyFgsea-TED: Trajectory Pathway Event Discovery
+# Trajectory Pathway Event Discovery (TED)
 
-PyFgsea-TED is the next development direction for PyFgsea. The goal is not only
-to draw pathway NES curves along pseudotime, but to discover stable pathway
-events in single-cell trajectories, branches, and condition comparisons.
+Trajectory Pathway Event Discovery (TED) is a structured-evidence downstream
+protocol for converting pathway, module or perturbation activity profiles into
+structured dynamic-event records. PyFgsea is one optional upstream activity
+generator; TED also accepts matrices produced by other pathway-scoring and
+trajectory workflows, and its estimand is distinct from the GSEA estimand in
+the PyFgsea article. Escort addresses whether an upstream inferred trajectory
+is a suitable representation, whereas TED starts after a trajectory, time or
+state coordinate has been supplied and audits event form, artifacts and
+evidential support.
 
 The event object is the central unit:
 
@@ -12,13 +18,13 @@ The event object is the central unit:
 - recurrent or biphasic programs
 - branch-specific or divergent pathway programs
 
-This positions PyFgsea-TED between classical preranked GSEA and gene-level
+This positions TED downstream of classical preranked GSEA and gene-level
 trajectory methods. Classical GSEA handles one ranked list; AUCell, UCell,
 GSVA, and ssGSEA score pathways per cell or sample; tradeSeq and CellRank are
 mostly gene-trend or fate-oriented; Lamian focuses on multi-sample pseudotime
-statistics. PyFgsea-TED uses the high-performance fgseaMultilevel-aligned core
-to turn trajectory-scale pathway dynamics into testable, summarized,
-comparable event tables.
+statistics. TED can use the high-performance PyFgsea core or another declared
+activity generator to turn trajectory-scale pathway dynamics into testable,
+summarized, comparable event tables.
 
 For the broader comparison against tradeSeq, CellRank, AUCell/UCell,
 GSVA/ssGSEA, decoupler, irGSEA, SCPA, Lamian, and GSDensity, see
@@ -77,9 +83,11 @@ The reliability framework is organized in five layers.
    - `compare_trajectory_gsea(..., mode="pseudobulk")` aggregates cells within
      each sample-window before ranking genes, then calibrates condition events
      by sample-label permutation.
-   - `compare_trajectory_gsea(..., mode="mixed_effect")` fits pathway-level
-     mixed-effect models on per-sample window NES values and reports
-     `mixed_event_p` / `mixed_event_fdr`.
+   - `compare_trajectory_gsea(..., mode="mixed_effect")` is an experimental,
+     second-stage linear model on per-sample window NES values. It reports
+     `mixed_event_p` / `mixed_event_fdr`, but does not model nonlinear curves,
+     overlapping-window residual correlation, or donor random slopes and must
+     not be treated as calibrated functional mixed-model inference.
    - The high-level event table reports pathway-level empirical p-values as
      `(1 + # null_stat >= observed_stat) / (1 + n_perm)`, then applies BH
      correction across pathways for each event statistic. `window_q` remains a
@@ -126,7 +134,8 @@ The object uses three fixed evidence layers:
 | Layer | Outputs | Role |
 | --- | --- | --- |
 | window-level | NES, `window_q` / per-window `padj` | Local visualization, not trajectory-wide discovery |
-| event-level | onset, peak, duration, AUC, `event_q` | Primary pathway event discovery evidence |
+| functional-effect level | simultaneous supported-region curve, integrated effect, amplitude, `event_q` | Primary donor-level pathway evidence |
+| conditional timing level | onset, peak location, duration, delay/phase attributes | Optional only after dataset-specific structural, localization, MDE, and false-positive gates pass |
 | robustness-level | bootstrap CI, ranker support, seed support, replicate support, leading-edge and baseline agreement | Stability and interpretation support |
 
 **Rule of thumb:** `window_q` is for visualization; `event_q` is for trajectory
@@ -578,6 +587,110 @@ pseudobulk_events = pyfgsea.compare_trajectory_gsea(
 )
 ```
 
+The rolling-window `mode="pseudobulk"` path above is retained for compatibility
+and exploratory event screening. For a fixed-grid donor-level randomization
+test, use the separate formal reference entry point:
+
+```python
+fixed = pyfgsea.run_fixed_grid_donor_pseudobulk(
+    adata,
+    "hallmark.gmt",
+    condition_key="genotype",
+    donor_key="donor",
+    control="control",
+    case="case",
+    pseudotime_key="dpt",
+    grid_edges=[0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0],
+    min_cells_per_donor_bin=10,
+    min_donors_per_condition=3,
+    strata_keys=["batch"],
+    permutation_mode="auto",
+    n_permutations=9999,
+)
+```
+
+This API freezes the grid, donor-bin aggregation, pathway family, and
+permutation-invariant common support before changing labels. It reports
+pathway-specific randomization p-values, BH and BY q-values, and single-step
+max-T FWER p-values as separate quantities. Its exactness is conditional on
+the supplied pseudotime and whole-donor exchangeability within the declared
+design strata. See `docs/fixed_grid_donor_pseudobulk.md` for formulas, audit
+tables, and failure boundaries.
+
+When condition is associated with continuous or categorical donor-level
+nuisance variables, use the separate adjusted conditional-regulation entry
+point:
+
+```python
+adjusted = pyfgsea.run_covariate_adjusted_donor_pseudobulk(
+    adata,
+    "hallmark.gmt",
+    condition_key="genotype",
+    donor_key="donor",
+    control="disomy",
+    case="trisomy",
+    pseudotime_key="reference_pseudotime",
+    continuous_covariate_keys=["gestational_age"],
+    categorical_covariate_keys=["sex", "library_protocol"],
+    strata_keys=["tissue"],
+    grid_edges=[0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0],
+    min_cells_per_donor_bin=10,
+    min_donors_per_condition=3,
+    min_residual_df=3,
+    max_condition_vif=10.0,
+    calibration_scale="studentized",
+    permutation_mode="auto",
+    n_permutations=9999,
+)
+```
+
+This model permutes an entire reduced-model donor residual curve with one
+mapping shared across all bins and pathways. Missing curves are restricted by
+their complete availability signature. It reports `product factorial(n)`
+residual mappings separately from `product choose(n, k)` condition-label
+assignments. Exhaustive residual enumeration is labeled finite-sample exact
+only for block-invariant reduced designs; with varying continuous nuisance
+rows it is an exhaustive Freedman--Lane reference, not an unconditional exact
+test. See `docs/covariate_adjusted_donor_pseudobulk.md`.
+
+Use `run_covariate_adjusted_design_simulation(adjusted, ...)` to reuse the
+observed donor rows, nuisance matrix, missing-bin signatures, and permutation
+blocks for repeated conditional-regulation null and amplitude-power runs. The
+simulation report separates raw type-I, maxT FWER, BY false discoveries, and
+power, and records scenarios it does not simulate; it is not a substitute for
+cell-level occupancy/speed or pseudotime-reestimation benchmarks.
+
+For parallel but non-causal separation of conditional regulation, state
+occupancy, and externally defined fate selection, use
+`run_regulation_occupancy_fate_decomposition(...)`. All three components use
+the same predeclared donor cohort, grid, and whole-donor mapping stream, and a
+cross-component studentized maxT reference is reported. Hard fate labels
+require an external fixed eligibility mask; soft fate probabilities must be
+precomputed and compositional. See `docs/regulation_occupancy_fate.md`.
+
+For trajectory circularity and method sensitivity, use
+`summarize_trajectory_robustness(...)` with a frozen variant manifest. Missing
+planned runs stay in the denominator, draw and method axes are weighted
+separately, and p/q columns are never pooled. Candidate-specific
+leave-pathway-out checks fail closed on feature exclusion, common cell masks,
+and reference provenance. See `docs/trajectory_robustness.md`.
+
+For interpretation of a fitted adjusted pathway effect, use
+`decompose_covariate_adjusted_leading_edge(...)`. Signed gene contributions
+close back to the pathway coefficient on every bin; event timing is fixed
+before gene ranking, and optional leave-one-donor-out refits quantify donor
+sensitivity. The outputs contain no gene-level p-values or q-values. See
+`docs/dynamic_leading_edge.md`.
+
+For a locked primary pathway universe, use
+`run_predeclared_pathway_family_inference(...)` to test disjoint,
+outcome-independent pathway families on the same whole-donor null mappings.
+Family maxT is followed by the source fit's global pathway maxT gate for member
+interpretation. Keep this separate from
+`cluster_exploratory_pathway_redundancy(...)`, whose gene-overlap and
+effect-curve clusters are descriptive and cannot be recycled as formal family
+hypotheses on the same data. See `docs/pathway_families.md`.
+
 ```python
 mixed_events = pyfgsea.compare_trajectory_gsea(
     adata,
@@ -588,6 +701,12 @@ mixed_events = pyfgsea.compare_trajectory_gsea(
     pseudotime_key="dpt",
 )
 ```
+
+`mode="mixed_effect"` is retained as an experimental descriptive sensitivity
+analysis. For donor-level discovery, prefer whole-donor label permutation with
+an exchangeable design. The current mixed model uses a linear time interaction
+on overlapping window summaries; its p-values are not a substitute for a
+validated nonlinear donor-level trajectory test.
 
 The equivalent high-level calibration entry points are
 `estimate_event_fdr(..., null="sample_label_permutation", replicate_key="donor")`,
@@ -671,9 +790,20 @@ bands = pyfgsea.bootstrap_trajectory_gsea(
     window_mode="adaptive",
     resample="samples",
     sample_key="donor",
+    pseudotime_draws_key="pseudotime_draws",
     n_boot=100,
 )
+
+timing_intervals = bands.attrs["event_intervals"]
 ```
+
+When `pseudotime_draws_key` is set, the named `adata.obsm` matrix must have one
+row per cell and one column per upstream trajectory draw. One draw is sampled
+for each bootstrap replicate before the complete trajectory calculation is
+rerun. `event_intervals` reports event detection support and conditional
+percentile summaries for activation midpoint/onset, peak, duration, and AUC.
+These are uncertainty-propagation diagnostics, not simultaneous confidence
+bands or validated coverage guarantees.
 
 Signed resources can be supplied as dictionary-valued gene sets. In
 `split_signed` mode, positive and negative arms are tested separately.
@@ -762,3 +892,28 @@ cmp = pyfgsea.compare_trajectory_gsea(
     n_permutations=200,
 )
 ```
+
+## Controlled Multi-Donor Trajectory Simulation
+
+For calibration work, use a generative donor design rather than attaching
+donor labels to an already simulated cell population:
+
+```python
+simulation = pyfgsea.simulate_donor_branch_trajectory(
+    n_donors_per_condition=(5, 4),
+    cells_per_donor=(150, 90),
+    control_onset=0.35,
+    case_onset=0.55,
+    active_branch="branch_b",
+    pseudotime_noise_sd=0.05,
+    n_pseudotime_draws=20,
+    seed=42,
+)
+```
+
+The returned AnnData contains latent and observed pseudotime, soft lineage
+probabilities, donor random effects, configurable branch proportions,
+and `obsm["pseudotime_draws"]`. Separate truth tables record the exact
+logistic-midpoint delay, active branch, pathway overlap, donor-correlated null,
+and realized donor design.
+See `docs/trajectory_simulation.md` for the schema and statistical boundary.

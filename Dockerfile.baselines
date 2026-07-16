@@ -1,13 +1,33 @@
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential cargo rustc \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir "maturin>=1.8"
+
+COPY pyproject.toml Cargo.toml Cargo.lock LICENSE ./
+COPY src ./src
+COPY pyfgsea ./pyfgsea
+RUN maturin build --release --out /wheels
+
 FROM mambaorg/micromamba:1.5.10
 
 WORKDIR /workspace
 
 COPY environment.baselines.yml /tmp/environment.baselines.yml
-RUN micromamba install -y -n base -f /tmp/environment.baselines.yml && micromamba clean -a -y
+RUN micromamba install -y -n base -f /tmp/environment.baselines.yml \
+    && micromamba clean -a -y
 
-COPY . /workspace
+COPY --from=builder /wheels /wheels
+RUN /opt/conda/bin/python -m pip install --no-cache-dir --no-deps /wheels/*.whl
+
+COPY scripts ./scripts
+COPY schemas ./schemas
+COPY config ./config
 
 ENV PATH=/opt/conda/bin:$PATH
-SHELL ["/bin/bash", "-lc"]
 
-CMD ["bash", "-lc", "python scripts/run_direct_external_baseline_suite.py --quick && python scripts/run_full_benchmark_suite.py --quick"]
+WORKDIR /run
+
+CMD ["/opt/conda/bin/python", "/workspace/scripts/run_direct_external_baseline_suite.py", "--quick", "--outdir", "/tmp/ted_baselines"]

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_unblinding_decision_v1.schema.json",
+  "title": "T21 unblinding decision v1",
+  "type": "object",
+  "required": [
+    "schema_name",
+    "schema_version",
+    "decision_id",
+    "decided_at_utc",
+    "decision",
+    "calibration_report_sha256",
+    "calibration_policy_sha256",
+    "real_pathway_outcomes_inspected_before_decision",
+    "approver",
+    "rationale"
+  ],
+  "properties": {
+    "schema_name": {"const": "t21_unblinding_decision"},
+    "schema_version": {"type": "string", "pattern": "^1\\."},
+    "decision_id": {"type": "string", "minLength": 1},
+    "decided_at_utc": {"type": "string", "format": "date-time"},
+    "decision": {"const": "unlock_real_pathway_results"},
+    "calibration_report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "calibration_policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "real_pathway_outcomes_inspected_before_decision": {"const": false},
+    "approver": {"type": "string", "minLength": 1},
+    "rationale": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": true
+}

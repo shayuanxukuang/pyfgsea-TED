@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_condition_blind_annotation_input_record_v1.schema.json",
+  "title": "T21 condition-blind annotation input record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_name",
+    "schema_version",
+    "created_at_utc",
+    "sampling_frame_id",
+    "outcome_blinded",
+    "real_pathway_results_inspected",
+    "condition_metadata_exported_to_model",
+    "candidate_pathway_results_exported_to_model",
+    "blinding",
+    "assembly_spec",
+    "source_shards",
+    "outputs",
+    "summary"
+  ],
+  "properties": {
+    "schema_name": {"const": "t21_condition_blind_annotation_input_record"},
+    "schema_version": {"type": "string", "pattern": "^1\\."},
+    "created_at_utc": {"type": "string", "minLength": 1},
+    "sampling_frame_id": {"const": "t21_fetal_liver_cd45_primary_v1"},
+    "outcome_blinded": {"const": true},
+    "real_pathway_results_inspected": {"const": false},
+    "condition_metadata_exported_to_model": {"const": false},
+    "candidate_pathway_results_exported_to_model": {"const": false},
+    "blinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anonymous_id_method", "blinding_key_sha256", "blinding_key_exported_to_predictor", "cell_manifest_exported_to_predictor"],
+      "properties": {
+        "anonymous_id_method": {"const": "HMAC-SHA256_truncated_128bit"},
+        "blinding_key_sha256": {"$ref": "#/$defs/sha256"},
+        "blinding_key_exported_to_predictor": {"const": false},
+        "cell_manifest_exported_to_predictor": {"const": false}
+      }
+    },
+    "assembly_spec": {"$ref": "#/$defs/file"},
+    "source_shards": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sourceShard"}},
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cell_manifest", "expression_inputs"],
+      "properties": {
+        "cell_manifest": {"$ref": "#/$defs/file"},
+        "expression_inputs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/expressionInput"}}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["n_libraries", "n_cells", "n_genes", "n_duplicate_cell_ids", "n_duplicate_library_barcodes"],
+      "properties": {
+        "n_libraries": {"type": "integer", "minimum": 1},
+        "n_cells": {"type": "integer", "minimum": 1},
+        "n_genes": {"type": "integer", "minimum": 1},
+        "n_duplicate_cell_ids": {"const": 0},
+        "n_duplicate_library_barcodes": {"const": 0}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relative_path", "bytes", "sha256"],
+      "properties": {
+        "relative_path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "fileFields": {
+      "type": "object",
+      "required": ["relative_path", "bytes", "sha256"],
+      "properties": {
+        "relative_path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "sourceShard": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/fileFields"},
+        {"type": "object", "required": ["shard_order", "library_id", "n_cells"], "properties": {"shard_order": {"type": "integer", "minimum": 0}, "library_id": {"type": "string", "minLength": 1}, "n_cells": {"type": "integer", "minimum": 1}}}
+      ]
+    },
+    "expressionInput": {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/$defs/fileFields"},
+        {"type": "object", "required": ["role", "shard_order", "n_cells", "n_genes"], "properties": {"role": {"const": "condition_blind_expression_h5ad"}, "shard_order": {"type": "integer", "minimum": 0}, "n_cells": {"type": "integer", "minimum": 1}, "n_genes": {"type": "integer", "minimum": 1}}}
+      ]
+    }
+  }
+}

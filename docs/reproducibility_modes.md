@@ -1,6 +1,6 @@
 # Reproducibility Modes
 
-TED should be distributed with three reproduction modes so reviewers do not need to rerun every large public dataset.
+TED is distributed with three reproduction modes so independent evaluators do not need to rerun every large public dataset.
 
 ## Mode 1: minimal demo
 

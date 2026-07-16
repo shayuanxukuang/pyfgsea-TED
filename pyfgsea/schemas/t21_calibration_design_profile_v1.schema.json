@@ -1,0 +1,386 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_calibration_design_profile_v1.schema.json",
+  "title": "T21 outcome-blind calibration design profile v1",
+  "type": "object",
+  "required": [
+    "schema_name",
+    "schema_version",
+    "outcome_blinded",
+    "real_pathway_results_read",
+    "identifier_anonymization",
+    "input_bindings",
+    "code_bindings",
+    "design",
+    "fixed_grid",
+    "trajectory_draw_dispersion",
+    "fate_probability_distribution",
+    "pathway_structure",
+    "formal_analysis_view",
+    "pooled_anonymous_log_expression_dispersion",
+    "integrity"
+  ],
+  "properties": {
+    "schema_name": {"const": "t21_outcome_blind_calibration_design_profile"},
+    "schema_version": {"const": "1.0.0"},
+    "outcome_blinded": {"const": true},
+    "real_pathway_results_read": {"const": false},
+    "identifier_anonymization": {
+      "type": "object",
+      "required": [
+        "donor_slots_sequential_after_digest_sort",
+        "raw_category_labels_omitted",
+        "cell_gene_and_pathway_identifiers_omitted",
+        "condition_specific_pathway_scores_omitted"
+      ],
+      "additionalProperties": {"type": "boolean", "const": true}
+    },
+    "input_bindings": {
+      "type": "object",
+      "required": ["analysis_plan", "scrna", "donor_design", "trajectory", "fates", "pathway_universe"],
+      "properties": {
+        "scrna": {
+          "type": "object",
+          "required": [
+            "file_sha256", "cell_set_hash", "gene_order_hash", "donor_set_hash",
+            "expression_contract_version", "expression_target_sum",
+            "expression_contract_sha256", "expression_implementation_sha256",
+            "x_semantic_sha256", "formal_analysis_cell_set_hash",
+            "formal_analysis_cell_order_hash", "formal_analysis_cell_count",
+            "formal_gene_order_bound_support_sha256", "formal_support_contract_sha256",
+            "formal_support_mask_sha256_uint8",
+            "formal_analysis_cell_mask_sha256_uint8", "formal_supported_gene_count"
+          ]
+        },
+        "trajectory": {
+          "type": "object",
+          "required": [
+            "tree_digest_sha256", "grid_hash", "cell_set_hash", "donor_set_hash",
+            "primary_draw_id_sha256", "formal_analysis_cell_set_hash",
+            "formal_analysis_cell_order_hash", "formal_analysis_cell_count"
+          ]
+        },
+        "fates": {
+          "type": "object",
+          "required": [
+            "file_sha256", "cell_set_hash", "formal_analysis_cell_set_hash",
+            "formal_analysis_cell_order_hash", "formal_analysis_cell_count"
+          ]
+        },
+        "pathway_universe": {
+          "type": "object",
+          "required": [
+            "file_sha256", "logical_sha256", "supported_logical_sha256",
+            "formal_gene_order_bound_support_sha256"
+          ]
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "anyOf": [
+            {"type": "integer", "minimum": 0},
+            {"type": "number"},
+            {"type": "boolean"},
+            {"type": "string", "minLength": 1}
+          ]
+        }
+      }
+    },
+    "code_bindings": {
+      "type": "object",
+      "minProperties": 4,
+      "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    },
+    "design": {
+      "type": "object",
+      "required": [
+        "n_donors",
+        "n_assignment_code_0",
+        "n_assignment_code_1",
+        "assignment_space_size",
+        "n_sex_signature_columns",
+        "n_batch_signature_columns",
+        "canonical_formal_design",
+        "canonical_formal_design_spec_sha256",
+        "donor_rows"
+      ],
+      "properties": {
+        "n_donors": {"const": 17},
+        "n_assignment_code_0": {"const": 3},
+        "n_assignment_code_1": {"const": 14},
+        "assignment_space_size": {"const": 680},
+        "n_sex_signature_columns": {"type": "integer", "minimum": 1},
+        "n_batch_signature_columns": {"type": "integer", "minimum": 1},
+        "canonical_formal_design_spec_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "canonical_formal_design": {
+          "type": "object",
+          "required": [
+            "schema_version",
+            "spec_sha256",
+            "continuous_covariate_keys",
+            "categorical_covariate_keys",
+            "strata_keys",
+            "technical_batch_status",
+            "reduced_design",
+            "reduced_design_sha256",
+            "terms",
+            "terms_sha256",
+            "encoding",
+            "encoding_sha256"
+          ],
+          "properties": {
+            "schema_version": {"const": "1.0.0"},
+            "spec_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "continuous_covariate_keys": {"type": "array", "const": ["pcw"]},
+            "categorical_covariate_keys": {"type": "array", "maxItems": 1, "items": {"type": "string"}},
+            "strata_keys": {"type": "array", "maxItems": 0},
+            "technical_batch_status": {"type": "string", "enum": ["omitted_not_identifiable", "omitted_single_level", "included_identifiable"]},
+            "reduced_design": {
+              "type": "array",
+              "minItems": 17,
+              "maxItems": 17,
+              "items": {"type": "array", "minItems": 2, "items": {"type": "number"}}
+            },
+            "reduced_design_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "terms": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+            "terms_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "encoding": {"type": "array", "minItems": 2, "items": {"type": "object"}},
+            "encoding_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          },
+          "additionalProperties": false
+        },
+        "donor_rows": {
+          "type": "array",
+          "minItems": 17,
+          "maxItems": 17,
+          "items": {
+            "type": "object",
+            "required": [
+              "donor_slot",
+              "assignment_code",
+              "all_cell_count",
+              "analysis_cell_count",
+              "pcw",
+              "pcw_z",
+              "formal_batch_code",
+              "sex_signature",
+              "batch_signature"
+            ],
+            "properties": {
+              "donor_slot": {"type": "string", "pattern": "^D[0-9]{3}$"},
+              "assignment_code": {"type": "integer", "enum": [0, 1]},
+              "all_cell_count": {"type": "integer", "minimum": 0},
+              "analysis_cell_count": {"type": "integer", "minimum": 0},
+              "pcw": {"type": "number"},
+              "pcw_z": {"type": "number"},
+              "formal_batch_code": {"type": "string", "minLength": 1},
+              "sex_signature": {"type": "array", "minItems": 1, "items": {"type": "number", "minimum": 0, "maximum": 1}},
+              "batch_signature": {"type": "array", "minItems": 1, "items": {"type": "number", "minimum": 0, "maximum": 1}}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "fixed_grid": {
+      "type": "object",
+      "required": [
+        "n_bins",
+        "n_draws",
+        "primary_draw_index",
+        "primary_draw_id_sha256",
+        "primary_draw_available_mask_sha256",
+        "primary_draw_cell_count_sha256",
+        "bin_left",
+        "bin_center",
+        "bin_right",
+        "adjacent_log_count_correlation",
+        "fixed_donor_bin_rows"
+      ],
+      "properties": {
+        "n_bins": {"const": 20},
+        "n_draws": {"type": "integer", "minimum": 1},
+        "primary_draw_index": {"type": "integer", "minimum": 0},
+        "primary_draw_id_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "primary_draw_available_mask_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "primary_draw_cell_count_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bin_left": {"type": "array", "minItems": 2, "items": {"type": "number", "minimum": 0, "maximum": 1}},
+        "bin_center": {"type": "array", "minItems": 2, "items": {"type": "number", "minimum": 0, "maximum": 1}},
+        "bin_right": {"type": "array", "minItems": 2, "items": {"type": "number", "minimum": 0, "maximum": 1}},
+        "adjacent_log_count_correlation": {"type": "number", "minimum": -1, "maximum": 1},
+        "fixed_donor_bin_rows": {
+          "type": "array",
+          "minItems": 34,
+          "items": {
+            "type": "object",
+            "required": ["donor_slot", "draw_index", "bin_index", "cell_count", "missing"],
+            "properties": {
+              "donor_slot": {"type": "string", "pattern": "^D[0-9]{3}$"},
+              "draw_index": {"type": "integer", "minimum": 0},
+              "bin_index": {"type": "integer", "minimum": 0},
+              "cell_count": {"type": "integer", "minimum": 0},
+              "missing": {"type": "boolean"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "trajectory_draw_dispersion": {"$ref": "#/$defs/distributionWithDonors"},
+    "fate_probability_distribution": {"type": "object", "minProperties": 5},
+    "pathway_structure": {
+      "type": "object",
+      "required": [
+        "n_pathways",
+        "n_unique_member_features",
+        "n_memberships",
+        "n_chr21_memberships",
+        "n_pathways_with_chr21",
+        "pathway_size_quantiles",
+        "chr21_membership_quantiles",
+        "pairwise_jaccard_quantiles",
+        "pairwise_jaccard_mean",
+        "anonymous_pathway_order_sha256",
+        "anonymous_member_feature_order_sha256",
+        "pathway_member_feature_indices",
+        "chr21_member_feature_mask",
+        "n_level_1_families",
+        "level_1_family_index_by_pathway",
+        "chr21_pathway_mask",
+        "pathway_dependence_correlation"
+        ,"n_input_pathways"
+        ,"primary_view_support_filter_applied_before_size_and_weights"
+        ,"pathway_min_size_after_support"
+        ,"pathway_max_size_after_support"
+        ,"supported_pathway_universe_logical_sha256"
+      ],
+      "properties": {
+        "n_pathways": {"type": "integer", "minimum": 2},
+        "n_unique_member_features": {"type": "integer", "minimum": 1},
+        "n_memberships": {"type": "integer", "minimum": 1},
+        "n_chr21_memberships": {"type": "integer", "minimum": 0},
+        "n_pathways_with_chr21": {"type": "integer", "minimum": 1},
+        "pathway_size_quantiles": {"$ref": "#/$defs/quantiles"},
+        "chr21_membership_quantiles": {"$ref": "#/$defs/quantiles"},
+        "pairwise_jaccard_quantiles": {"$ref": "#/$defs/quantiles"},
+        "pairwise_jaccard_mean": {"type": "number", "minimum": 0, "maximum": 1},
+        "anonymous_pathway_order_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "anonymous_member_feature_order_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "pathway_member_feature_indices": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "integer", "minimum": 0}
+          }
+        },
+        "chr21_member_feature_mask": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "boolean"}
+        },
+        "n_level_1_families": {"type": "integer", "minimum": 1},
+        "level_1_family_index_by_pathway": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"type": "integer", "minimum": -1}
+        },
+        "chr21_pathway_mask": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"type": "boolean"}
+        },
+        "pathway_dependence_correlation": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "items": {"type": "number", "minimum": -1, "maximum": 1}
+          }
+        },
+        "n_input_pathways": {"type": "integer", "minimum": 2},
+        "primary_view_support_filter_applied_before_size_and_weights": {"const": true},
+        "pathway_min_size_after_support": {"const": 5},
+        "pathway_max_size_after_support": {"const": 500},
+        "supported_pathway_universe_logical_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "formal_analysis_view": {
+      "type": "object",
+      "required": [
+        "definition", "lineage_primary_trajectory_fate_masks_identical",
+        "n_analysis_cells", "cell_set_hash", "cell_order_hash",
+        "gene_order_bound_support_sha256", "support_contract_sha256",
+        "support_mask_sha256_uint8", "analysis_cell_mask_sha256_uint8",
+        "gene_order_sha256", "n_supported_genes", "support_rule"
+      ],
+      "properties": {
+        "definition": {"const": "lineage_inclusion_and_primary_mapped_and_fate_eligible"},
+        "lineage_primary_trajectory_fate_masks_identical": {"const": true},
+        "n_analysis_cells": {"type": "integer", "minimum": 2},
+        "cell_set_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "cell_order_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "gene_order_bound_support_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "support_contract_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "support_mask_sha256_uint8": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "analysis_cell_mask_sha256_uint8": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "gene_order_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "n_supported_genes": {"type": "integer", "minimum": 1},
+        "support_rule": {"const": "pooled_all_condition_blind_formal_view_count_gt_zero"}
+      },
+      "additionalProperties": false
+    },
+    "pooled_anonymous_log_expression_dispersion": {
+      "type": "object",
+      "required": ["n_analysis_cells", "n_features", "expression_contract_version", "bins"],
+      "properties": {
+        "n_analysis_cells": {"type": "integer", "minimum": 2},
+        "n_features": {"type": "integer", "minimum": 2},
+        "expression_contract_version": {"const": "1.0.0"},
+        "bins": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": [
+              "anonymous_bin_index", "n_features", "mean_log_expression_mean",
+              "mean_log_expression_median", "log_expression_variance_mean",
+              "log_expression_variance_median",
+              "log_expression_variance_to_mean_median"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "integrity": {
+      "type": "object",
+      "required": ["profile_payload_sha256"],
+      "properties": {"profile_payload_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "quantiles": {
+      "type": "object",
+      "required": ["q00", "q10", "q25", "q50", "q75", "q90", "q100"],
+      "additionalProperties": {"type": "number"}
+    },
+    "distributionWithDonors": {
+      "type": "object",
+      "required": ["cell_level_draw_sd_quantiles", "donor_level"],
+      "properties": {
+        "cell_level_draw_sd_quantiles": {"$ref": "#/$defs/quantiles"},
+        "donor_level": {"type": "array", "minItems": 17, "maxItems": 17, "items": {"type": "object"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,7 @@
+metric	value
+processing_status	pass
+n_samples	6
+n_genes	23235
+conditions	Control;Dex_LPS;LPS
+dex_only_available	False
+analysis_caveat	Dex-only samples are not required by the locked late-Dex reversal gate

@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_release_candidate_inputs_v1.schema.json",
+  "title": "T21 release candidate input provenance v1",
+  "type": "object",
+  "required": [
+    "schema_name",
+    "schema_version",
+    "candidate_id",
+    "created_at_utc",
+    "candidate_build_environment",
+    "sources",
+    "source_repositories",
+    "transformations",
+    "validation_gates",
+    "blockers"
+  ],
+  "properties": {
+    "schema_name": {"const": "t21_release_candidate_inputs"},
+    "schema_version": {"type": "string", "pattern": "^1\\."},
+    "candidate_id": {"type": "string", "minLength": 1},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "candidate_build_environment": {
+      "type": "object",
+      "required": [
+        "scrna_assembly_git_commit",
+        "scrna_assembly_git_dirty",
+        "trajectory_fate_git_commit",
+        "trajectory_fate_git_dirty"
+      ],
+      "properties": {
+        "scrna_assembly_git_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "scrna_assembly_git_dirty": {"type": "boolean"},
+        "trajectory_fate_git_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "trajectory_fate_git_dirty": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "role",
+          "source_url",
+          "original_file_name",
+          "repository_relative_path",
+          "bytes",
+          "sha256",
+          "checksum_origin"
+        ],
+        "properties": {
+          "repository_relative_path": {"type": "string", "minLength": 1},
+          "bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "source_repositories": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["repository", "url", "commit", "dirty", "status"],
+        "properties": {
+          "repository": {"type": "string", "minLength": 1},
+          "url": {"type": "string", "minLength": 1},
+          "local_relative_path": {"type": "string"},
+          "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+          "dirty": {"type": "boolean"},
+          "status": {"type": "string", "minLength": 1},
+          "dirty_patch_relative_path": {"type": "string"},
+          "dirty_patch_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "transformations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["step_id", "script", "parameters", "seed"],
+        "properties": {
+          "step_id": {"type": "string", "minLength": 1},
+          "script": {"type": "string", "minLength": 1},
+          "parameters": {"type": "object"},
+          "seed": {"type": ["integer", "null"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "validation_gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gate", "status", "observed"],
+        "properties": {
+          "gate": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": true
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["blocker_id", "status", "detail", "required_for"],
+        "properties": {
+          "blocker_id": {"type": "string", "minLength": 1},
+          "status": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

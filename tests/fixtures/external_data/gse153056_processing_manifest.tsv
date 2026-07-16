@@ -1,0 +1,7 @@
+output	source	bytes
+expression_matrix.tsv.gz	GSM4633614_ECCITE_cDNA_counts.tsv.gz	64135801
+protein_matrix.tsv.gz	GSM4633615_ECCITE_ADT_counts.tsv.gz	196344
+guide_matrix.tsv.gz	GSM4633618_ECCITE_GDO_counts.tsv.gz	337680
+arrayed_expression_matrix.tsv.gz	GSM4633608_ECCITE_Arrayed_cDNA_counts.tsv.gz	39883220
+arrayed_protein_matrix.tsv.gz	GSM4633609_ECCITE_Arrayed_ADT_counts.tsv.gz	150657
+arrayed_guide_matrix.tsv.gz	GSM4633612_ECCITE_Arrayed_GO_CITE03_counts.tsv.gz	170201

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/t21_cell_annotation_adjudication_v1.schema.json",
+  "title": "T21 reference annotation adjudication record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_name", "schema_version", "status", "created_at_utc", "sampling_frame_id",
+    "outcome_blinded", "real_pathway_results_inspected", "condition_used_for_annotation",
+    "candidate_pathway_genes_used_for_annotation", "author_label_claim_allowed",
+    "original_cell_type_source", "inputs", "prediction_run", "model", "label_mapping",
+    "annotation_plan", "exact_join", "output", "record_checksum_policy", "claim_boundary"
+  ],
+  "properties": {
+    "schema_name": {"const": "t21_cell_annotation_adjudication_record"},
+    "schema_version": {"type": "string", "pattern": "^1\\."},
+    "status": {"const": "pass_condition_blind_reference_annotation_adjudicated"},
+    "created_at_utc": {"type": "string", "minLength": 1},
+    "sampling_frame_id": {"const": "t21_fetal_liver_cd45_primary_v1"},
+    "outcome_blinded": {"const": true},
+    "real_pathway_results_inspected": {"const": false},
+    "condition_used_for_annotation": {"const": false},
+    "candidate_pathway_genes_used_for_annotation": {"const": false},
+    "author_label_claim_allowed": {"const": false},
+    "original_cell_type_source": {"type": "string", "pattern": "^condition_blind_reference_mapping:"},
+    "inputs": {"type": "object"},
+    "prediction_run": {"type": "object"},
+    "model": {"type": "object"},
+    "label_mapping": {"type": "object"},
+    "annotation_plan": {"type": "object"},
+    "exact_join": {
+      "type": "object",
+      "required": ["key", "n_cell_manifest_rows", "n_prediction_rows", "n_output_rows", "n_duplicate_cell_ids", "n_duplicate_library_barcodes", "n_missing_predictions", "n_extra_predictions"],
+      "properties": {
+        "key": {"const": ["annotation_row_id", "cell_id", "library_id", "original_barcode"]},
+        "n_cell_manifest_rows": {"type": "integer", "minimum": 1},
+        "n_prediction_rows": {"type": "integer", "minimum": 1},
+        "n_output_rows": {"type": "integer", "minimum": 1},
+        "n_duplicate_cell_ids": {"const": 0},
+        "n_duplicate_library_barcodes": {"const": 0},
+        "n_missing_predictions": {"const": 0},
+        "n_extra_predictions": {"const": 0}
+      }
+    },
+    "output": {"type": "object", "required": ["relative_path", "bytes", "sha256"]},
+    "record_checksum_policy": {"const": "external_sha256_sidecar"},
+    "claim_boundary": {"type": "string", "minLength": 1}
+  }
+}
