@@ -16,7 +16,7 @@ FROM python:3.12-slim
 WORKDIR /workspace
 RUN python -m pip install --no-cache-dir \
     numpy pandas scipy scikit-learn statsmodels matplotlib seaborn \
-    pyyaml click jsonschema anndata requests openpyxl pyarrow zarr
+    pyyaml click jsonschema anndata requests openpyxl pyarrow zarr tabulate
 COPY --from=builder /wheels /wheels
 RUN python -m pip install --no-cache-dir --no-deps /wheels/*.whl
 

@@ -24,7 +24,8 @@ dependencies = [
     "openpyxl>=3.1",
     "pyarrow>=14",
     "zarr>=2.16",
-    "scrublet==0.2.3"
+    "scrublet==0.2.3",
+    "tabulate>=0.9"
 ]
 
 [project.optional-dependencies]
