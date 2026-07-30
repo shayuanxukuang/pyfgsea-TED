@@ -1,0 +1,6 @@
+asset_name	asset_role	archive_location	source_ref_or_manifest	bytes	sha256	verification_status	notes
+ted-v1.0.1-source.zip	tag-derived source archive	GitHub release	ted-v1.0.1			pending_not_built	Build only after the immutable tag exists; record the uploaded asset bytes.
+ted-v1.0.1-tests-junit.xml	test evidence	GitHub Actions artifact	exact-tag workflow			pending_not_built	Attach the exact-tag JUnit output; do not substitute a branch run.
+ted-v1.0.1-test-summary.txt	test evidence	GitHub Actions artifact	exact-tag workflow			pending_not_built	Attach the exact-tag terminal summary and job matrix.
+ted-v1.0.1-docker-build.log	container evidence	GitHub Actions artifact	exact-tag workflow			pending_not_built	Attach the no-cache main and baseline image build/smoke log.
+ted-v1.0.1-release-attestation.zip	release manifest attestation	GitHub release	exact-tag manifest_summary.json			pending_not_built	Contains the three manifests and summary generated from the immutable tag.

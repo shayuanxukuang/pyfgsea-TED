@@ -44,6 +44,15 @@ DATASETS = (
 )
 
 
+def trapezoid_compat(values: np.ndarray, x: np.ndarray) -> float:
+    """Integrate with the NumPy 1.x or 2.x public name."""
+
+    integrate = getattr(np, "trapezoid", None)
+    if integrate is None:
+        integrate = np.trapz
+    return float(integrate(values, x=x))
+
+
 def stratified_subsample(adata: ad.AnnData, key: str, maximum: int, seed: int) -> ad.AnnData:
     if adata.n_obs <= maximum:
         return adata.copy()
@@ -130,7 +139,7 @@ def event_rows(result: pd.DataFrame, events: pd.DataFrame) -> pd.DataFrame:
         group = group.sort_values("pt_mid")
         x = pd.to_numeric(group.pt_mid, errors="coerce").to_numpy(float)
         y = pd.to_numeric(group.NES, errors="coerce").to_numpy(float)
-        area = float(np.trapz(y, x)) if len(x) > 1 else float(np.nanmean(y))
+        area = trapezoid_compat(y, x) if len(x) > 1 else float(np.nanmean(y))
         label = str(indexed.loc[pathway, "event_label"]) if pathway in indexed.index else "no clear event"
         confidence = str(indexed.loc[pathway, "event_confidence_class"]) if pathway in indexed.index else "not supported"
         e_code = "E2" if "multi" in confidence.lower() or "switching" in confidence.lower() else "E1" if label != "no clear event" else "E0"

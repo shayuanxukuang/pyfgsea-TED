@@ -8,6 +8,21 @@ TED starts from pathway, module or perturbation activity profiles and writes row
 
 The journal-neutral semantic release `ted-v1.0.0` contains the July 2026 E/V v2 schema, current-task baselines, repeated embryo holdouts, heavy-control outputs, scaling results and validation-demo records. Its version-specific archive DOI is [10.5281/zenodo.21403133](https://doi.org/10.5281/zenodo.21403133).
 
+The local `ted-v1.0.1` candidate is limited to release engineering,
+dependency, test and documentation compatibility. It preserves the frozen
+v1.0 scientific artifacts and does not add a new manuscript analysis. Archive
+and distribution identifiers are distinct: `ted-v1.0.1` carries the
+`pyfgsea==0.1.5` Python package.
+
+> **Manuscript-companion boundary:** the `ted-v1.0.x` archive is not the
+> computational companion for the submitted *Briefings in Bioinformatics*
+> Figure 3 480-task common-task comparison or Figure 5 BNT162b2/GSE171964
+> analyses. It does not contain the corresponding 480 task registry, 2,400
+> method-task native outputs, BNT162b2 masked protein-outcome analysis, or
+> corrected GSE171964 replication package. Those materials require a
+> separately versioned manuscript-companion release. No v1.0.x command should
+> be represented as reproducing those figures.
+
 The historical May 2026 archive is:
 
 - Historical Git tag: `ted-gb-rc7`
@@ -31,7 +46,8 @@ The analysis lock identifies the exact estimator code, thresholds, seeds, inputs
 | `config/` | Event axes, negative-control axes, evidence-boundary rules and preregistration cards. Some historical filenames retain legacy `claim_boundary` names. |
 | `tables/` | Machine-readable event objects, benchmark summaries, evidence-boundary outputs, validation summaries and release-audit tables. Some historical filenames retain legacy terminology for provenance. |
 | `figures/` | Main figure PDFs/PNGs and their source-data TSV files. |
-| `reproducibility/` | Minimal demo entry point and reviewer-facing reproducibility helpers. |
+| `scripts/run_ted_validation_demo.py` | Deterministic installed-package and E/V schema smoke test. |
+| `legacy/pre_ev_schema/` | Historical pre-E/V development demonstration; not a package or manuscript reproduction test. |
 | `results/ted_v1_submission/` | Final figure source data, controlled-benchmark summaries, public-data audits and checksummed release outputs. |
 | `Dockerfile`, `Dockerfile.baselines`, `environment*.yml` | Runtime environments for TED analyses and direct external baseline execution. |
 
@@ -39,40 +55,70 @@ Journal submission files are managed separately from this software archive. Larg
 
 ## Quick start
 
-Create the Python environment:
+The sole canonical v1.0.x quickstart is
+[README_quickstart.md](README_quickstart.md). It creates the canonical Python
+3.11 environment, installs the package, runs the deterministic validation demo
+in isolated mode, and validates its activity-v1 and event-v2 tables through the
+installed `ted` console command.
+
+That sequence is a package/schema smoke test. It is not a benchmark, external
+validation, main-figure reproduction, or BIB manuscript-companion workflow.
+
+### Public CLI boundary
+
+The v1.0.x `ted run` command is the rolling-window trajectory GSEA entry point:
 
 ```bash
-conda env create -f environment.yml
-conda activate ted-development
+ted run --h5ad input.h5ad --gmt gene_sets.gmt --out results/
 ```
 
-Run the smallest local check:
+Only `--h5ad` and `--gmt` are required. `--out` defaults to `results`,
+`--pseudotime-key` defaults to `dpt_pseudotime`, `--window-size` defaults to
+800, `--step` defaults to 50, `--ranker` defaults to `mean_diff`, and
+`--window-mode` defaults to `cell_count`; use `ted run --help` for the remaining
+optional window, graph, layer and metadata controls.
+
+`ted run` does not accept `--activity`, `--metadata`, `--gene-sets`, `--design`
+or `--negative-controls`, and it does not implement the review-facing
+activity-table adjudication interface described in later manuscript materials.
+Use `ted --version` to report the installed distribution version. Schema
+validation is a separate command:
 
 ```bash
-python reproducibility/run_minimal_demo.py
+ted validate TABLE --kind activity
+ted validate TABLE --kind event --schema-version v2
 ```
 
-Run the release validation tests used most often for the known-source analyses:
+### Python and container support
 
-```bash
-python -m pytest \
-  tests/test_scp1064_file_qc.py \
-  tests/test_scp1064_cell_alignment.py \
-  tests/test_scp1064_event_outcome_alignment.py \
-  tests/test_scp1064_claim_boundary.py \
-  tests/test_ted_known_source_validation.py
-```
+- **Supported by package metadata:** Python 3.9 through 3.13.
+- **Candidate exact-tag compatibility matrix (pending):** Linux with Python
+  3.11, 3.12 and 3.13 in `.github/workflows/ci.yml`; these become
+  release-tested targets only after the immutable tag jobs pass.
+- **Full test/integration environment:** Linux with Python 3.11.
+- **Canonical locked reproduction environment:** Linux Python 3.11 from
+  `requirements-reproduction-py311.txt`; `environment.yml` is the portable
+  Conda base specification.
+- **Historical dependency snapshot:** `requirements-lock.txt` records a local
+  Python 3.12.7 snapshot; it is not the canonical Conda environment or a
+  complete cross-platform lock.
+- **External-baseline environment:** `environment.baselines.yml` uses Python
+  3.12 for tradeSeq/GSVA/AUCell/POT execution and does not expand the core
+  package's release-tested matrix.
 
-For the external baseline environment:
-
-```bash
-docker build -f Dockerfile.baselines -t ted-external-baselines .
-docker run --rm ted-external-baselines
-```
+The main `Dockerfile` builds and installs the wheel, then defaults to
+`ted --help`. `Dockerfile.baselines` defaults to importing `pyfgsea` and
+printing its version. Neither default command runs the validation demo,
+benchmark suite, external baselines, manuscript tables or manuscript figures;
+explicit invocations are documented in the canonical quickstart.
 
 ## Key validation outputs in the historical snapshot
 
 TED was evaluated with a combination of same-input benchmarks, public known-source datasets and evidence-boundary audits. The most useful starting points in the historical snapshot are:
+
+The figure numbers and filenames in this section are release-local historical
+names. In particular, `figure5_claim_upgrade_block_audit.pdf` is not the
+submitted BIB Figure 5.
 
 | File | What it records |
 | --- | --- |
@@ -104,6 +150,9 @@ Positive outcome alignment cannot override a failed mandatory control. Same-syst
 
 The July 2026 packet split is retrospective: replicates 1--8 per event mode are development data, 9--12 are used for baseline tuning, and 13--16 form a 40-packet shifted audit whose labels were masked during prediction. Because the generator and TED rules pre-date this split, the audit is not an untouched final test and no truly post-freeze external dataset has yet been evaluated.
 
+This 40-packet shifted audit is a historical v1.0.x result. It is not the
+480-task common-task benchmark used for the submitted BIB Figure 3.
+
 On the shifted audit, TED aggregate packet-class macro-F1 was 0.741 and controlled E-level macro-F1 was 0.761. Supervised models classified packet and artifact states more accurately. TED made no upward E errors in this audit, at the cost of a 0.225 false-demotion rate; each downgrade was linked to a recorded failed gate. TED is therefore evaluated as a conservative evidence-assignment protocol rather than an accuracy-maximizing classifier.
 
 Across 100 repeated 20% ZSCAPE embryo holdouts, median event-set Jaccard was 0.654, direction agreement 1.000 and mode agreement 0.936. Across 50 balanced split halves, median event-set Jaccard was 0.207, showing that event discovery is sample-sensitive even when directions of common calls are stable.
@@ -117,6 +166,8 @@ python scripts/run_direct_external_baseline_suite.py --quick
 ```
 
 For the package-complete baseline image, use `Dockerfile.baselines`.
+Running that image without an explicit command only imports `pyfgsea` and
+prints its version; it does not execute the baseline suite automatically.
 
 ## Data access
 

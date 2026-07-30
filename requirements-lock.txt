@@ -1,3 +1,7 @@
+# HISTORICAL ted-v1.0.0 Python dependency snapshot (not the v1.0.1 lock).
+# For the canonical v1.0.1 Python 3.11 environment, use
+# `requirements-reproduction-py311.txt`.
+#
 # TED release-candidate Python dependency snapshot.
 # Captured from the tested reproducibility environment for this release
 # candidate. This is intentionally separate from

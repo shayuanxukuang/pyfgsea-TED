@@ -1,77 +1,155 @@
-# TED-Development Reproducibility Quickstart
+# TED v1.0.x canonical package/schema quickstart
 
-This repository provides an auditable release-candidate workflow for TED. It supports a minimal demo, main figure/table reproduction from processed source data, and a full benchmark entry point. The portable environment is `environment.yml`; the tested dependency snapshot is `requirements-lock.txt` with `environment.lock.yml`.
+This is the sole canonical quickstart for the v1.0.x maintenance line. Its
+purpose is deliberately narrow: install the Python package, run a deterministic
+controlled-data generator through the installed package's schema validator, and
+exercise the public `ted validate` command.
 
-## Local Conda
+The v1.0.1 archive identifier and Python distribution version are distinct:
+`ted-v1.0.1` carries `pyfgsea==0.1.5`.
+
+> **Scope boundary:** this smoke test does not reproduce the submitted
+> *Briefings in Bioinformatics* Figure 3 480-task common-task comparison,
+> Figure 5 BNT162b2 masked protein outcome or corrected GSE171964 replication.
+> The v1.0.x archive does not contain those manuscript-companion inputs,
+> 2,400 method-task native outputs or figure source packages.
+
+## Python environments
+
+| Meaning | Version | Evidence |
+| --- | --- | --- |
+| Supported by package metadata | Python 3.9--3.13 | `pyproject.toml` declares `requires-python = ">=3.9,<3.14"`. |
+| Candidate exact-tag installed-package matrix | Linux, Python 3.11, 3.12 and 3.13 | The CI matrix is configured to build and install a wheel, run `pip check`, import outside the source tree, exercise `ted --version`/`ted run --help`, and run the schema smoke. A target is release-tested only after its immutable-tag job passes. |
+| Full test/integration environment | Linux, Python 3.11 | Fast, integration, slow and dedicated validation-demo jobs use Python 3.11. |
+| Canonical locked reproduction environment | Linux, Python 3.11 | `requirements-reproduction-py311.txt` is the uv-compiled lock; `environment.yml` supplies the portable Conda base used below. |
+| Historical dependency snapshot | Python 3.12.7 | `requirements-lock.txt` records a local release-candidate snapshot; it is not a complete cross-platform lock. |
+| External-baseline environment | Python 3.12 | `environment.baselines.yml` is specific to tradeSeq/GSVA/AUCell/POT execution. |
+
+## Canonical local smoke test
+
+Run these commands from a clean clone:
 
 ```bash
 conda env create -f environment.yml
 conda activate ted-development
-python reproducibility/run_minimal_demo.py
-python scripts/run_direct_external_baseline_suite.py --quick
-python reproduce_all_main_tables.py
-python reproduce_all_main_figures.py
-python scripts/run_full_benchmark_suite.py --quick
+python -m pip install uv
+uv pip sync --python python requirements-reproduction-py311.txt
+maturin build --release --out dist
+python -m pip install --no-deps dist/*.whl
+
+python -I scripts/run_ted_validation_demo.py \
+  --outdir results/ted_validation_demo
+
+ted validate results/ted_validation_demo/demo_activity.tsv \
+  --kind activity \
+  --report results/ted_validation_demo/activity_cli_validation.tsv
+
+ted validate results/ted_validation_demo/demo_events_v2.tsv \
+  --kind event \
+  --schema-version v2 \
+  --report results/ted_validation_demo/event_cli_validation.tsv
 ```
 
-For the locked reviewer snapshot, install from `requirements-lock.txt` inside a Python 3.12.7 environment. The lock file records the package versions used to generate the current submission package.
+`python -I` prevents the repository root from satisfying the package import, so
+the demo must use the installed distribution. Successful completion verifies:
 
-## Docker
+- the wheel/source installation can import `pyfgsea`;
+- the deterministic generator completes;
+- the built-in activity-v1 and event-v2 schemas are packaged;
+- both tables pass the Python and console-command validators.
+
+It does not verify biological truth, external replication, the full TED
+inference stack, benchmark performance or manuscript figure reproduction.
+
+Expected outputs are:
+
+- `results/ted_validation_demo/demo_activity.tsv`
+- `results/ted_validation_demo/demo_events_v2.tsv`
+- `results/ted_validation_demo/demo_events.tsv`
+- `results/ted_validation_demo/demo_validation.tsv`
+- `results/ted_validation_demo/demo_report.html`
+- `results/ted_validation_demo/demo_manifest.json`
+- the two CLI validation reports requested above
+
+See [docs/ted_validation_demo.md](docs/ted_validation_demo.md) for the field and
+evidence-boundary contract.
+
+## Real `ted run` interface
+
+`ted run` is the rolling-window trajectory GSEA pipeline, not a generic
+activity-table TED adjudication command:
 
 ```bash
-docker build -t ted-development .
-docker run --rm -v "$PWD/data_external:/workspace/data_external" ted-development
+ted run \
+  --h5ad input.h5ad \
+  --gmt gene_sets.gmt \
+  --out results/
+```
 
+Required options:
+
+- `--h5ad`: AnnData input.
+- `--gmt`: gene-set collection.
+
+Important defaults:
+
+- `--out results`
+- `--pseudotime-key dpt_pseudotime`
+- `--window-size 800`
+- `--step 50`
+- `--ranker mean_diff`
+- `--window-mode cell_count`
+
+Use `ted run --help` for optional metadata merge, layer/raw selection,
+alternative rankers, adaptive/graph windows and diagnostics controls.
+Use `ted --version` to report the installed distribution version.
+
+The v1.0.x command does **not** accept `--activity`, `--metadata`,
+`--gene-sets`, `--design` or `--negative-controls`. Any document showing that
+interface is an illustration from later manuscript planning, not an executable
+v1.0.x command.
+
+## Docker behavior
+
+The main image builds and installs the package. Its default command is
+`ted --help`; it does not run a demo, benchmark or figure workflow:
+
+```bash
+docker build -t ted-v1.0.x .
+docker run --rm ted-v1.0.x
+
+docker run --rm \
+  -v "$PWD/results:/out" \
+  ted-v1.0.x \
+  python -I scripts/run_ted_validation_demo.py --outdir /out/ted_validation_demo
+```
+
+The baseline image installs R/Bioconductor tradeSeq, GSVA and AUCell, Python
+POT, and the local package. Its default command only imports `pyfgsea` and
+prints the package version:
+
+```bash
 docker build -f Dockerfile.baselines -t ted-external-baselines .
-docker run --rm -v "$PWD/data_external:/workspace/data_external" ted-external-baselines
+docker run --rm ted-external-baselines
+
+docker run --rm \
+  -v "$PWD/data_external:/workspace/data_external" \
+  ted-external-baselines \
+  python /workspace/scripts/run_direct_external_baseline_suite.py --quick
 ```
 
-The Docker command runs the minimal demo, a quick benchmark smoke run, and main table/figure reproduction. A full benchmark run can be launched inside the container with:
+The explicit baseline command records missing-package or execution statuses in
+`direct_external_baseline_execution_manifest.tsv`; the no-argument container
+run is only an import/version smoke test.
 
-```bash
-python scripts/run_full_benchmark_suite.py
-```
+## Historical v1.0.x workflows
 
-`Dockerfile.baselines` is a package-complete direct-baseline image. It installs R/Bioconductor tradeSeq, GSVA and AUCell plus Python POT and runs `scripts/run_direct_external_baseline_suite.py`. On workstations where some external packages are not installed, the same script records missing-package statuses in `direct_external_baseline_execution_manifest.tsv` rather than silently replacing them with internal approximations.
+The archive retains historical known-source audits, a 40-packet shifted audit,
+external-baseline wrappers and other release-local outputs. Those facts remain
+part of the v1.0.x provenance, but they are not the submitted BIB 480-task
+benchmark or BNT162b2/GSE171964 companion.
 
-## Reproduction Modes
-
-Mode 1 minimal demo:
-
-```bash
-python reproducibility/run_minimal_demo.py
-```
-
-Expected outputs:
-
-- `data_external/ted_development_reproducibility/minimal_demo/demo_output_event_objects.tsv`
-- `data_external/ted_development_reproducibility/minimal_demo/demo_claim_ceiling.tsv`
-- `data_external/ted_development_reproducibility/minimal_demo/demo_report.md`
-
-Mode 2 main figures and tables:
-
-```bash
-python reproduce_all_main_tables.py
-python reproduce_all_main_figures.py
-```
-
-Mode 3 full benchmark suite:
-
-```bash
-python scripts/run_full_benchmark_suite.py
-```
-
-Use `--quick` for a small reviewer smoke test.
-
-## Main Outputs
-
-- `data_external/ted_development_phase4_benchmark/adversarial_benchmark/`
-- `data_external/ted_development_phase4_benchmark/serious_baseline_suite/`
-- `data_external/ted_development_phase4_benchmark/baseline_comparison/`
-- `data_external/ted_development_phase4_benchmark/ablation/`
-- `data_external/ted_development_phase4_benchmark/algorithm_sensitivity/`
-- `data_external/ted_development_reproducibility/main_tables/`
-- `data_external/ted_development_reproducibility/main_figures/`
-- `data_external/ted_development_reproducibility/full_benchmark_run_manifest.tsv`
-
-The expected scientific behavior is not perfect performance. In adversarial low-identifiability regimes, TED should lower the claim ceiling instead of promoting a strong biological claim.
+The former `reproducibility/run_minimal_demo.py` is preserved at
+`legacy/pre_ev_schema/run_minimal_demo.py`. It implements an older standalone
+Level 1--4 claim-ceiling illustration and does not import the installed
+package. It is not an installation check and is not part of this quickstart.

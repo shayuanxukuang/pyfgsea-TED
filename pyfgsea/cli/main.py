@@ -1,7 +1,11 @@
-import click
+from __future__ import annotations
+
 from pathlib import Path
 from typing import cast
 
+import click
+
+from .. import __version__
 from ..api import run as run_pipeline
 from ..io.meta_merge import merge_metadata_safe
 from ..ted_mad.cli import cli as ted_mad_cli
@@ -14,6 +18,7 @@ from ..ted_schema import (
 
 
 @click.group()
+@click.version_option(version=__version__, prog_name="ted")
 def cli():
     pass
 

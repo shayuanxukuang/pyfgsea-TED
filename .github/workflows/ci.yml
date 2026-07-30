@@ -17,6 +17,64 @@ env:
   CARGO_HTTP_TIMEOUT: 60
 
 jobs:
+  installed-package-compatibility:
+    name: installed package (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build and install wheel
+        run: |
+          python -m pip install --upgrade pip maturin
+          maturin build --release --out dist
+          python -m pip install dist/*.whl
+          python -m pip check
+      - name: Exercise installed package outside the source tree
+        run: |
+          mkdir -p /tmp/ted-installed-smoke
+          cd /tmp/ted-installed-smoke
+          python -I -c "import pyfgsea; print(pyfgsea.__version__)"
+          ted --version
+          ted run --help
+          python -I "$GITHUB_WORKSPACE/scripts/run_ted_validation_demo.py" --outdir demo
+          ted validate demo/demo_activity.tsv --kind activity --report demo/activity_validation.tsv
+          ted validate demo/demo_events_v2.tsv --kind event --schema-version v2 --report demo/event_validation.tsv
+      - name: Upload compatibility evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ted-python-${{ matrix.python-version }}-smoke
+          path: /tmp/ted-installed-smoke/demo/**
+
+  locked-reproduction-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install the canonical locked environment
+        run: |
+          python -m pip install --upgrade pip uv
+          uv pip sync --system requirements-reproduction-py311.txt
+          maturin build --release --out dist
+          python -m pip install --no-deps dist/*.whl
+          python -m pip check
+      - name: Run the locked schema smoke
+        run: |
+          mkdir -p /tmp/ted-locked-smoke
+          cd /tmp/ted-locked-smoke
+          python -I "$GITHUB_WORKSPACE/scripts/run_ted_validation_demo.py" --outdir demo
+          ted validate demo/demo_activity.tsv --kind activity --report demo/activity_validation.tsv
+          ted validate demo/demo_events_v2.tsv --kind event --schema-version v2 --report demo/event_validation.tsv
+
   fast-tests:
     runs-on: ubuntu-latest
     steps:
@@ -35,12 +93,24 @@ jobs:
           mkdir -p /tmp/ted-test-support
           cp -r scripts /tmp/ted-test-support/
           cd /tmp
-          PYTHONPATH=/tmp/ted-test-support python -m pytest "$GITHUB_WORKSPACE/tests" -q -m "not slow and not external and not external_data" --import-mode=importlib
+          set -o pipefail
+          PYTHONPATH=/tmp/ted-test-support python -m pytest "$GITHUB_WORKSPACE/tests" -q \
+            -m "not slow and not external and not external_data" \
+            --import-mode=importlib \
+            --junitxml="$GITHUB_WORKSPACE/ted-v1.0.1-tests-junit.xml" \
+            | tee "$GITHUB_WORKSPACE/ted-v1.0.1-test-summary.txt"
       - name: Upload wheel
         uses: actions/upload-artifact@v4
         with:
           name: ted-linux-wheel
           path: dist/*.whl
+      - name: Upload test evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ted-v1.0.1-test-evidence
+          path: |
+            ted-v1.0.1-tests-junit.xml
+            ted-v1.0.1-test-summary.txt
 
   integration:
     runs-on: ubuntu-latest
@@ -95,7 +165,7 @@ jobs:
         run: |
           python -I scripts/run_ted_validation_demo.py --outdir ci_ted_demo
           ted validate ci_ted_demo/demo_activity.tsv --kind activity --report ci_ted_demo/activity_validation.tsv
-          ted validate ci_ted_demo/demo_events.tsv --kind event --report ci_ted_demo/event_validation.tsv
+          ted validate ci_ted_demo/demo_events_v2.tsv --kind event --schema-version v2 --report ci_ted_demo/event_validation.tsv
       - name: Upload validation evidence
         uses: actions/upload-artifact@v4
         with:
@@ -109,12 +179,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build main image without cache
-        run: docker build --no-cache -t ted:1.0.0 .
+        run: docker build --no-cache -t ted:ci .
       - name: Smoke-test main image
         run: |
-          docker run --rm ted:1.0.0 ted --help
-          docker run --rm ted:1.0.0 python -I scripts/run_ted_validation_demo.py --outdir /tmp/ted_demo
+          docker run --rm ted:ci
+          docker run --rm ted:ci ted --version
+          docker run --rm ted:ci python -I scripts/run_ted_validation_demo.py --outdir /tmp/ted_demo
       - name: Build baseline image without cache
-        run: docker build --no-cache -f Dockerfile.baselines -t ted-baselines:1.0.0 .
+        run: docker build --no-cache -f Dockerfile.baselines -t ted-baselines:ci .
       - name: Smoke-test baseline image
-        run: docker run --rm ted-baselines:1.0.0
+        run: docker run --rm ted-baselines:ci
+
+  exact-tag-release-attestation:
+    if: github.ref == 'refs/tags/ted-v1.0.1'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build Git-object-backed release manifests
+        run: |
+          python scripts/build_release_manifests.py \
+            --baseline-ref ted-v1.0.0 \
+            --release-ref "$GITHUB_SHA" \
+            --external-assets-template release/ted-v1.0.1/EXTERNAL_ARCHIVE_ASSETS.template.tsv \
+            --outdir release-attestation
+      - name: Upload release attestation
+        uses: actions/upload-artifact@v4
+        with:
+          name: ted-v1.0.1-release-attestation
+          path: release-attestation/**

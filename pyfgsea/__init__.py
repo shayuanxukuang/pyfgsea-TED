@@ -6,7 +6,7 @@ from .wrapper import (
     get_random_es_means,
 )
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 try:
     from .wrapper import run_scanpy  # type: ignore
