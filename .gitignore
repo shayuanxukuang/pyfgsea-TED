@@ -4,6 +4,8 @@ __pycache__/
 .venv-release/
 dist/
 target/
+results/ted_bib_focused_81/
+release/ted-v1.1.0/tests/focused_81/
 *.pyc
 *.log
 *.aux

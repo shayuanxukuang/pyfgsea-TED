@@ -35,6 +35,13 @@ EVENT_V2_FIELDS = frozenset(
         "evidence_boundary",
         "supported_interpretation",
         "unsupported_interpretation_current_evidence",
+        "block_support_method",
+        "minimum_attainable_p",
+        "minimum_attainable_q",
+        "permutation_resolution_pass",
+        "resampling_selection_frequency",
+        "discovery_stability_status",
+        "parallel_evidence_records",
     }
 )
 EVENT_Q_MISSING_REASONS = frozenset(
@@ -68,7 +75,9 @@ def read_ted_table(path: str | Path) -> pd.DataFrame:
     return pd.read_csv(path, sep="\t")
 
 
-def detect_ted_schema_version(frame: pd.DataFrame, kind: TableKind) -> Literal["v1", "v2"]:
+def detect_ted_schema_version(
+    frame: pd.DataFrame, kind: TableKind
+) -> Literal["v1", "v2"]:
     """Detect the built-in schema from v2 marker columns without changing v1 behavior.
 
     The presence of any v2-only field selects v2. A partially migrated table
@@ -91,7 +100,9 @@ def _resolve_schema_version(
     if schema_version not in {"v1", "v2"}:
         raise ValueError(f"Unsupported TED schema version: {schema_version}")
     if schema_version not in SCHEMA_FILES_BY_VERSION[kind]:
-        raise ValueError(f"TED {kind} tables do not have a built-in {schema_version} schema")
+        raise ValueError(
+            f"TED {kind} tables do not have a built-in {schema_version} schema"
+        )
     return schema_version
 
 
@@ -112,7 +123,11 @@ def _schema_path(kind: TableKind, schema_version: str = "v1") -> Path:
 def _record_for_json(row: pd.Series) -> dict[str, object]:
     out: dict[str, object] = {}
     for key, value in row.items():
-        if pd.isna(value):
+        if isinstance(value, dict):
+            out[str(key)] = value
+        elif isinstance(value, (list, tuple)):
+            out[str(key)] = list(value)
+        elif pd.isna(value):
             out[str(key)] = None
         elif isinstance(value, np.generic):
             out[str(key)] = value.item()
@@ -149,7 +164,7 @@ def validate_ted_table(
     """Validate a TED activity or event table against schema and semantic gates.
 
     Event v1 remains the fallback for legacy tables. Event v2 is selected when
-    any E/V marker column is present, or can be requested explicitly with
+    any v2 marker column is present, or can be requested explicitly with
     ``schema_version="v2"``. A custom ``schema_path`` changes the JSON Schema
     document but retains semantic checks for the resolved built-in version.
     """
@@ -157,7 +172,9 @@ def validate_ted_table(
         raise ValueError(f"Unsupported TED table kind: {kind}")
     frame = read_ted_table(table) if isinstance(table, (str, Path)) else table.copy()
     resolved_version = _resolve_schema_version(frame, kind, schema_version)
-    schema_file = Path(schema_path) if schema_path else _schema_path(kind, resolved_version)
+    schema_file = (
+        Path(schema_path) if schema_path else _schema_path(kind, resolved_version)
+    )
     schema = json.loads(schema_file.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema)
     issues: list[dict[str, object]] = []
@@ -168,7 +185,9 @@ def validate_ted_table(
 
     for idx, row in frame.iterrows():
         record = _record_for_json(row)
-        for error in sorted(validator.iter_errors(record), key=lambda item: list(item.path)):
+        for error in sorted(
+            validator.iter_errors(record), key=lambda item: list(item.path)
+        ):
             location = ".".join(map(str, error.path)) or "record"
             _issue(
                 issues,
@@ -183,9 +202,13 @@ def validate_ted_table(
             pd.to_numeric, errors="coerce"
         )
         if not numeric.empty and not np.isfinite(numeric.to_numpy(dtype=float)).all():
-            _issue(issues, "error", "finite_numeric", "time and activity must be finite")
+            _issue(
+                issues, "error", "finite_numeric", "time and activity must be finite"
+            )
         if {"dataset_id", "pathway", "time"}.issubset(frame.columns):
-            support = frame.groupby(["dataset_id", "pathway"], dropna=False)["time"].nunique()
+            support = frame.groupby(["dataset_id", "pathway"], dropna=False)[
+                "time"
+            ].nunique()
             if (support < 2).any():
                 _issue(
                     issues,
@@ -193,16 +216,23 @@ def validate_ted_table(
                     "time_support",
                     f"{int((support < 2).sum())} dataset/pathway groups have fewer than two time points",
                 )
-        if "block_id" in frame and frame["block_id"].astype("string").str.strip().isin(["", "<NA>"]).any():
-            _issue(issues, "error", "block_id", "block_id contains missing or blank values")
+        if (
+            "block_id" in frame
+            and frame["block_id"].astype("string").str.strip().isin(["", "<NA>"]).any()
+        ):
+            _issue(
+                issues, "error", "block_id", "block_id contains missing or blank values"
+            )
     else:
         if "event_q" in frame:
             q = pd.to_numeric(frame["event_q"], errors="coerce")
             out_of_range = q.notna() & ((q < 0) | (q > 1))
             if resolved_version == "v2" and "event_test_status" in frame:
                 status = frame["event_test_status"].astype("string")
-                invalid = out_of_range | (status.eq("not_run") & q.notna()) | (
-                    status.isin(["run_not_supported", "run_supported"]) & q.isna()
+                invalid = (
+                    out_of_range
+                    | (status.eq("not_run") & q.notna())
+                    | (status.isin(["run_not_supported", "run_supported"]) & q.isna())
                 )
                 message = (
                     "event_q must be null exactly when event_test_status=not_run "
@@ -218,8 +248,11 @@ def validate_ted_table(
             "matched_functional_rescue",
         }.issubset(frame.columns):
             high = frame["claim_ceiling"].astype(str).str.match(r"Level\s+[45]")
-            rescue = frame["matched_functional_rescue"].astype(str).str.lower().isin(
-                {"true", "1", "yes"}
+            rescue = (
+                frame["matched_functional_rescue"]
+                .astype(str)
+                .str.lower()
+                .isin({"true", "1", "yes"})
             )
             if (high & ~rescue).any():
                 _issue(
@@ -233,17 +266,24 @@ def validate_ted_table(
                 status = frame["event_test_status"].astype("string")
                 raw_missing_reason = frame["event_q_missing_reason"]
                 missing_reason = raw_missing_reason.astype("string")
-                reason_absent = raw_missing_reason.isna() | missing_reason.str.strip().fillna("").eq("")
+                reason_absent = (
+                    raw_missing_reason.isna()
+                    | missing_reason.str.strip().fillna("").eq("")
+                )
                 reason_valid = missing_reason.fillna("").isin(EVENT_Q_MISSING_REASONS)
                 invalid_not_run = status.eq("not_run") & (reason_absent | ~reason_valid)
-                invalid_run = status.isin(["run_not_supported", "run_supported"]) & ~reason_absent
+                invalid_run = (
+                    status.isin(["run_not_supported", "run_supported"]) & ~reason_absent
+                )
                 for idx in frame.index[invalid_not_run]:
                     _issue(
                         issues,
                         "error",
                         "event_q_missing_reason",
                         "not_run rows require a stable event_q_missing_reason",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
                 for idx in frame.index[invalid_run]:
                     _issue(
@@ -251,14 +291,18 @@ def validate_ted_table(
                         "error",
                         "event_q_missing_reason",
                         "rows with a valid test run must leave event_q_missing_reason null",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
 
             if {"event_support_code", "e0_reason_code"}.issubset(frame.columns):
                 raw_reason = frame["e0_reason_code"]
                 reason = raw_reason.astype("string")
                 e0 = frame["event_support_code"].eq("E0")
-                missing_reason = raw_reason.isna() | reason.str.strip().fillna("").eq("")
+                missing_reason = raw_reason.isna() | reason.str.strip().fillna("").eq(
+                    ""
+                )
                 invalid_reason = ~reason.fillna("").isin(E0_REASON_CODES)
                 for idx in frame.index[e0 & (missing_reason | invalid_reason)]:
                     _issue(
@@ -266,7 +310,9 @@ def validate_ted_table(
                         "error",
                         "e0_reason_code",
                         "E0 rows require one of the five stable e0_reason_code values",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
                 for idx in frame.index[~e0 & ~missing_reason]:
                     _issue(
@@ -274,29 +320,101 @@ def validate_ted_table(
                         "error",
                         "e0_reason_code",
                         "E1/E2 rows must leave e0_reason_code null",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
 
-            if {"resampling_selection_frequency", "discovery_stability_status"}.issubset(frame.columns):
-                frequency = pd.to_numeric(frame["resampling_selection_frequency"], errors="coerce")
+            if {
+                "resampling_selection_frequency",
+                "discovery_stability_status",
+            }.issubset(frame.columns):
+                frequency = pd.to_numeric(
+                    frame["resampling_selection_frequency"], errors="coerce"
+                )
                 stability = frame["discovery_stability_status"].astype("string")
                 assessed = frequency.notna()
                 expected = pd.Series("unstable", index=frame.index, dtype="string")
                 expected.loc[frequency >= 0.50] = "intermediate"
                 expected.loc[frequency >= 0.80] = "stable_core"
                 invalid = assessed & stability.ne(expected)
-                invalid |= ~assessed & ~stability.isin(["<NA>", "not_assessed"])
+                invalid |= ~assessed & stability.ne("not_evaluable")
                 for idx in frame.index[invalid]:
                     _issue(
                         issues,
                         "error",
                         "discovery_stability_consistency",
                         "discovery_stability_status must match resampling_selection_frequency thresholds",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
 
-            if {"upstream_disagreement_flag", "event_support_code"}.issubset(frame.columns):
-                disagreement = frame["upstream_disagreement_flag"].astype("boolean").fillna(False)
+            resolution_fields = {
+                "block_support_method",
+                "minimum_attainable_p",
+                "minimum_attainable_q",
+                "permutation_resolution_pass",
+                "event_test_status",
+                "event_q_missing_reason",
+                "event_support_code",
+            }
+            if resolution_fields.issubset(frame.columns):
+                permutation_methods = {
+                    "exact_paired_sign_permutation",
+                    "monte_carlo_block_permutation",
+                }
+                for idx, row in frame.iterrows():
+                    method = row["block_support_method"]
+                    is_permutation = method in permutation_methods
+                    pass_flag = row["permutation_resolution_pass"]
+                    minimum_p = pd.to_numeric(
+                        pd.Series([row["minimum_attainable_p"]]), errors="coerce"
+                    ).iloc[0]
+                    minimum_q = pd.to_numeric(
+                        pd.Series([row["minimum_attainable_q"]]), errors="coerce"
+                    ).iloc[0]
+                    attainable_present = pd.notna(minimum_p) or pd.notna(minimum_q)
+                    row_index = int(idx) if isinstance(idx, (int, np.integer)) else None
+                    if is_permutation and (
+                        not isinstance(pass_flag, (bool, np.bool_))
+                        or not attainable_present
+                    ):
+                        _issue(
+                            issues,
+                            "error",
+                            "permutation_resolution_fields",
+                            "permutation methods require a Boolean resolution decision and minimum attainable p or q",
+                            row_index=row_index,
+                        )
+                    if not is_permutation and pd.notna(pass_flag):
+                        _issue(
+                            issues,
+                            "error",
+                            "permutation_resolution_fields",
+                            "non-permutation block-support methods must leave permutation_resolution_pass null",
+                            row_index=row_index,
+                        )
+                    if pass_flag is False and not (
+                        row["event_test_status"] == "not_run"
+                        and row["event_q_missing_reason"]
+                        == "insufficient_permutation_resolution"
+                        and row["event_support_code"] == "E0"
+                    ):
+                        _issue(
+                            issues,
+                            "error",
+                            "permutation_resolution_gate",
+                            "failed permutation resolution requires not_run, null q, E0 and insufficient_permutation_resolution",
+                            row_index=row_index,
+                        )
+
+            if {"upstream_disagreement_flag", "event_support_code"}.issubset(
+                frame.columns
+            ):
+                disagreement = (
+                    frame["upstream_disagreement_flag"].astype("boolean").fillna(False)
+                )
                 invalid = disagreement & frame["event_support_code"].eq("E2")
                 for idx in frame.index[invalid]:
                     _issue(
@@ -304,7 +422,9 @@ def validate_ted_table(
                         "error",
                         "upstream_disagreement_gate",
                         "upstream disagreement forbids E2; return E1 or an ambiguity set",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
 
             text_fields = [
@@ -337,8 +457,10 @@ def validate_ted_table(
                     + "-"
                     + frame["validation_provenance_code"].astype(str)
                 )
-                observed = frame["evidence_boundary"].astype(str).str.replace(
-                    "\u2013", "-", regex=False
+                observed = (
+                    frame["evidence_boundary"]
+                    .astype(str)
+                    .str.replace("\u2013", "-", regex=False)
                 )
                 mismatch = observed.ne(expected)
                 for idx in frame.index[mismatch]:
@@ -347,20 +469,24 @@ def validate_ted_table(
                         "error",
                         "evidence_boundary_consistency",
                         f"evidence_boundary must equal {expected.loc[idx]}",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
 
             if {"event_support_code", "identifiability_status"}.issubset(frame.columns):
-                invalid = frame["identifiability_status"].eq("not_identifiable") & ~frame[
-                    "event_support_code"
-                ].eq("E0")
+                invalid = frame["identifiability_status"].eq(
+                    "not_identifiable"
+                ) & ~frame["event_support_code"].eq("E0")
                 for idx in frame.index[invalid]:
                     _issue(
                         issues,
                         "error",
                         "event_support_identifiability",
                         "not_identifiable rows must use event_support_code=E0",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
 
             if "validation_provenance_code" in frame:
@@ -368,8 +494,11 @@ def validate_ted_table(
                 if "matched_functional_rescue" not in frame:
                     rescue = pd.Series(False, index=frame.index)
                 else:
-                    rescue = frame["matched_functional_rescue"].astype(str).str.lower().isin(
-                        {"true", "1", "yes"}
+                    rescue = (
+                        frame["matched_functional_rescue"]
+                        .astype(str)
+                        .str.lower()
+                        .isin({"true", "1", "yes"})
                     )
                 for idx in frame.index[v3 & ~rescue]:
                     _issue(
@@ -377,7 +506,9 @@ def validate_ted_table(
                         "error",
                         "validation_provenance_gate",
                         "V3 requires matched_functional_rescue=true",
-                        row_index=int(idx) if isinstance(idx, (int, np.integer)) else None,
+                        row_index=int(idx)
+                        if isinstance(idx, (int, np.integer))
+                        else None,
                     )
 
     if not any(row["level"] == "error" for row in issues):

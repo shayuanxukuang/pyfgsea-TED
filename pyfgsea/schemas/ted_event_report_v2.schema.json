@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://pyfgsea.local/schemas/ted_event_report_v2.schema.json",
-  "title": "TED orthogonal E/V event report row v2",
-  "description": "Orthogonal event-support (E) and validation-provenance (V) contract. Legacy ladder fields remain optional for transition-only compatibility.",
+  "title": "TED event-support and parallel-evidence report row v2",
+  "description": "Event support (E0-E2) plus parallel outcome, intervention-reversal and matched-rescue records. Legacy V fields remain optional for transition-only compatibility and do not alter E support.",
   "type": "object",
   "required": [
     "dataset_id",
@@ -15,11 +15,15 @@
     "event_q_missing_reason",
     "e0_reason_code",
     "event_support_code",
-    "validation_provenance_code",
-    "evidence_boundary",
     "supported_interpretation",
     "unsupported_interpretation_current_evidence",
     "identifiability_status",
+    "block_support_method",
+    "minimum_attainable_p",
+    "minimum_attainable_q",
+    "permutation_resolution_pass",
+    "resampling_selection_frequency",
+    "discovery_stability_status",
     "seed"
   ],
   "properties": {
@@ -65,21 +69,138 @@
     },
     "event_support_code": {
       "enum": ["E0", "E1", "E2"],
-      "description": "E0: unsupported, non-estimable, non-identifiable, artifact-dominated or missing required design; E1: statistically supported; E2: block-robust and mode-identifiable."
+      "description": "E0: unsupported, non-estimable, non-identifiable, dominated by a candidate artifact or competing explanation under the estimand, or missing required design; E1: statistically supported for the declared contrast, analysis units and null, and potentially matrix-conditional when independent biological blocks are absent; E2: independently block-supported and mode-identifiable under the current design. E2 does not imply resampling selection stability."
     },
     "validation_provenance_code": {
       "enum": ["V0", "V1", "V2", "V3", "V4"],
-      "description": "V0: computational only; V1: orthogonal outcome; V2: intervention reversal; V3: matched rescue; V4: independent replication."
+      "description": "Deprecated migration field. New reports use parallel_evidence_records. V0: computational only; V1: orthogonal outcome; V2: intervention reversal; V3: matched rescue; V4: legacy aggregate for replicated validation evidence. This field cannot alter event_support_code."
+    },
+    "parallel_evidence_records": {
+      "type": "array",
+      "description": "Outcome, intervention-reversal and matched-rescue records adjudicated independently of event support.",
+      "items": {
+        "type": "object",
+        "required": [
+          "record_id",
+          "evidence_type",
+          "status",
+          "independence_context",
+          "controls_pass",
+          "replication_status",
+          "reason_codes"
+        ],
+        "properties": {
+          "record_id": {"type": "string", "minLength": 1},
+          "evidence_type": {
+            "enum": ["orthogonal_outcome", "intervention_reversal", "matched_rescue"]
+          },
+          "status": {"enum": ["pending", "not_tested", "passed", "failed"]},
+          "independence_context": {
+            "enum": [
+              "same_study_same_cells",
+              "same_study_different_assay",
+              "independent_cohort",
+              "independent_experiment"
+            ]
+          },
+          "outcome_type": {"type": ["string", "null"]},
+          "contrast": {"type": ["string", "null"]},
+          "controls_pass": {"type": ["boolean", "null"]},
+          "replication_status": {
+            "enum": ["pending", "not_tested", "passed", "failed"]
+          },
+          "replication_dataset_id": {"type": ["string", "null"]},
+          "reason_codes": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1},
+            "uniqueItems": true
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {"status": {"const": "passed"}},
+              "required": ["status"]
+            },
+            "then": {"properties": {"controls_pass": {"const": true}}}
+          },
+          {
+            "if": {
+              "properties": {"replication_status": {"enum": ["passed", "failed"]}},
+              "required": ["replication_status"]
+            },
+            "then": {
+              "properties": {
+                "replication_dataset_id": {"type": "string", "minLength": 1}
+              },
+              "required": ["replication_dataset_id"]
+            }
+          }
+        ],
+        "additionalProperties": false
+      }
+    },
+    "event_replication_eligibility_status": {
+      "enum": ["pending", "passed", "failed"],
+      "description": "Whether frozen prerequisites permit the independent-cohort event test to run."
+    },
+    "event_replication_test_status": {
+      "enum": ["not_run", "run_not_supported", "run_supported"],
+      "description": "Whether the independent-cohort event statistic was not run, run without support, or run with support."
+    },
+    "event_replication_status": {
+      "enum": ["pending", "not_evaluable", "passed", "failed"],
+      "description": "Independent-cohort event result. Eligibility failure maps to not_evaluable, never to tested failure."
+    },
+    "outcome_replication_status": {
+      "enum": ["pending", "not_tested", "passed", "failed"],
+      "description": "Optional single-outcome projection of the corresponding parallel evidence record's replication_status. Incompatible or absent readouts are not_tested, never failed or passed by RNA substitution."
+    },
+    "outcome_type": {
+      "type": ["string", "null"],
+      "description": "Orthogonal outcome modality represented by outcome_replication_status, for example protein."
+    },
+    "replication_dataset_id": {
+      "type": ["string", "null"],
+      "description": "Independent dataset used for the replication facets."
     },
     "evidence_boundary": {
       "type": "string",
       "pattern": "^E[0-2](?:-|\\u2013)V[0-4]$",
-      "description": "Combined E/V label. The CLI also checks that it exactly matches the two component codes."
+      "description": "Deprecated E/V migration label. If supplied, the CLI checks that it matches the supplied component codes."
     },
     "supported_interpretation": {"type": "string", "minLength": 1},
     "unsupported_interpretation_current_evidence": {"type": "string", "minLength": 1},
     "identifiability_status": {"enum": ["identifiable", "limited", "not_identifiable"]},
     "ambiguity_set": {"type": ["string", "null"]},
+    "block_support_method": {
+      "enum": [
+        null,
+        "exact_paired_sign_permutation",
+        "monte_carlo_block_permutation",
+        "selection_aware_ci",
+        "bootstrap_ci",
+        "parametric_block_test",
+        "other"
+      ],
+      "description": "Prespecified method used to establish block-level support; required for E2. selection_aware_ci means that an outer procedure accounts for the complete window search. An ordinary bootstrap_ci computed after window selection is not selection-aware and cannot satisfy the selection-aware CI alternative."
+    },
+    "minimum_attainable_p": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Smallest raw p value attainable under the declared finite permutation design."
+    },
+    "minimum_attainable_q": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Smallest event-family q value attainable when it can be determined; null when it depends on the other event p values."
+    },
+    "permutation_resolution_pass": {
+      "type": ["boolean", "null"],
+      "description": "Whether the declared permutation design can attain the target event threshold; null for non-permutation support methods."
+    },
     "resampling_selection_frequency": {
       "type": ["number", "null"],
       "minimum": 0,
@@ -87,8 +208,8 @@
       "description": "Conservative event-selection frequency across declared resampling schemes."
     },
     "discovery_stability_status": {
-      "enum": [null, "stable_core", "intermediate", "unstable", "not_assessed"],
-      "description": "stable_core for frequency >=0.80, intermediate for 0.50-<0.80, unstable for <0.50."
+      "enum": ["stable_core", "intermediate", "unstable", "not_evaluable"],
+      "description": "stable_core for frequency >=0.80, intermediate for 0.50-<0.80, unstable for <0.50, and not_evaluable when the declared resampling analysis cannot be performed."
     },
     "upstream_disagreement_flag": {
       "type": ["boolean", "null"],
@@ -119,6 +240,59 @@
     }
   },
   "allOf": [
+    {
+      "if": {
+        "required": ["event_replication_status"]
+      },
+      "then": {
+        "required": ["event_replication_eligibility_status", "event_replication_test_status", "outcome_replication_status", "outcome_type", "replication_dataset_id"]
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_replication_eligibility_status": {"const": "failed"}},
+        "required": ["event_replication_eligibility_status"]
+      },
+      "then": {
+        "properties": {
+          "event_replication_test_status": {"const": "not_run"},
+          "event_replication_status": {"const": "not_evaluable"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_replication_test_status": {"const": "run_supported"}},
+        "required": ["event_replication_test_status"]
+      },
+      "then": {
+        "properties": {
+          "event_replication_eligibility_status": {"const": "passed"},
+          "event_replication_status": {"const": "passed"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_replication_test_status": {"const": "run_not_supported"}},
+        "required": ["event_replication_test_status"]
+      },
+      "then": {
+        "properties": {
+          "event_replication_eligibility_status": {"const": "passed"},
+          "event_replication_status": {"const": "failed"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_replication_status": {"const": "passed"}},
+        "required": ["event_replication_status"]
+      },
+      "then": {
+        "properties": {"replication_dataset_id": {"type": "string", "minLength": 1}}
+      }
+    },
     {
       "if": {
         "properties": {"event_support_code": {"const": "E0"}},
@@ -208,7 +382,10 @@
         "required": ["event_support_code"]
       },
       "then": {
-        "properties": {"identifiability_status": {"const": "identifiable"}}
+        "properties": {
+          "identifiability_status": {"const": "identifiable"},
+          "block_support_method": {"type": "string"}
+        }
       }
     },
     {

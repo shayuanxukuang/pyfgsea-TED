@@ -1,15 +1,16 @@
-"""Deterministic TED event-support and validation-provenance assignment.
+"""Deterministic TED event-support and parallel-evidence assignment.
 
 The module implements the orthogonal evidence descriptor used by TED:
 
 * ``E0``--``E2`` describes support for the event in the study that produced it.
-* ``V0``--``V4`` records the strongest qualifying validation provenance.
+* Outcome, reversal and rescue support are stored as parallel evidence records.
+* ``V0``--``V4`` remains available only as a legacy migration descriptor.
 
-The axes are intentionally assigned independently.  In particular, a high
-validation-provenance code cannot repair a failed event-support gate.  Missing
-or malformed evidence inputs never promote an assignment: mandatory E inputs
-fail closed to E0, and incomplete V observations remain at the strongest lower
-provenance whose complete gates pass.
+The records are intentionally independent of the event-support code.  In
+particular, a passed orthogonal outcome cannot repair a failed event-support
+gate.  Missing or malformed evidence inputs never promote an assignment:
+mandatory E inputs fail closed to E0, and incomplete parallel records cannot
+be marked passed.
 
 The functions return both stable reason codes and a structured audit trail so
 that a caller can persist the exact basis for an assignment.  They do not infer
@@ -26,8 +27,33 @@ from typing import Any, Dict, Literal, Optional, Sequence, Tuple
 
 EventSupportCode = Literal["E0", "E1", "E2"]
 ValidationProvenanceCode = Literal["V0", "V1", "V2", "V3", "V4"]
+ReplicationFacetStatus = Literal["pending", "not_tested", "passed", "failed"]
+EventReplicationEligibilityStatus = Literal["pending", "passed", "failed"]
+EventReplicationTestStatus = Literal["not_run", "run_not_supported", "run_supported"]
+EventReplicationStatus = Literal["pending", "not_evaluable", "passed", "failed"]
+ParallelEvidenceType = Literal[
+    "orthogonal_outcome",
+    "intervention_reversal",
+    "matched_rescue",
+]
+EvidenceRecordStatus = Literal["pending", "not_tested", "passed", "failed"]
+IndependenceContext = Literal[
+    "same_study_same_cells",
+    "same_study_different_assay",
+    "independent_cohort",
+    "independent_experiment",
+]
 IdentifiabilityStatus = Literal["identifiable", "limited", "not_identifiable"]
 AuditStatus = Literal["pass", "fail", "missing", "not_applicable"]
+BlockSupportMethod = Literal[
+    "exact_paired_sign_permutation",
+    "monte_carlo_block_permutation",
+    "selection_aware_ci",
+    "bootstrap_ci",
+    "parametric_block_test",
+    "other",
+]
+BLOCK_SUPPORT_METHODS = frozenset(BlockSupportMethod.__args__)
 
 
 def _json_safe(value: Any) -> Any:
@@ -118,6 +144,12 @@ class EventSupportInputs:
     ``block_q`` and ``block_ci_excludes_zero`` form an OR gate: either a block
     permutation q value at or below the configured threshold, or a confidence
     interval excluding zero, is sufficient for that component of E2.
+
+    Test resolution is design-aware.  Exact or Monte Carlo permutation routes
+    must record their minimum attainable p/q and a passing resolution decision.
+    Three design blocks remain admissible for a prespecified defensible
+    parametric or selection-aware interval, but they are not sufficient for an
+    exact sign-permutation test whose minimum attainable p exceeds the target.
     """
 
     event_family_declared: Optional[bool] = None
@@ -135,6 +167,10 @@ class EventSupportInputs:
     matched_state_attenuation: Optional[float] = None
 
     effective_blocks: Optional[int] = None
+    block_support_method: Optional[BlockSupportMethod] = None
+    minimum_attainable_p: Optional[float] = None
+    minimum_attainable_q: Optional[float] = None
+    permutation_resolution_pass: Optional[bool] = None
     block_q: Optional[float] = None
     block_ci_excludes_zero: Optional[bool] = None
     direction_stability: Optional[float] = None
@@ -147,7 +183,7 @@ class EventSupportInputs:
 
 @dataclass(frozen=True)
 class ValidationProvenanceInputs:
-    """Observed design facts used to assign V0--V4 provenance.
+    """Observed design facts used only to migrate legacy V0--V4 provenance.
 
     An ``*_observed`` switch marks a candidate provenance for evaluation.  If
     it is false, that provenance is not claimed.  If it is true, every listed
@@ -157,7 +193,9 @@ class ValidationProvenanceInputs:
     controls.  V2 requires a prespecified intervention reversal above matched
     controls.  V3 requires a same-system matched rescue with the predicted
     molecular or functional readout and adequate controls.  V4 requires a
-    successful independent replication and a recorded V1/V2/V3 basis.
+    successful independent replication of a recorded V1/V2/V3 validation
+    basis. Replication of the RNA event alone is represented by the separate
+    replication facets below and must not promote V1 to V4.
     """
 
     orthogonal_outcome_observed: bool = False
@@ -179,6 +217,154 @@ class ValidationProvenanceInputs:
     replication_independent: Optional[bool] = None
     independent_replication_pass: Optional[bool] = None
     replicated_validation_basis: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class ReplicationFacetInputs:
+    """Inputs for independent event and orthogonal-outcome replication.
+
+    These facets deliberately do not alter the E code or the status of a
+    same-study parallel evidence record. They distinguish an independently
+    repeated event from an independently repeated orthogonal outcome,
+    including the common case in which the external cohort has RNA but lacks
+    a compatible protein panel.
+    """
+
+    event_analysis_complete: bool = False
+    event_replication_tested: bool = False
+    independent_cohort: Optional[bool] = None
+    same_event_family: Optional[bool] = None
+    early_activation_same_direction: Optional[bool] = None
+    recovery_same_direction: Optional[bool] = None
+    evaluable_donor_direction_fraction: Optional[float] = None
+    family_adjusted_p: Optional[float] = None
+    gates_frozen: Optional[bool] = None
+    additional_declared_gates_pass: Optional[bool] = None
+
+    outcome_analysis_complete: bool = False
+    outcome_replication_tested: bool = False
+    outcome_modality_compatible: Optional[bool] = None
+    same_outcome_contrast: Optional[bool] = None
+    outcome_replication_pass: Optional[bool] = None
+    outcome_type: str = "protein"
+
+
+@dataclass(frozen=True)
+class ReplicationFacetAssignment:
+    """Separate eligibility, test and result states for event replication.
+
+    Orthogonal-outcome replication remains a distinct facet. A failed event
+    eligibility prerequisite produces ``test_status=not_run`` and
+    ``event_replication_status=not_evaluable``; it is never represented as a
+    tested-but-unsupported replication result.
+    """
+
+    event_replication_eligibility_status: EventReplicationEligibilityStatus
+    event_replication_test_status: EventReplicationTestStatus
+    event_replication_status: EventReplicationStatus
+    outcome_replication_status: ReplicationFacetStatus
+    outcome_type: str
+    reason_codes: Tuple[str, ...]
+
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            "event_replication_eligibility_status": self.event_replication_eligibility_status,
+            "event_replication_test_status": self.event_replication_test_status,
+            "event_replication_status": self.event_replication_status,
+            "outcome_replication_status": self.outcome_replication_status,
+            "outcome_type": self.outcome_type,
+            "replication_reason_codes": list(self.reason_codes),
+        }
+
+    def display(
+        self,
+        event_support_code: EventSupportCode,
+        *,
+        within_study_outcome_status: Literal["passed", "failed", "not_tested"],
+    ) -> str:
+        """Return the bounded manuscript display with separate replication facets."""
+
+        outcome = f"{self.outcome_type} outcome {within_study_outcome_status}"
+        if (
+            within_study_outcome_status == "passed"
+            and self.outcome_replication_status == "passed"
+        ):
+            return f"{event_support_code} | {outcome} and independently replicated"
+        parts = [event_support_code, outcome]
+        if self.event_replication_status == "passed":
+            parts.append("event independently replicated")
+        return " | ".join(parts)
+
+
+@dataclass(frozen=True)
+class ParallelEvidenceRecord:
+    """One outcome, reversal or rescue record, independent of the E code.
+
+    ``status`` adjudicates the evidence in its source study.  The separate
+    ``replication_status`` refers only to repetition of the same evidence
+    contrast in an independent cohort or experiment; event replication is
+    represented by :class:`ReplicationFacetAssignment` instead.
+    """
+
+    record_id: str
+    evidence_type: ParallelEvidenceType
+    status: EvidenceRecordStatus
+    independence_context: IndependenceContext
+    outcome_type: Optional[str] = None
+    contrast: Optional[str] = None
+    controls_pass: Optional[bool] = None
+    replication_status: ReplicationFacetStatus = "not_tested"
+    replication_dataset_id: Optional[str] = None
+    reason_codes: Tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        valid_types = set(ParallelEvidenceType.__args__)
+        valid_statuses = set(EvidenceRecordStatus.__args__)
+        valid_contexts = set(IndependenceContext.__args__)
+        valid_replication = set(ReplicationFacetStatus.__args__)
+        if not isinstance(self.record_id, str) or not self.record_id.strip():
+            raise ValueError("record_id must be nonblank")
+        if self.evidence_type not in valid_types:
+            raise ValueError(f"unsupported evidence_type: {self.evidence_type!r}")
+        if self.status not in valid_statuses:
+            raise ValueError(f"unsupported status: {self.status!r}")
+        if self.independence_context not in valid_contexts:
+            raise ValueError(
+                f"unsupported independence_context: {self.independence_context!r}"
+            )
+        if self.replication_status not in valid_replication:
+            raise ValueError(
+                f"unsupported replication_status: {self.replication_status!r}"
+            )
+        if self.status == "passed" and self.controls_pass is not True:
+            raise ValueError("passed evidence records require controls_pass=True")
+        if self.replication_status in {"passed", "failed"} and (
+            not isinstance(self.replication_dataset_id, str)
+            or not self.replication_dataset_id.strip()
+        ):
+            raise ValueError(
+                "tested replication records require a nonblank replication_dataset_id"
+            )
+        if any(
+            not isinstance(code, str) or not code.strip() for code in self.reason_codes
+        ):
+            raise ValueError("reason_codes must contain only nonblank strings")
+
+    def as_dict(self) -> Dict[str, Any]:
+        """Return the stable machine-readable parallel-record representation."""
+
+        return {
+            "record_id": self.record_id.strip(),
+            "evidence_type": self.evidence_type,
+            "status": self.status,
+            "independence_context": self.independence_context,
+            "outcome_type": self.outcome_type,
+            "contrast": self.contrast,
+            "controls_pass": self.controls_pass,
+            "replication_status": self.replication_status,
+            "replication_dataset_id": self.replication_dataset_id,
+            "reason_codes": list(_deduplicate(self.reason_codes)),
+        }
 
 
 @dataclass(frozen=True)
@@ -221,14 +407,18 @@ class ValidationProvenanceAssignment:
 
 @dataclass(frozen=True)
 class EvidenceBoundaryAssignment:
-    """Combined orthogonal E/V descriptor and the two independent audits."""
+    """Legacy combined E/V descriptor retained for compatibility migration.
+
+    New analyses should serialize :class:`EventSupportAssignment`, typed
+    :class:`ParallelEvidenceRecord` objects and replication facets separately.
+    """
 
     event_support: EventSupportAssignment
     validation_provenance: ValidationProvenanceAssignment
 
     @property
     def boundary(self) -> str:
-        """Return the schema-compatible combined label, for example E2-V1."""
+        """Return the legacy combined label, for example E2-V1."""
 
         return f"{self.event_support.code}-{self.validation_provenance.code}"
 
@@ -441,6 +631,105 @@ def assign_event_support(
             )
         )
 
+    method = inputs.block_support_method
+    permutation_methods = {
+        "exact_paired_sign_permutation",
+        "monte_carlo_block_permutation",
+    }
+    minimum_p = inputs.minimum_attainable_p
+    minimum_q = inputs.minimum_attainable_q
+    resolution_flag = inputs.permutation_resolution_pass
+    resolution_values_valid = True
+    for gate_name, value in (
+        ("minimum_attainable_p", minimum_p),
+        ("minimum_attainable_q", minimum_q),
+    ):
+        if value is not None and (
+            not _finite_number(value) or not 0.0 <= float(value) <= 1.0
+        ):
+            resolution_values_valid = False
+            reason = f"{gate_name.upper()}_INVALID"
+            audit.append(
+                GateAudit(
+                    gate_name,
+                    "fail",
+                    reason,
+                    f"{gate_name} is null or finite within [0, 1]",
+                    value,
+                )
+            )
+            e0_reasons.append(reason)
+
+    attainable = minimum_q if minimum_q is not None else minimum_p
+    derived_resolution_pass = (
+        float(attainable) <= thresholds.event_q_max
+        if attainable is not None and resolution_values_valid
+        else None
+    )
+    if method in permutation_methods:
+        observed = {
+            "block_support_method": method,
+            "minimum_attainable_p": minimum_p,
+            "minimum_attainable_q": minimum_q,
+            "permutation_resolution_pass": resolution_flag,
+        }
+        if not isinstance(resolution_flag, bool) or derived_resolution_pass is None:
+            reason = "PERMUTATION_RESOLUTION_MISSING"
+            audit.append(
+                GateAudit(
+                    "permutation_resolution",
+                    "missing",
+                    reason,
+                    "permutation resolution is recorded and can attain the event-q target",
+                    observed,
+                )
+            )
+            e0_reasons.append(reason)
+        elif resolution_flag is not derived_resolution_pass:
+            reason = "PERMUTATION_RESOLUTION_INCONSISTENT"
+            audit.append(
+                GateAudit(
+                    "permutation_resolution",
+                    "fail",
+                    reason,
+                    "recorded resolution decision matches the minimum attainable p/q",
+                    observed,
+                )
+            )
+            e0_reasons.append(reason)
+        elif not resolution_flag:
+            reason = "INSUFFICIENT_PERMUTATION_RESOLUTION"
+            audit.append(
+                GateAudit(
+                    "permutation_resolution",
+                    "fail",
+                    reason,
+                    f"minimum attainable p/q <= {thresholds.event_q_max}",
+                    observed,
+                )
+            )
+            e0_reasons.append(reason)
+        else:
+            audit.append(
+                GateAudit(
+                    "permutation_resolution",
+                    "pass",
+                    "PERMUTATION_RESOLUTION_PASS",
+                    f"minimum attainable p/q <= {thresholds.event_q_max}",
+                    observed,
+                )
+            )
+    else:
+        audit.append(
+            GateAudit(
+                "permutation_resolution",
+                "not_applicable",
+                "PERMUTATION_RESOLUTION_NOT_APPLICABLE",
+                "permutation resolution is required for permutation-based support methods",
+                method,
+            )
+        )
+
     event_q = inputs.event_q
     if event_q is None:
         reason = "EVENT_Q_MISSING"
@@ -552,6 +841,41 @@ def assign_event_support(
             )
         )
         e2_reasons.append(reason)
+
+    if method is None:
+        reason = "BLOCK_SUPPORT_METHOD_MISSING"
+        audit.append(
+            GateAudit(
+                "block_support_method",
+                "missing",
+                reason,
+                "a prespecified block-support method is recorded for E2",
+                None,
+            )
+        )
+        e2_reasons.append(reason)
+    elif method not in BLOCK_SUPPORT_METHODS:
+        reason = "BLOCK_SUPPORT_METHOD_INVALID"
+        audit.append(
+            GateAudit(
+                "block_support_method",
+                "fail",
+                reason,
+                "block_support_method uses a supported stable code",
+                method,
+            )
+        )
+        e2_reasons.append(reason)
+    else:
+        audit.append(
+            GateAudit(
+                "block_support_method",
+                "pass",
+                "BLOCK_SUPPORT_METHOD_RECORDED",
+                "a prespecified block-support method is recorded for E2",
+                method,
+            )
+        )
 
     blocks = inputs.effective_blocks
     if blocks is None:
@@ -903,7 +1227,7 @@ def _audit_provenance_component(
 def assign_validation_provenance(
     inputs: ValidationProvenanceInputs,
 ) -> ValidationProvenanceAssignment:
-    """Assign the strongest complete V0--V4 provenance without inference.
+    """Assign a legacy V0--V4 provenance descriptor for migration only.
 
     A candidate provenance is evaluated only when its ``*_observed`` field is
     true.  Incomplete candidates do not promote the result.  Lower complete
@@ -1226,19 +1550,120 @@ def assign_evidence_boundary(
     )
 
 
+def assign_replication_facets(
+    inputs: ReplicationFacetInputs,
+    *,
+    direction_fraction_min: float = 0.80,
+    family_adjusted_p_max: float = 0.10,
+) -> ReplicationFacetAssignment:
+    """Adjudicate event and orthogonal-outcome replication independently."""
+
+    if not 0.0 <= direction_fraction_min <= 1.0:
+        raise ValueError("direction_fraction_min must be within [0, 1]")
+    if not 0.0 <= family_adjusted_p_max <= 1.0:
+        raise ValueError("family_adjusted_p_max must be within [0, 1]")
+    if not inputs.outcome_type.strip():
+        raise ValueError("outcome_type must be nonblank")
+
+    reasons: list[str] = []
+    if not inputs.event_analysis_complete:
+        eligibility_status: EventReplicationEligibilityStatus = "pending"
+        test_status: EventReplicationTestStatus = "not_run"
+        event_status: EventReplicationStatus = "pending"
+        reasons.append("EVENT_REPLICATION_PENDING")
+    elif not inputs.event_replication_tested:
+        test_status = "not_run"
+        if inputs.additional_declared_gates_pass is False:
+            eligibility_status = "failed"
+            event_status = "not_evaluable"
+            reasons.append("EVENT_REPLICATION_FAILED_AT_ELIGIBILITY_PREREQUISITE")
+        else:
+            eligibility_status = "passed"
+            event_status = "not_evaluable"
+            reasons.append("EVENT_REPLICATION_TEST_NOT_RUN")
+    else:
+        eligibility_status = "passed"
+        event_gates = (
+            inputs.independent_cohort is True,
+            inputs.same_event_family is True,
+            inputs.early_activation_same_direction is True,
+            inputs.recovery_same_direction is True,
+            inputs.evaluable_donor_direction_fraction is not None
+            and isfinite(float(inputs.evaluable_donor_direction_fraction))
+            and float(inputs.evaluable_donor_direction_fraction)
+            >= direction_fraction_min,
+            inputs.family_adjusted_p is not None
+            and isfinite(float(inputs.family_adjusted_p))
+            and float(inputs.family_adjusted_p) <= family_adjusted_p_max,
+            inputs.gates_frozen is True,
+            inputs.additional_declared_gates_pass is True,
+        )
+        event_status = "passed" if all(event_gates) else "failed"
+        test_status = (
+            "run_supported" if event_status == "passed" else "run_not_supported"
+        )
+        reasons.append(
+            "EVENT_REPLICATION_GATES_PASS"
+            if event_status == "passed"
+            else "EVENT_REPLICATION_GATES_FAIL"
+        )
+
+    if not inputs.outcome_analysis_complete:
+        outcome_status: ReplicationFacetStatus = "pending"
+        reasons.append("OUTCOME_REPLICATION_PENDING")
+    elif (
+        inputs.outcome_modality_compatible is False
+        or not inputs.outcome_replication_tested
+    ):
+        outcome_status = "not_tested"
+        reasons.append("OUTCOME_REPLICATION_NOT_TESTED_INCOMPATIBLE_OR_ABSENT_READOUT")
+    else:
+        outcome_gates = (
+            inputs.outcome_modality_compatible is True,
+            inputs.same_outcome_contrast is True,
+            inputs.outcome_replication_pass is True,
+        )
+        outcome_status = "passed" if all(outcome_gates) else "failed"
+        reasons.append(
+            "OUTCOME_REPLICATION_GATES_PASS"
+            if outcome_status == "passed"
+            else "OUTCOME_REPLICATION_GATES_FAIL"
+        )
+
+    return ReplicationFacetAssignment(
+        event_replication_eligibility_status=eligibility_status,
+        event_replication_test_status=test_status,
+        event_replication_status=event_status,
+        outcome_replication_status=outcome_status,
+        outcome_type=inputs.outcome_type.strip(),
+        reason_codes=_deduplicate(reasons),
+    )
+
+
 __all__ = [
     "AuditStatus",
+    "EvidenceRecordStatus",
     "EvidenceBoundaryAssignment",
     "EventSupportAssignment",
     "EventSupportCode",
     "EventSupportInputs",
     "EventSupportThresholds",
+    "EventReplicationEligibilityStatus",
+    "EventReplicationStatus",
+    "EventReplicationTestStatus",
     "GateAudit",
     "IdentifiabilityStatus",
+    "IndependenceContext",
+    "ParallelEvidenceRecord",
+    "ParallelEvidenceType",
+    "ReplicationFacetAssignment",
+    "ReplicationFacetInputs",
+    "ReplicationFacetStatus",
     "ValidationProvenanceAssignment",
     "ValidationProvenanceCode",
     "ValidationProvenanceInputs",
     "assign_event_support",
     "assign_evidence_boundary",
+    "assign_replication_facets",
     "assign_validation_provenance",
 ]

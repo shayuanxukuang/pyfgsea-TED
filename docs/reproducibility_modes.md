@@ -1,6 +1,7 @@
 # Reproducibility Modes
 
-This document defines what the `ted-v1.0.x` archive can and cannot reproduce.
+This document separates the retained `ted-v1.0.x` workflows from the
+`ted-v1.1.0` BIB companion.
 The only canonical first-run workflow is the installed-package schema smoke in
 [`README_quickstart.md`](../README_quickstart.md).
 
@@ -37,9 +38,21 @@ The only canonical first-run workflow is the installed-package schema smoke in
   `python scripts/run_direct_external_baseline_suite.py --quick` or through the
   explicit baseline-container command in the canonical quickstart.
 
-## BIB manuscript-companion exclusion
+## Mode 4: v1.1.0 BIB companion verification and reproduction
 
-None of the three v1.0.x modes reproduces:
+- Builds the core, native-output, and stability archives from explicit asset
+  rules; it never recursively packages the local results tree.
+- Verifies the 480-task registry/status, unified truth, harmonized predictions,
+  2,400 native method-task outputs, Figure 3/5 source data, BNT162b2 and
+  GSE171964 records, schemas, and focused-test evidence.
+- Uses the entry points and publication gates documented in
+  [`release/ted-v1.1.0/README.md`](../release/ted-v1.1.0/README.md).
+- Keeps raw public BNT162b2/GSE171964 matrices at their public repositories;
+  download manifests and processed evidence are archived.
+
+## v1.0.x BIB manuscript-companion exclusion
+
+None of the first three v1.0.x modes reproduces:
 
 - the submitted BIB Figure 3 480-task common-task comparison;
 - the 2,400 native method-task outputs behind that comparison;

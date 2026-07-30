@@ -1,0 +1,267 @@
+protocol:
+  id: ted_bnt162b2_flagship_v1
+  version: 1.0.0
+  freeze_date: 2026-07-17
+  status: retrospective_known_source_freeze_before_local_expression_scoring
+  origin: user_supplied_wp2_flagship_case
+  prospective_preregistration_claimed: false
+  known_direction_from_source_publication: true
+  no_retuning_after_freeze: true
+  purpose: >-
+    Test whether TED recovers a donor-reproducible day-2 transient interferon
+    event in CD14-like monocytes and whether a separately unmasked CD64/CD169
+    ADT endpoint supplies within-study orthogonal outcome support.
+
+source:
+  study_id: BNT162b2_CITE_ASAP_2023
+  paper_title: Multimodal single-cell datasets characterize antigen-specific CD8+ T cells across SARS-CoV-2 vaccination and infection
+  paper_doi: 10.1038/s41590-023-01608-9
+  paper_url: https://www.nature.com/articles/s41590-023-01608-9
+  processed_record_doi: 10.5281/zenodo.8240488
+  processed_record_id: 8240488
+  processed_file: PBMC_vaccine_CITE_seuratV5.rds
+  processed_file_url: https://zenodo.org/api/records/8240488/files/PBMC_vaccine_CITE_seuratV5.rds/content
+  processed_file_size_bytes: 1594039171
+  processed_file_md5: 5d84fc7a63a10579ae6dfe1dd786436e
+  raw_accession: phs003322.v1.p1
+  license: CC-BY-4.0
+  replication_accession: GSE171964
+  skipped_large_files:
+    - file: PBMC_vaccine_ASAP_seuratV5.rds
+      size_bytes: 4660865809
+      reason: ATAC is a mechanistic-boundary context, not a required positive outcome.
+    - file: PBMC_vaccine_ASAP_fragments.tsv.gz
+      size_bytes: 12369211892
+      reason: >-
+        CITE RNA and ADT are sufficient for the frozen analysis; E2-V1 was
+        the legacy-formatted conditional success criterion, not the observed
+        result.
+
+design:
+  analysis_unit: donor_id
+  expected_donors: 6
+  minimum_evaluable_donors: 5
+  timepoints: [0, 2, 10, 28]
+  primary_peak_day: 2
+  primary_mode: transient_activation
+  primary_contrast_weights:
+    day0: -0.50
+    day2: 1.00
+    day10: -0.25
+    day28: -0.25
+  early_activation_contrast_weights:
+    day0: -1.00
+    day2: 1.00
+    day10: 0.00
+    day28: 0.00
+  recovery_contrast_weights:
+    day0: 0.00
+    day2: 1.00
+    day10: -0.50
+    day28: -0.50
+  block_test: exhaustive_one_sided_sign_flip
+  family_error: single_step_maxT
+  alpha: 0.10
+  descriptive_ci: two_sided_t_interval_95pct
+
+population:
+  primary: RNA_only_CD14_like_monocyte
+  primary_rule: highest_locked_RNA_marker_score_with_positive_margin
+  score_transform: log1p_10000_library_normalized_then_gene_zscore
+  minimum_score_margin: 0.10
+  minimum_cd14_log_normalized: 0.25
+  minimum_cells_per_donor_time: 100
+  forbidden_annotation_features:
+    - FCGR1A
+    - SIGLEC1
+  forbidden_annotation_families:
+    - primary_pathway
+    - secondary_event_family
+  author_WNN_label_role: sensitivity_only
+  marker_panels:
+    CD14_like_monocyte:
+      - CD14
+      - LYZ
+      - S100A8
+      - S100A9
+      - S100A10
+      - S100A12
+      - FCN1
+      - CTSD
+      - CTSS
+      - CTSB
+      - CTSC
+      - LGALS3
+      - MNDA
+      - SERPINA1
+      - TYMP
+      - FGL2
+    CD16_like_monocyte:
+      - FCGR3A
+      - MS4A7
+      - LST1
+      - LILRB1
+      - IFI30
+      - SAT1
+      - CFD
+      - IFITM3
+    T_NK:
+      - CD3D
+      - CD3E
+      - TRAC
+      - LCK
+      - IL7R
+      - NKG7
+      - GNLY
+      - KLRD1
+    B_cell:
+      - MS4A1
+      - CD79A
+      - CD79B
+      - CD37
+      - CD74
+      - CD19
+      - CD22
+      - HLA-DRA
+    dendritic:
+      - FCER1A
+      - CLEC10A
+      - CLEC4C
+      - IL3RA
+      - GZMB
+      - CST3
+    platelet:
+      - PPBP
+      - PF4
+      - NRGN
+      - GNG11
+
+pathway_family:
+  source_libraries:
+    hallmark:
+      name: MSigDB_Hallmark_2020
+      url: https://maayanlab.cloud/Enrichr/geneSetLibrary?mode=text&libraryName=MSigDB_Hallmark_2020
+    reactome:
+      name: Reactome_2022
+      url: https://maayanlab.cloud/Enrichr/geneSetLibrary?mode=text&libraryName=Reactome_2022
+  primary: HALLMARK_INTERFERON_ALPHA_RESPONSE
+  members:
+    HALLMARK_INTERFERON_ALPHA_RESPONSE:
+      library: hallmark
+      source_name: Interferon Alpha Response
+    HALLMARK_INTERFERON_GAMMA_RESPONSE:
+      library: hallmark
+      source_name: Interferon Gamma Response
+    REACTOME_INTERFERON_ALPHA_BETA_SIGNALING:
+      library: reactome
+      source_name: Interferon Alpha/Beta Signaling R-HSA-909733
+    REACTOME_INTERFERON_SIGNALING:
+      library: reactome
+      source_name: Interferon Signaling R-HSA-913531
+    HALLMARK_INFLAMMATORY_RESPONSE:
+      library: hallmark
+      source_name: Inflammatory Response
+  primary_score: donor_time_pseudobulk_mean_gene_z
+  independent_score: donor_time_mean_within_sample_gene_rank
+  minimum_detected_genes_per_set: 15
+
+state_matching:
+  method: entropy_balancing_exponential_tilting
+  target: donor_pooled_covariate_mean
+  rna_pcs: 10
+  highly_variable_genes: 2000
+  exclude_target_and_outcome_genes: true
+  covariates:
+    - RNA_PC1_to_PC10
+    - CD14_minus_CD16_marker_score
+    - log1p_total_RNA_UMI
+    - mitochondrial_fraction
+    - S_phase_score
+    - G2M_phase_score
+    - processing_batch_if_available
+  weighted_smd_max: 0.20
+  maximum_effect_attenuation: 0.50
+  minimum_effective_sample_size: 50
+  maximum_weight_ratio_to_uniform: 20
+
+negative_controls:
+  random_seed: 20260717
+  matched_random_gene_sets: 200
+  matched_by: [set_size, mean_expression_decile, detection_fraction_decile]
+  control_quantile: 0.95
+  technical:
+    - library_size
+    - mitochondrial_fraction
+    - ribosomal_program
+  competing_programs:
+    immediate_early:
+      [FOS, FOSB, FOSL1, FOSL2, JUN, JUNB, JUND, EGR1, EGR2, ATF3]
+    heat_shock:
+      [HSPA1A, HSPA1B, HSP90AA1, HSP90AB1, DNAJB1, HSPB1, HSPD1]
+    apoptosis:
+      [BAX, BAK1, BBC3, PMAIP1, CASP3, CASP7, FAS, TNFRSF10B]
+    ribosomal:
+      [RPL3, RPL4, RPL5, RPL7, RPL8, RPL10, RPL13A, RPS3, RPS6, RPS8, RPS12, RPS18]
+    S_phase:
+      [MCM5, PCNA, TYMS, FEN1, MCM2, MCM4, RRM1, UNG, GINS2, MCM6, CDCA7, DTL, PRIM1, UHRF1, HELLS, RFC2, RPA2, NASP, RAD51AP1, GMNN, WDR76, SLBP, CCNE2, UBR7, POLD3, MSH2, ATAD2, RAD51, RRM2, CDC45, CDC6, EXO1, TIPIN, DSCC1, BLM, CASP8AP2, USP1, CLSPN, POLA1, CHAF1B, BRIP1, E2F8]
+    G2M_phase:
+      [HMGB2, CDK1, NUSAP1, UBE2C, BIRC5, TPX2, TOP2A, NDC80, CKS2, NUF2, CKS1B, MKI67, TMPO, CENPF, TACC3, FAM64A, SMC4, CCNB2, CKAP2L, CKAP2, AURKB, BUB1, KIF11, ANP32E, TUBB4B, GTSE1, KIF20B, HJURP, CDCA3, HN1, CDC20, TTK, CDC25C, KIF2C, RANGAP1, NCAPD2, DLGAP5, CDCA2, CDCA8, ECT2, KIF23, HMMR, AURKA, PSRC1, ANLN, LBR, CKAP5, CENPE, CTCF, NEK2, G2E3, GAS2L3, CBX5, CENPA]
+  required_margin: greater_than_zero
+
+orthogonal_endpoint:
+  modality: CITE_seq_ADT
+  markers:
+    CD64: [CD64, FCGR1A]
+    CD169: [CD169, SIGLEC1]
+  index: mean_of_feature_z_scores
+  uses_same_transient_contrast: true
+  outcome_values_read_after_RNA_freeze: true
+  exact_p_max: 0.10
+  donor_direction_stability_min: 0.80
+  RNA_protein_donor_direction_agreement_min: 0.80
+  leave_one_donor_retention_min: 0.80
+  stable_ADT_controls: [CD3, CD4, CD8, CD19, CD20, CD45, CD56]
+  matched_random_ADT_controls: 100
+  control_quantile: 0.95
+
+gates:
+  evaluable_donors_min: 5
+  family_adjusted_p_max: 0.10
+  direction_stability_min: 0.80
+  leave_one_donor_selection_min: 0.80
+  matched_state_smd_max: 0.20
+  matched_state_attenuation_max: 0.50
+  negative_control_margin_min: 0.0
+  activation_and_recovery_required: true
+  upstream_score_agreement_required: true
+  peak_day_agreement_required: 2
+
+claim_boundary:
+  pass_descriptor: E2-V1
+  pass_descriptor_role: legacy_pre_result_success_criterion_not_observed_result
+  observed_result_contract: >-
+    results/ted_bib_companion_evidence_contract_v1/claim_boundary_v1.json
+  validation_role: retrospective_known_source_positive
+  allowed_claim: >-
+    If every frozen event gate had passed, the analysis could have supported
+    a donor-block-supported, mode-identifiable transient interferon event plus
+    a separately adjudicated same-study CD64/CD169 protein outcome. The
+    observed result did not meet that event criterion and remained E0.
+  forbidden_claims:
+    - prospective external validation
+    - newly discovered vaccine mechanism
+    - intervention reversal
+    - matched rescue
+    - study-external replication unless GSE171964 is separately evaluated
+    - causal mediation from RNA to protein
+  atac_context: >-
+    Limited chromatin remodeling is a mechanistic boundary and is not counted
+    as positive V evidence.
+
+outcome_blind_sample_qc:
+  minimum_selected_cells_per_sample: 100
+  sample_median_umi_mad_max: 3.0
+  sample_median_detected_genes_mad_max: 3.0
+  require_all_four_timepoints_for_primary: true
+  source_author_IFN_outlier_exclusion_primary: false
+  source_author_IFN_outlier_exclusion_sensitivity_only: true

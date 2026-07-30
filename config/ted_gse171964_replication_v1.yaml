@@ -1,0 +1,183 @@
+protocol:
+  id: ted_gse171964_replication_v1
+  version: 1.0.0
+  freeze_date: 2026-07-17
+  status: retrospective_independent_replication_freeze_before_expression_scoring
+  origin: user_supplied_wp2_replication_extension
+  prospective_preregistration_claimed: false
+  known_direction_from_source_publication: true
+  no_retuning_after_freeze: true
+  expression_values_accessed_before_freeze: false
+  feature_and_sample_metadata_accessed_before_freeze: true
+  purpose: >-
+    Independently test the already frozen TED interferon event in the booster
+    episode of GSE171964, while adjudicating replication of the RNA event and
+    replication of the CD64/CD169 protein endpoint as separate claims.
+
+source:
+  study_id: GSE171964
+  accession_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE171964
+  paper_title: Systems vaccinology of the BNT162b2 mRNA vaccine in humans
+  paper_doi: 10.1038/s41586-021-03791-x
+  correction_title: "Author Correction: Systems vaccinology of the BNT162b2 mRNA vaccine in humans"
+  correction_doi: 10.1038/s41586-023-05977-x
+  corrected_release: GEO_v2_2022-02-07
+  corrected_assignment_rule: >-
+    Use pt_id, day, sample_id, and cell rows from GSE171964_geo_pheno_v2.csv.gz;
+    these v2 assignments supersede the contaminated original day-1 CITE-seq
+    assignments described in the Author Correction.
+  prohibited_inputs:
+    - any non-v2 GSE171964 count matrix
+    - any non-v2 phenotype or barcode assignment
+    - reconstruction of donor identity from the original contaminated day-1 files
+  files:
+    count_matrix:
+      name: GSE171964_countsmatrix_v2.mtx.gz
+      url: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE171nnn/GSE171964/suppl/GSE171964_countsmatrix_v2.mtx.gz
+      size_bytes: 1467968702
+    barcodes:
+      name: GSE171964_barcodes_v2.tsv.gz
+      size_bytes: 1690204
+      sha256: df706664a1392359567a02d6f3f0856ec07c2cc1fbdb71db26244f7f8324b36d
+    features:
+      name: GSE171964_feats_v2.tsv.gz
+      size_bytes: 120834
+      sha256: ed7f73e13048211f4ec40aa0faeee8fb1cb2c961e68a704a9756be42557ee6eb
+    phenotype:
+      name: GSE171964_geo_pheno_v2.csv.gz
+      size_bytes: 1549752
+      sha256: 04eec09116d50b29100a7f3056cde375e39c44f4a08b782bb8ad11db404e91a0
+
+design:
+  analysis_unit: pt_id
+  expected_donors: 6
+  minimum_evaluable_donors: 5
+  episode: secondary_immunization_booster
+  public_sample_sheet_mapping:
+    baseline: 21
+    early_post_dose: 22
+    recovery: 28
+    late_phase: 42
+  relative_days: [0, 1, 7, 21]
+  primary_mode: transient_activation
+  primary_contrast_weights:
+    day21_baseline: -0.50
+    day22_early: 1.00
+    day28_recovery: -0.25
+    day42_late: -0.25
+  early_activation_contrast_weights:
+    day21_baseline: -1.00
+    day22_early: 1.00
+    day28_recovery: 0.00
+    day42_late: 0.00
+  recovery_contrast_weights:
+    day21_baseline: 0.00
+    day22_early: 1.00
+    day28_recovery: -0.50
+    day42_late: -0.50
+  block_test: exhaustive_one_sided_sign_flip
+  family_error: single_step_maxT
+  alpha: 0.10
+  technical_replicates: merge_counts_within_pt_id_day_before_normalization
+  forbidden_design_changes:
+    - substitute prime-dose days after scoring
+    - choose day1 versus day2 from the observed pathway maximum
+    - omit a donor because its event direction is discordant
+    - change pathway, population, contrast, or gate from replication results
+
+population:
+  primary: RNA_only_CD14_like_monocyte
+  primary_rule: highest_locked_RNA_marker_score_with_positive_margin
+  marker_source: config/ted_bnt162b2_flagship_v1.yaml
+  minimum_score_margin: 0.10
+  minimum_cd14_log_normalized: 0.25
+  minimum_cells_per_donor_time: 100
+  forbidden_annotation_features: [FCGR1A, SIGLEC1]
+  forbidden_annotation_families: [primary_pathway, secondary_event_family]
+  corrected_author_clustnm_role: sensitivity_only
+
+pathway_family:
+  source: results/ted_bnt162b2_flagship/protocol_freeze_v1/locked_pathway_family.gmt
+  registry: results/ted_bnt162b2_flagship/protocol_freeze_v1/locked_pathway_registry.tsv
+  primary: HALLMARK_INTERFERON_ALPHA_RESPONSE
+  members:
+    - HALLMARK_INTERFERON_ALPHA_RESPONSE
+    - HALLMARK_INTERFERON_GAMMA_RESPONSE
+    - REACTOME_INTERFERON_ALPHA_BETA_SIGNALING
+    - REACTOME_INTERFERON_SIGNALING
+    - HALLMARK_INFLAMMATORY_RESPONSE
+  primary_score: donor_time_pseudobulk_mean_gene_z
+  independent_score: donor_time_mean_within_sample_gene_rank
+  minimum_detected_genes_per_set: 15
+
+state_matching:
+  inherit_from: config/ted_bnt162b2_flagship_v1.yaml
+  method: entropy_balancing_exponential_tilting
+  weighted_smd_max: 0.20
+  maximum_effect_attenuation: 0.50
+  minimum_effective_sample_size: 50
+  maximum_weight_ratio_to_uniform: 20
+
+negative_controls:
+  inherit_from: config/ted_bnt162b2_flagship_v1.yaml
+  random_seed: 20260717
+  matched_random_gene_sets: 200
+  control_quantile: 0.95
+  required_margin: greater_than_zero
+
+event_replication:
+  initial_status: pending
+  same_pathway_family_required: true
+  early_activation_direction: positive
+  recovery_direction: early_greater_than_mean_recovery_and_late
+  evaluable_donor_direction_fraction_min: 0.80
+  family_adjusted_p_max: 0.10
+  leave_one_donor_selection_min: 0.80
+  no_gate_retuning: true
+  pass_status: passed
+  fail_status: failed
+
+protein_outcome_replication:
+  target_markers: [CD64, CD169]
+  required_modality: CITE_seq_ADT
+  panel_audit_source: GSE171964_feats_v2.tsv.gz
+  panel_audit_result:
+    CD64_ADT_present: false
+    CD169_ADT_present: false
+    FCGR1A_RNA_present: true
+    SIGLEC1_RNA_present: true
+  initial_status: not_tested
+  fixed_reason: >-
+    The corrected v2 CITE-seq feature panel has RNA rows for FCGR1A and SIGLEC1
+    but no CD64 or CD169 ADT rows; RNA expression cannot substitute for the
+    orthogonal protein endpoint.
+  forbidden_substitutions:
+    - FCGR1A RNA for CD64 ADT
+    - SIGLEC1 RNA for CD169 ADT
+    - other ADTs chosen after inspecting their vaccine response
+
+gates:
+  evaluable_donors_min: 5
+  family_adjusted_p_max: 0.10
+  direction_stability_min: 0.80
+  leave_one_donor_selection_min: 0.80
+  matched_state_smd_max: 0.20
+  matched_state_attenuation_max: 0.50
+  negative_control_margin_min: 0.0
+  activation_and_recovery_required: true
+  upstream_score_agreement_required: true
+  peak_window_agreement_required: early_post_dose
+
+claim_boundary:
+  event_pass_text: "E2 | protein outcome passed | event independently replicated"
+  protein_and_event_pass_text: "E2 | protein outcome passed and independently replicated"
+  protein_and_event_pass_text_allowed: false
+  allowed_if_event_passes: >-
+    The same interferon event family was independently replicated in the
+    corrected GSE171964 cohort under fixed gates.
+  forbidden_claims:
+    - independent replication of CD64/CD169 protein outcome in GSE171964
+    - prospective external validation
+    - newly discovered vaccine mechanism
+    - causal mediation from RNA to protein
+    - use of GSE171964 to upgrade same-study protein evidence beyond E2

@@ -7,11 +7,214 @@ import pytest
 from pyfgsea.ted_evidence import (
     EventSupportInputs,
     EventSupportThresholds,
+    ParallelEvidenceRecord,
+    ReplicationFacetInputs,
     ValidationProvenanceInputs,
     assign_event_support,
     assign_evidence_boundary,
+    assign_replication_facets,
     assign_validation_provenance,
 )
+
+
+def test_parallel_outcome_record_does_not_promote_failed_event() -> None:
+    event = assign_event_support(
+        EventSupportInputs(
+            event_family_declared=True,
+            defensible_null_specified=True,
+            biological_units_present=True,
+            condition_batch_confounded=False,
+            identifiability_status="identifiable",
+            artifact_dominated=True,
+            event_q=0.20,
+            retained_module=True,
+            basic_controls_pass=False,
+        )
+    )
+    outcome = ParallelEvidenceRecord(
+        record_id="bnt162b2_cd64_cd169",
+        evidence_type="orthogonal_outcome",
+        status="passed",
+        independence_context="same_study_same_cells",
+        outcome_type="protein",
+        contrast="early post-dose minus baseline/late",
+        controls_pass=True,
+        replication_status="not_tested",
+        reason_codes=("PROTEIN_OUTCOME_GATES_PASS",),
+    )
+    assert event.code == "E0"
+    assert outcome.as_dict()["status"] == "passed"
+    assert outcome.as_dict()["replication_status"] == "not_tested"
+
+
+@pytest.mark.parametrize(
+    "evidence_type",
+    ["orthogonal_outcome", "intervention_reversal", "matched_rescue"],
+)
+def test_parallel_evidence_types_never_upgrade_event_e_code(
+    evidence_type: str,
+) -> None:
+    event = assign_event_support(
+        EventSupportInputs(
+            event_family_declared=True,
+            defensible_null_specified=True,
+            biological_units_present=True,
+            condition_batch_confounded=False,
+            identifiability_status="identifiable",
+            artifact_dominated=True,
+            event_q=0.20,
+            retained_module=True,
+            basic_controls_pass=False,
+        )
+    )
+    record = ParallelEvidenceRecord(
+        record_id=f"{evidence_type}_record",
+        evidence_type=evidence_type,  # type: ignore[arg-type]
+        status="passed",
+        independence_context="independent_experiment",
+        controls_pass=True,
+        reason_codes=("PARALLEL_EVIDENCE_PASSED",),
+    )
+
+    assert event.code == "E0"
+    assert record.as_dict()["status"] == "passed"
+
+
+def test_passed_parallel_record_requires_controls() -> None:
+    with pytest.raises(ValueError, match="controls_pass=True"):
+        ParallelEvidenceRecord(
+            record_id="record",
+            evidence_type="orthogonal_outcome",
+            status="passed",
+            independence_context="same_study_same_cells",
+            controls_pass=False,
+        )
+
+
+def test_tested_parallel_record_replication_requires_dataset() -> None:
+    with pytest.raises(ValueError, match="replication_dataset_id"):
+        ParallelEvidenceRecord(
+            record_id="record",
+            evidence_type="orthogonal_outcome",
+            status="failed",
+            independence_context="same_study_same_cells",
+            controls_pass=False,
+            replication_status="failed",
+        )
+
+
+def test_replication_facets_keep_event_and_protein_outcome_separate() -> None:
+    result = assign_replication_facets(
+        ReplicationFacetInputs(
+            event_analysis_complete=True,
+            event_replication_tested=True,
+            independent_cohort=True,
+            same_event_family=True,
+            early_activation_same_direction=True,
+            recovery_same_direction=True,
+            evaluable_donor_direction_fraction=5 / 6,
+            family_adjusted_p=0.08,
+            gates_frozen=True,
+            additional_declared_gates_pass=True,
+            outcome_analysis_complete=True,
+            outcome_replication_tested=False,
+            outcome_modality_compatible=False,
+            outcome_type="protein",
+        )
+    )
+    assert result.event_replication_eligibility_status == "passed"
+    assert result.event_replication_test_status == "run_supported"
+    assert result.event_replication_status == "passed"
+    assert result.outcome_replication_status == "not_tested"
+    assert result.display("E2", within_study_outcome_status="passed") == (
+        "E2 | protein outcome passed | event independently replicated"
+    )
+
+
+def test_replication_display_requires_independent_outcome_pass_for_strong_text() -> (
+    None
+):
+    result = assign_replication_facets(
+        ReplicationFacetInputs(
+            event_analysis_complete=True,
+            event_replication_tested=True,
+            independent_cohort=True,
+            same_event_family=True,
+            early_activation_same_direction=True,
+            recovery_same_direction=True,
+            evaluable_donor_direction_fraction=1.0,
+            family_adjusted_p=0.02,
+            gates_frozen=True,
+            additional_declared_gates_pass=True,
+            outcome_analysis_complete=True,
+            outcome_replication_tested=True,
+            outcome_modality_compatible=True,
+            same_outcome_contrast=True,
+            outcome_replication_pass=True,
+            outcome_type="protein",
+        )
+    )
+    assert result.event_replication_eligibility_status == "passed"
+    assert result.event_replication_test_status == "run_supported"
+    assert result.outcome_replication_status == "passed"
+    assert result.display("E2", within_study_outcome_status="passed") == (
+        "E2 | protein outcome passed and independently replicated"
+    )
+
+
+def test_outcome_replication_is_independent_of_event_replication_status() -> None:
+    result = assign_replication_facets(
+        ReplicationFacetInputs(
+            event_analysis_complete=True,
+            event_replication_tested=True,
+            independent_cohort=True,
+            same_event_family=True,
+            early_activation_same_direction=False,
+            recovery_same_direction=False,
+            evaluable_donor_direction_fraction=0.50,
+            family_adjusted_p=0.40,
+            gates_frozen=True,
+            additional_declared_gates_pass=False,
+            outcome_analysis_complete=True,
+            outcome_replication_tested=True,
+            outcome_modality_compatible=True,
+            same_outcome_contrast=True,
+            outcome_replication_pass=True,
+            outcome_type="protein",
+        )
+    )
+    assert result.event_replication_eligibility_status == "passed"
+    assert result.event_replication_test_status == "run_not_supported"
+    assert result.event_replication_status == "failed"
+    assert result.outcome_replication_status == "passed"
+    assert result.display("E2", within_study_outcome_status="passed") == (
+        "E2 | protein outcome passed and independently replicated"
+    )
+
+
+def test_replication_facet_analysis_is_pending_until_completed() -> None:
+    result = assign_replication_facets(ReplicationFacetInputs())
+    assert result.event_replication_eligibility_status == "pending"
+    assert result.event_replication_test_status == "not_run"
+    assert result.event_replication_status == "pending"
+    assert result.outcome_replication_status == "pending"
+
+
+def test_replication_prerequisite_failure_is_not_evaluable_and_not_run() -> None:
+    result = assign_replication_facets(
+        ReplicationFacetInputs(
+            event_analysis_complete=True,
+            event_replication_tested=False,
+            additional_declared_gates_pass=False,
+            outcome_analysis_complete=True,
+            outcome_replication_tested=False,
+            outcome_modality_compatible=False,
+        )
+    )
+    assert result.event_replication_eligibility_status == "failed"
+    assert result.event_replication_test_status == "not_run"
+    assert result.event_replication_status == "not_evaluable"
+    assert "EVENT_REPLICATION_FAILED_AT_ELIGIBILITY_PREREQUISITE" in result.reason_codes
 
 
 def e1_inputs(**updates: object) -> EventSupportInputs:
@@ -33,6 +236,9 @@ def e1_inputs(**updates: object) -> EventSupportInputs:
 def e2_inputs(**updates: object) -> EventSupportInputs:
     values = {
         "effective_blocks": 3,
+        "block_support_method": "monte_carlo_block_permutation",
+        "minimum_attainable_p": 0.001,
+        "permutation_resolution_pass": True,
         "block_q": 0.08,
         "direction_stability": 0.80,
         "mode_identifiable": True,
@@ -85,6 +291,46 @@ def test_complete_default_robustness_gates_assign_e2() -> None:
 
     assert result.code == "E2"
     assert result.reason_codes == ("E2_ALL_GATES_PASS",)
+
+
+def test_exact_three_block_sign_permutation_is_not_testable_at_q_point_10() -> None:
+    result = assign_event_support(
+        e2_inputs(
+            block_support_method="exact_paired_sign_permutation",
+            minimum_attainable_p=0.125,
+            permutation_resolution_pass=False,
+        )
+    )
+
+    assert result.code == "E0"
+    assert "INSUFFICIENT_PERMUTATION_RESOLUTION" in result.reason_codes
+
+
+def test_exact_four_block_sign_permutation_can_attain_q_point_10() -> None:
+    result = assign_event_support(
+        e2_inputs(
+            effective_blocks=4,
+            block_support_method="exact_paired_sign_permutation",
+            minimum_attainable_p=0.0625,
+            permutation_resolution_pass=True,
+        )
+    )
+
+    assert result.code == "E2"
+
+
+def test_three_blocks_remain_allowed_for_selection_aware_ci() -> None:
+    result = assign_event_support(
+        e2_inputs(
+            block_support_method="selection_aware_ci",
+            minimum_attainable_p=None,
+            permutation_resolution_pass=None,
+            block_q=None,
+            block_ci_excludes_zero=True,
+        )
+    )
+
+    assert result.code == "E2"
 
 
 def test_block_confidence_interval_is_an_allowed_alternative_to_block_q() -> None:

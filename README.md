@@ -2,7 +2,20 @@
 
 **Trajectory Pathway Event Discovery (TED)** is an artifact-aware protocol for structured interpretation of dynamic pathway events in single-cell genomics.
 
-TED starts from pathway, module or perturbation activity profiles and writes row-wise event objects. Each event row records event mode, effect and uncertainty, block support, matched-state and negative-control behavior, identifiability, an E0--E2 within-study support code, and a V0--V4 external-evidence provenance code. Escort addresses upstream trajectory suitability; TED starts after a trajectory, time or state representation has been supplied. PyFgsea can generate upstream activity profiles, but TED is a separate downstream inference task and accepts activity matrices produced by other scoring or trajectory methods.
+TED starts from pathway, module or perturbation activity profiles and writes
+row-wise event objects. Each event row records event mode, effect and
+uncertainty, block support, matched-state and negative-control behavior,
+identifiability, and an E0--E2 within-study event-support code. Orthogonal
+outcome, intervention reversal, and matched rescue are parallel typed evidence
+records; they do not upgrade the event E code. Event-replication and
+outcome-replication eligibility, test, and result states are separate facets.
+
+The V0--V4 projection from v1.0.x is retained only for explicit migration of
+historical records. It is not the v1.1 reviewer-facing evidence model. Escort
+addresses upstream trajectory suitability; TED starts after a trajectory,
+time, or state representation has been supplied. PyFgsea can generate upstream
+activity profiles, but TED is a separate downstream inference task and accepts
+activity matrices produced by other scoring or trajectory methods.
 
 ## Release status
 
@@ -14,14 +27,32 @@ v1.0 scientific artifacts and does not add a new manuscript analysis. Archive
 and distribution identifiers are distinct: `ted-v1.0.1` carries the
 `pyfgsea==0.1.5` Python package.
 
+The local `ted-v1.1.0` candidate is the separately versioned BIB manuscript
+companion and carries `pyfgsea==0.2.0`. Its Git tree contains the locked
+analysis code, protocols, schemas, tests, explicit asset rules, and
+reproduction/verification entry points. The task registry, truth,
+harmonized/native outputs, Figure 3/5 source data, and flagship records are
+packaged as checksummed external release assets rather than committed by
+recursively adding the local `results/` tree.
+
+The canonical flagship contract is claim-bounded to `E0 | protein outcome
+passed | event replication not_evaluable (eligibility failed; test not_run) |
+protein outcome replication not_tested`. Legacy E/V fields and hypothetical
+success strings remain byte-preserved provenance only and are not current
+conclusions.
+
+`ted-v1.1.0` is not yet a public release. A clean analysis-lock commit,
+verified external archives, exact-tag CI, and a new version-specific DOI are
+required before it can be cited.
+
 > **Manuscript-companion boundary:** the `ted-v1.0.x` archive is not the
 > computational companion for the submitted *Briefings in Bioinformatics*
 > Figure 3 480-task common-task comparison or Figure 5 BNT162b2/GSE171964
 > analyses. It does not contain the corresponding 480 task registry, 2,400
 > method-task native outputs, BNT162b2 masked protein-outcome analysis, or
 > corrected GSE171964 replication package. Those materials require a
-> separately versioned manuscript-companion release. No v1.0.x command should
-> be represented as reproducing those figures.
+> separately versioned `ted-v1.1.0` manuscript-companion release. No v1.0.x
+> command should be represented as reproducing those figures.
 
 The historical May 2026 archive is:
 
@@ -47,6 +78,13 @@ The analysis lock identifies the exact estimator code, thresholds, seeds, inputs
 | `tables/` | Machine-readable event objects, benchmark summaries, evidence-boundary outputs, validation summaries and release-audit tables. Some historical filenames retain legacy terminology for provenance. |
 | `figures/` | Main figure PDFs/PNGs and their source-data TSV files. |
 | `scripts/run_ted_validation_demo.py` | Deterministic installed-package and E/V schema smoke test. |
+| `scripts/build_ted_bib_companion.py` | Fail-closed, explicit-allowlist builder for the v1.1.0 external companion archives. |
+| `scripts/verify_ted_bib_companion.py` | Independent archive member, size, SHA-256, and required-role verification. |
+| `reproduce/` | Companion verification and Figure 3/5 source-to-figure reproduction entry points. |
+| `schemas/parallel_evidence_record_v1.schema.json` | Canonical outcome/reversal/rescue parallel-record contract. |
+| `schemas/replication_facets_v1.schema.json` | Canonical event/outcome replication-facet contract. |
+| `release/ted-v1.1.0/` | Candidate metadata, asset rules, focused-test evidence, and publication gates. |
+| `release/ted-v1.1.0/CLAIM_BOUNDARY.md` | Observed BNT162b2/GSE171964 state and treatment of frozen legacy success criteria. |
 | `legacy/pre_ev_schema/` | Historical pre-E/V development demonstration; not a package or manuscript reproduction test. |
 | `results/ted_v1_submission/` | Final figure source data, controlled-benchmark summaries, public-data audits and checksummed release outputs. |
 | `Dockerfile`, `Dockerfile.baselines`, `environment*.yml` | Runtime environments for TED analyses and direct external baseline execution. |
@@ -55,14 +93,16 @@ Journal submission files are managed separately from this software archive. Larg
 
 ## Quick start
 
-The sole canonical v1.0.x quickstart is
+The installed-package smoke is documented in
 [README_quickstart.md](README_quickstart.md). It creates the canonical Python
 3.11 environment, installs the package, runs the deterministic validation demo
 in isolated mode, and validates its activity-v1 and event-v2 tables through the
 installed `ted` console command.
 
 That sequence is a package/schema smoke test. It is not a benchmark, external
-validation, main-figure reproduction, or BIB manuscript-companion workflow.
+validation, or main-figure reproduction. The v1.1.0 companion build and
+verification path is documented separately in
+[`release/ted-v1.1.0/README.md`](release/ted-v1.1.0/README.md).
 
 ### Public CLI boundary
 
@@ -133,11 +173,15 @@ submitted BIB Figure 5.
 | `figures/figure4_gse271399_gata1_cross_dataset_support.pdf` | GSE271399 and independent GATA1/GATA1s support figure. |
 | `figures/figure5_claim_upgrade_block_audit.pdf` | Evidence-promotion/block audit figure; legacy filename. |
 
-## Current evidence descriptors
+## Legacy v1.0.x evidence descriptors
 
-The July 2026 control audit supersedes the historical descriptors below for manuscript interpretation. These rows must be accompanied by their E/V v2 tables and full control outputs in `ted-v1.0.0`.
+The rows below reproduce the archived v1.0.x E/V projection for migration and
+provenance only. They are not the v1.1 reviewer-facing evidence model and must
+not be used to upgrade an event E code. In v1.1, outcome, reversal and rescue
+are parallel typed records, while event and outcome replication remain
+separate facets.
 
-| Dataset | Readout | Current descriptor | Qualification |
+| Dataset | Readout | Historical E/V projection | Qualification |
 | --- | --- | --- | --- |
 | GSE153056 | IFNG/PD-L1 RNA event aligned with PD-L1 protein effects | E1--V1 | Formal locked assignment; a retrospective three-block audit met E2 eligibility but does not replace the locked endpoint. |
 | GSE93735 | Partial dexamethasone reversal of an LPS-associated signal | E0--V2 | Two samples per group and no event-level q value; reversal provenance is descriptive. |

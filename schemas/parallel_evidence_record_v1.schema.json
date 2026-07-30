@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/parallel_evidence_record_v1.schema.json",
+  "title": "TED parallel evidence record v1",
+  "description": "One typed orthogonal-outcome, intervention-reversal or matched-rescue record adjudicated independently of the TED event-support E code.",
+  "type": "object",
+  "required": [
+    "record_id",
+    "evidence_type",
+    "status",
+    "independence_context",
+    "controls_pass",
+    "replication_status",
+    "reason_codes"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_type": {
+      "enum": [
+        "orthogonal_outcome",
+        "intervention_reversal",
+        "matched_rescue"
+      ]
+    },
+    "status": {
+      "enum": [
+        "pending",
+        "not_tested",
+        "passed",
+        "failed"
+      ]
+    },
+    "independence_context": {
+      "enum": [
+        "same_study_same_cells",
+        "same_study_different_assay",
+        "independent_cohort",
+        "independent_experiment"
+      ]
+    },
+    "outcome_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contrast": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "controls_pass": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "replication_status": {
+      "enum": [
+        "pending",
+        "not_tested",
+        "passed",
+        "failed"
+      ]
+    },
+    "replication_dataset_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "passed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "controls_pass": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "replication_status": {
+            "enum": [
+              "passed",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "replication_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "replication_dataset_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "replication_dataset_id"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": false
+}

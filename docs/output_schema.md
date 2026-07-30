@@ -1,9 +1,9 @@
 # TED-Development Output Schema
 
-## TED event report v2: orthogonal E/V contract
+## TED event report v2: event support plus parallel evidence
 
 `pyfgsea/schemas/ted_event_report_v2.schema.json` replaces the single legacy
-ladder with two explicit axes:
+ladder and horizontal V projection with three explicit components:
 
 - `event_support_code`: `E0` (unsupported, non-estimable,
   non-identifiable, artifact-dominated, or missing required design), `E1`
@@ -23,11 +23,17 @@ ladder with two explicit axes:
   run. Stable reasons are `undeclared_family`, `no_defensible_null`,
   `insufficient_blocks`, `complete_confounding`,
   `insufficient_permutation_resolution`, and `other`.
-- `validation_provenance_code`: `V0` (computational only), `V1` (orthogonal
-  outcome), `V2` (intervention reversal), `V3` (matched rescue), or `V4`
-  (independent replication).
-- `evidence_boundary`: the combined code, for example `E2–V1`. ASCII `-` and
-  the en dash are accepted on input; the component codes must match exactly.
+- `parallel_evidence_records`: independently adjudicated
+  `orthogonal_outcome`, `intervention_reversal`, and `matched_rescue` records.
+  Each record stores its own status, independence context, control result,
+  replication status and stable reason codes. A passed parallel record never
+  repairs or upgrades the event E code.
+- Event-replication eligibility, test execution and result are distinct
+  fields: `event_replication_eligibility_status`,
+  `event_replication_test_status`, and `event_replication_status`.
+  `outcome_replication_status` is a separate projection of the corresponding
+  outcome record; an unavailable outcome is `not_tested`, not failed or passed
+  by substituting an RNA readout.
 - `supported_interpretation` and
   `unsupported_interpretation_current_evidence`: nonblank statements that make
   the current interpretation boundary auditable.
@@ -35,24 +41,34 @@ ladder with two explicit axes:
   across declared resampling schemes. `discovery_stability_status` must be
   `stable_core` for values at least 0.80, `intermediate` for 0.50 to below
   0.80, and `unstable` below 0.50; unassessed rows use null plus
-  `not_assessed`.
+  `not_evaluable`.
 - `upstream_method_agreement`: optional fraction of prespecified upstream
   combinations agreeing on direction and mode. If
   `upstream_disagreement_flag=true`, schema semantics forbid E2 and require an
   E1 ceiling or ambiguity return.
 
-The v2 schema keeps `evidence_tier`, `claim_ceiling` and
-`matched_functional_rescue` as optional transition fields. The first two do not
-drive v2 validation. A V3 row must include
-`matched_functional_rescue=true`; E2 requires `identifiability_status` to be
-`identifiable`.
+The v2 schema keeps `validation_provenance_code`, `evidence_boundary`,
+`evidence_tier`, `claim_ceiling` and `matched_functional_rescue` only as
+optional migration fields for archived reports. The legacy V fields do not
+drive event support. If present, their internal consistency is still checked;
+new reports should use the canonical
+`parallel_evidence_record_v1.schema.json` and
+`replication_facets_v1.schema.json` contracts. E2 requires
+`identifiability_status=identifiable` and a declared block-support method.
+
+For the BIB companion, the schema-valid observed instances are generated
+fail-closed from the frozen BNT162b2/GSE171964 status files into
+`results/ted_bib_companion_evidence_contract_v1/`. The release verifier
+requires `E0`, a passed same-study protein outcome record, failed replication
+eligibility, a not-run event test, a not-evaluable event result, and an
+untested protein-outcome replication result.
 
 `ted validate --kind event` auto-selects v2 when any v2-only field is present.
 This is deliberately fail-closed: a partially migrated table is checked as v2
 and reports its missing fields instead of falling back to v1. Use
 `--schema-version v1` or `--schema-version v2` to require a specific contract.
-Legacy event tables without E/V columns continue to use the unchanged v1
-schema and semantic gate.
+Legacy event tables without v2 event-support fields continue to use the
+unchanged v1 schema and semantic gate.
 
 ## TrajPathMix v1 two-layer output
 

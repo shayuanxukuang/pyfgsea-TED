@@ -1,0 +1,52 @@
+{
+  "figure3": {
+    "command": [
+      "python",
+      "reproduce/render_bib_figures.py",
+      "--companion-root",
+      ".",
+      "--figure",
+      "figure3",
+      "--output-dir",
+      "reproduction/redrawn"
+    ],
+    "outputs": [
+      {
+        "generated": "reproduction/redrawn/figure3_reproduced.png",
+        "reference": "results/bib_manuscript_revision/figures/figure3_primary_heldout_performance.png",
+        "validation": "semantic_and_nonblank_pixel_qa"
+      },
+      {
+        "generated": "reproduction/redrawn/figure3_reproduced.pdf",
+        "reference": "results/bib_manuscript_revision/figures/figure3_primary_heldout_performance.pdf",
+        "validation": "semantic_and_nonempty_pdf"
+      }
+    ],
+    "semantic_report": "reproduction/redrawn/figure3_semantic_report.json"
+  },
+  "figure5": {
+    "command": [
+      "python",
+      "reproduce/render_bib_figures.py",
+      "--companion-root",
+      ".",
+      "--figure",
+      "figure5",
+      "--output-dir",
+      "reproduction/redrawn"
+    ],
+    "outputs": [
+      {
+        "generated": "reproduction/redrawn/figure5_reproduced.png",
+        "reference": "results/bib_manuscript_revision/figures/figure5_independent_real_data_validation.png",
+        "validation": "semantic_and_nonblank_pixel_qa"
+      },
+      {
+        "generated": "reproduction/redrawn/figure5_reproduced.pdf",
+        "reference": "results/bib_manuscript_revision/figures/figure5_independent_real_data_validation.pdf",
+        "validation": "semantic_and_nonempty_pdf"
+      }
+    ],
+    "semantic_report": "reproduction/redrawn/figure5_semantic_report.json"
+  }
+}

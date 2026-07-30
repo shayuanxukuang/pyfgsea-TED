@@ -1,0 +1,5 @@
+artifact	required	expected_contract	status	path	sha256
+collection	true	exactly 81 isolated installed-wheel node IDs	pending	results/ted_bib_focused_81/focused_81_collection.txt	pending
+junit_xml	true	exactly 81 tests; failures=0; errors=0	pending	results/ted_bib_focused_81/focused_81_junit.xml	pending
+terminal_summary	true	contains the exact final summary "81 passed"	pending	results/ted_bib_focused_81/focused_81_terminal_summary.txt	pending
+command_record	true	isolated-child argv, installed-wheel identity, analysis-lock commit, exact node IDs and selection/evidence hashes	pending	results/ted_bib_focused_81/focused_81_command.json	pending

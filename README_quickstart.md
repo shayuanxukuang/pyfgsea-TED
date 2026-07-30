@@ -1,18 +1,19 @@
-# TED v1.0.x canonical package/schema quickstart
+# TED v1.1.0 candidate package/schema quickstart
 
-This is the sole canonical quickstart for the v1.0.x maintenance line. Its
-purpose is deliberately narrow: install the Python package, run a deterministic
+This is the canonical installed-package smoke for the v1.1.0 companion
+candidate. Its purpose is deliberately narrow: install the Python package, run a deterministic
 controlled-data generator through the installed package's schema validator, and
 exercise the public `ted validate` command.
 
-The v1.0.1 archive identifier and Python distribution version are distinct:
-`ted-v1.0.1` carries `pyfgsea==0.1.5`.
+Archive and Python distribution identifiers are distinct: the
+`ted-v1.1.0` candidate carries `pyfgsea==0.2.0`. The v1.0.1 release-engineering
+patch candidate carries `pyfgsea==0.1.5`.
 
 > **Scope boundary:** this smoke test does not reproduce the submitted
 > *Briefings in Bioinformatics* Figure 3 480-task common-task comparison,
 > Figure 5 BNT162b2 masked protein outcome or corrected GSE171964 replication.
-> The v1.0.x archive does not contain those manuscript-companion inputs,
-> 2,400 method-task native outputs or figure source packages.
+> Those analyses are verified through the separate v1.1.0 companion
+> reproduction entry and external archives, not through this schema smoke.
 
 ## Python environments
 
@@ -71,8 +72,8 @@ Expected outputs are:
 - `results/ted_validation_demo/demo_manifest.json`
 - the two CLI validation reports requested above
 
-See [docs/ted_validation_demo.md](docs/ted_validation_demo.md) for the field and
-evidence-boundary contract.
+See [docs/ted_validation_demo.md](docs/ted_validation_demo.md) for the
+event-support and no-parallel-evidence contract.
 
 ## Real `ted run` interface
 
@@ -104,10 +105,10 @@ Use `ted run --help` for optional metadata merge, layer/raw selection,
 alternative rankers, adaptive/graph windows and diagnostics controls.
 Use `ted --version` to report the installed distribution version.
 
-The v1.0.x command does **not** accept `--activity`, `--metadata`,
+The command does **not** accept `--activity`, `--metadata`,
 `--gene-sets`, `--design` or `--negative-controls`. Any document showing that
-interface is an illustration from later manuscript planning, not an executable
-v1.0.x command.
+interface is an illustration from earlier manuscript planning, not an
+executable command.
 
 ## Docker behavior
 

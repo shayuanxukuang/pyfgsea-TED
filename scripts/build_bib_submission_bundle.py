@@ -89,11 +89,14 @@ PUBLIC_FIGURE_FILES = tuple(
 MAIN_SOURCE_FIGURE_FILES = tuple(f"{stem}.pdf" for stem in MAIN_FIGURE_STEMS)
 
 SUPPLEMENT_FIGURE_FILES = (
-    "parameter_sensitivity_multiverse_figure.png",
+    "supplementary_figure_s1_scaling.pdf",
+    "supplementary_figure_s2_bombyx_workflow_localization.pdf",
     "supplementary_figure_s2_bombyx_workflow_localization.png",
+    "supplementary_figure_s3_bombyx_controls_windows.pdf",
     "supplementary_figure_s3_bombyx_controls_windows.png",
     "supplementary_figure_s4_dynamic_pathway_event_grammar.pdf",
     "supplementary_figure_s5_scp1064.pdf",
+    "supplementary_figure_s6_rule_consistency_confusions.pdf",
 )
 ROOT_SOURCE_REFRESH = {
     "rule_perturbation_sensitivity_profiles.tsv": ROOT
@@ -179,6 +182,23 @@ SUBMISSION_EVIDENCE_RELATIVE = (
     "results/ted_submission_calibration/rule_perturbation_sensitivity_profiles.tsv",
     "results/ted_submission_calibration/rule_perturbation_sensitivity_calls.tsv",
     "results/ted_submission_calibration/rule_perturbation_sensitivity_summary.tsv",
+    # Current controlled raw-count common task and flagship evidence records.
+    "results/ted_manuscript_machine_readable_v2/common_task_scenario_registry.tsv",
+    "results/ted_manuscript_machine_readable_v2/common_task_truth_masked.tsv",
+    "results/ted_manuscript_machine_readable_v2/manifest.tsv",
+    "results/ted_manuscript_machine_readable_v2/method_native_outputs/manifest.tsv",
+    "results/ted_manuscript_machine_readable_v2/method_harmonized_event_outputs.tsv.gz",
+    "results/ted_manuscript_machine_readable_v2/metrics_by_method_event_type_artifact.tsv",
+    "results/ted_manuscript_machine_readable_v2/common_task_headline_summary.tsv",
+    "results/ted_manuscript_machine_readable_v2/common_task_status.json",
+    "results/ted_manuscript_machine_readable_v2/flagship_design_lock.yaml",
+    "results/ted_manuscript_machine_readable_v2/flagship_rna_event_audit.tsv",
+    "results/ted_manuscript_machine_readable_v2/flagship_orthogonal_evidence_records.tsv",
+    "results/ted_manuscript_machine_readable_v2/flagship_replication_audit.tsv",
+    "results/ted_manuscript_machine_readable_v2/evidence_schema_migration.tsv",
+    "results/ted_manuscript_machine_readable_v2/method_implementation_identity_audit.tsv",
+    "results/ted_manuscript_machine_readable_v2/tips_reference_concordance_audit.tsv",
+    "results/ted_manuscript_machine_readable_v2/independent_recalculation_audit.tsv",
     # Dynamic-event grammar source tables cited in Supplementary Figure S4.
     "data_external/StepXX_dynamic_pathway_event_grammar_standardization/dynamic_pathway_event_table.tsv",
     "data_external/StepXX_dynamic_pathway_event_grammar_standardization/event_type_definition.md",
@@ -208,6 +228,9 @@ SUBMISSION_EVIDENCE_RELATIVE = (
     "results/ted_factorized_ablation/metric_definitions.tsv",
     "results/ted_factorized_ablation/run_config.json",
     "results/ted_factorized_ablation/manifest.tsv",
+    # Continuous-shift and non-Gaussian out-of-distribution challenge.
+    "results/ted_factorized_ood_challenge/ood_metrics.tsv",
+    "results/ted_factorized_ood_challenge/ood_predictions.tsv",
     # Full block-profile adaptive-window multiplicity benchmark.
     "results/ted_adaptive_window_multiplicity/scenario_registry.tsv",
     "results/ted_adaptive_window_multiplicity/replicate_metrics.tsv",
@@ -217,6 +240,8 @@ SUBMISSION_EVIDENCE_RELATIVE = (
     "results/ted_adaptive_window_multiplicity/factor_level_summary.tsv",
     "results/ted_adaptive_window_multiplicity/metric_definitions.tsv",
     "results/ted_adaptive_window_multiplicity/run_config.json",
+    "results/ted_adaptive_window_method_regimes/method_summary.tsv",
+    "results/ted_adaptive_window_method_regimes/method_selection_by_factor.tsv",
     # Packet bootstrap and dataset-level holdout evidence.
     "results/bib_manuscript_revision/packet_bootstrap/packet_bootstrap_replicates.tsv.gz",
     "results/bib_manuscript_revision/packet_bootstrap/packet_bootstrap_run_config.tsv",
@@ -227,6 +252,8 @@ SUBMISSION_EVIDENCE_RELATIVE = (
     "results/ted_submission_supplement/zscape_repeated_holdout_stability/threshold_sensitivity.tsv",
     "results/ted_submission_supplement/zscape_repeated_holdout_stability/run_config.json",
     "results/ted_submission_supplement/zscape_repeated_holdout_stability/event_selection_frequency.tsv",
+    "results/ted_submission_supplement/zscape_repeated_holdout_stability/stability_status_summary.tsv",
+    "results/ted_submission_supplement/zscape_repeated_holdout_stability/stability_group_comparisons.tsv",
     "results/ted_submission_supplement/zscape_repeated_holdout_stability/subsampling_curve_long.tsv",
     "results/ted_submission_supplement/zscape_repeated_holdout_stability/subsampling_curve.tsv",
     "results/ted_submission_supplement/zscape_leave_one_embryo_full_refit/summary.tsv",
@@ -243,6 +270,10 @@ SUBMISSION_EVIDENCE_RELATIVE = (
     "results/bib_manuscript_revision/gse153056_block_aware/gse153056_stat1_gate_audit.tsv",
     "results/bib_manuscript_revision/gse271399_design_stratum_audit.tsv",
     "results/bib_manuscript_revision/gse93735_ev_boundary.tsv",
+    "results/ted_bnt162b2_flagship/rna_event_freeze_v1/rna_event_status.json",
+    "results/ted_bnt162b2_flagship/orthogonal_outcome_v1/protein_outcome_status.json",
+    "results/ted_gse171964_replication/analysis_v1/replication_status.json",
+    "results/ted_gse171964_replication/analysis_v1/replication_gate_table.tsv",
     "results/ted_known_source_validation/tables/gse153056_pdl1_outcome_alignment.tsv",
     "results/ted_known_source_validation/tables/gse153056_negative_control_results.tsv",
     "results/ted_known_source_validation/tables/gse93735_reversal_index.tsv",
@@ -258,10 +289,6 @@ SUBMISSION_EVIDENCE_RELATIVE = (
     "results/ted_real_data_upstream_sensitivity/upstream_method_registry.tsv",
     "results/ted_real_data_upstream_sensitivity/run_config.json",
     "results/ted_real_data_upstream_sensitivity/manifest.tsv",
-    "results/ted_post_freeze_protocol_candidate/README.md",
-    "results/ted_post_freeze_protocol_candidate/protocol.json",
-    "results/ted_post_freeze_protocol_candidate/reporting_and_exclusion_rules.tsv",
-    "results/ted_post_freeze_protocol_candidate/activation_checklist.tsv",
     "results/ted_submission_supplement/direct_external_baselines_docker/direct_external_baseline_metric_table.tsv",
     "results/ted_submission_supplement/direct_external_baselines_docker/direct_external_baseline_execution_manifest.tsv",
     "results/ted_submission_supplement/event_layer_scaling/ted_event_layer_scaling.tsv",
@@ -290,7 +317,6 @@ SUBMISSION_EVIDENCE_RELATIVE = (
     "results/bib_manuscript_revision/figure_manifest.tsv",
     "results/ted_submission_supplement/requested_experiment_audit/requested_experiment_support_audit.tsv",
     "config/ted_external_validation_protocol_v1.yaml",
-    "docs/ted_pre_submission_revision_tracking_2026-07-16.md",
 )
 
 ALLOWED_EVIDENCE_ENDINGS = (
@@ -637,6 +663,18 @@ def supplement_figure_map() -> Dict[str, Path]:
         name: AUTHORITATIVE_SUPPLEMENT / "figures" / name
         for name in SUPPLEMENT_FIGURE_FILES
     }
+    mapping["supplementary_figure_s1_scaling.pdf"] = (
+        ROOT
+        / "results"
+        / "ted_v1_submission"
+        / "supplementary_figures"
+        / "supplementary_figure_s1_scaling.pdf"
+    )
+    for name in (
+        "supplementary_figure_s2_bombyx_workflow_localization.pdf",
+        "supplementary_figure_s3_bombyx_controls_windows.pdf",
+    ):
+        mapping[name] = ROOT / "GenomeBiology_submission_files_only" / name
     mapping["supplementary_figure_s4_dynamic_pathway_event_grammar.pdf"] = (
         ROOT
         / "data_external"
@@ -649,6 +687,13 @@ def supplement_figure_map() -> Dict[str, Path]:
         / "ted_known_source_validation"
         / "figures"
         / "supplementary_figure_scp1064.pdf"
+    )
+    mapping["supplementary_figure_s6_rule_consistency_confusions.pdf"] = (
+        ROOT
+        / "results"
+        / "ted_v1_submission"
+        / "figures"
+        / "supplementary_figure_s6_rule_consistency_confusions.pdf"
     )
     require_files(mapping.values(), context="Supplementary-figure preflight")
     return mapping
@@ -716,10 +761,7 @@ def supplement_source_map() -> Dict[str, Path]:
         "README_compile.txt": CANONICAL_FULL / "README_compile.txt",
     }
     mapping.update(
-        {
-            f"figures/{name}": AUTHORITATIVE_SUPPLEMENT / "figures" / name
-            for name in SUPPLEMENT_FIGURE_FILES
-        }
+        {f"figures/{name}": source for name, source in supplement_figure_map().items()}
     )
     return mapping
 
@@ -739,6 +781,8 @@ def candidate_schema_map() -> Dict[str, Path]:
         "ted_activity_table_v1.schema.json",
         "ted_event_report_v1.schema.json",
         "ted_event_report_v2.schema.json",
+        "parallel_evidence_record_v1.schema.json",
+        "replication_facets_v1.schema.json",
     )
     return {name: ROOT / "schemas" / name for name in names}
 
@@ -827,6 +871,12 @@ def stage() -> None:
             (
                 supplement_files["supplementary_information.pdf"],
                 AUTHORITATIVE_SUPPLEMENT / "Additional_file_1_Supplementary_Information.pdf",
+            ),
+            (
+                supplement_files["supplementary_information.pdf"],
+                KNOWN_SOURCE_ROOT
+                / "04_additional_files"
+                / "Additional_file_1_Supplementary_Information.pdf",
             ),
             (
                 supplement_files["supplementary_information.pdf"],

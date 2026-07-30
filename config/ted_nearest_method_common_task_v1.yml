@@ -1,0 +1,117 @@
+benchmark_id: ted_nearest_method_common_task_v1
+status: four_scenario_development_pilot_completed; final_test_not_run
+common_task: >-
+  For each prespecified pathway or gene set, determine whether a true dynamic
+  signal is present along an ordered coordinate, determine direction, and,
+  when applicable, localize the event centre or interval.
+truth_policy:
+  generator_module: pyfgsea.nearest_method_benchmark
+  truth_is_not_derived_from_ted_fields: true
+  method_inputs: [raw_counts, cell_metadata, ordered_coordinate, pathway_membership]
+  development_truth_access: allowed_after_each_method_has_written_outputs
+  locked_truth_access: forbidden_until_all_prespecified_methods_have_written_outputs
+  final_test_status: not_run
+development_pilot:
+  completed_scenarios: 4
+  seeds: [20260717, 20260718, 20260719, 20260720]
+  dimensions: {cells: 600, genes: 2000, pathways: 30}
+  adapter_random_sets: 10000
+  result_root: results/ted_nearest_method_five_method
+  summary: results/ted_nearest_method_five_method/pilot_summary/method_summary.tsv
+  limitation: >-
+    This pilot samples four representative design cells and must not be
+    reported as the prespecified 48-cell by 10-seed locked benchmark.
+design:
+  biological_blocks: [4, 6, 10]
+  cells_per_dataset: 2000
+  genes: 5000
+  pathways: 30
+  true_pathways:
+    activation: 3
+    suppression: 3
+    transient: 3
+  null_pathways: 21
+  pathway_size: [30, 80]
+  maximum_pairwise_pathway_overlap: 0.35
+  signal_strength: [low, high]
+  ordered_coordinate: [true, noisy]
+  noisy_coordinate_target_spearman: [0.75, 0.85]
+  artifacts: [none, composition, stress, partial_batch_time]
+  scenario_cells: 48
+  development_seeds_per_cell: 3
+  locked_seeds_per_cell: 10
+  locked_runs: 480
+  optional_locked_seeds_per_cell: 20
+  optional_locked_runs: 960
+  complete_confounding_challenge: separate_not_estimable_suite
+count_model:
+  distribution: negative_binomial
+  equation: log_mu_gib = alpha_g + u_gb + f_g(t_i) + a_g(t_i,s_i) + log_L_i
+  block_random_effect: true
+  library_size_offset: true
+methods:
+  - TIPS
+  - scTransient_native_gene_level
+  - scTransient_custom_pathway_adapter
+  - tradeSeq_native_gene_level
+  - tradeSeq_custom_pathway_adapter
+  - score_then_smooth
+  - TED_common_task
+implementations:
+  TIPS:
+    repository_commit: 82a93d591425ad911e4bc409552ad9d1fcf6f497
+    monocle_version: 2.38.0
+    compatibility_note: >-
+      igraph defunct argument names are mapped to exact current equivalents;
+      Monocle2 dispersion estimation is skipped because current dplyr removed
+      group_by_().
+  scTransient:
+    notebooks_commit: 92b95ae198e621a450e4acec48aaf2171d37f570
+    wheel_version: wavelet-pseudotime 0.0.0
+    wheel_sha256: 01188b7b8627e7836b63ddfb2cd44b874814f395db1bb6063f9c0cfb2f4f4404
+  tradeSeq:
+    version: 1.24.0
+  runtime_image:
+    tag: ted-nearest-methods:20260717
+    image_id: sha256:a0550ffb2b69c565627bcf679de2e814be75ba19495017650e06ce12b7c005dd
+adapter_policy:
+  common_pathway_adapter_for_gene_level_methods: >-
+    Signed gene ranks aggregated by a rank-sum/AUC statistic against
+    expression-matched random sets; adapter parameters frozen on development
+    simulations only.
+  adapter_is_not_native_output: true
+  E_or_V_fields_excluded_from_accuracy_comparison: true
+headline_metrics:
+  - pathway_level_AUPRC
+  - top_k_precision
+  - top_k_recall
+  - nDCG
+secondary_metrics:
+  - FDP
+  - power
+  - FWER
+  - direction_accuracy
+  - transient_center_MAE
+  - transient_width_error
+  - transient_interval_IoU
+  - artifact_only_false_call_rate
+  - leave_one_block_out_direction_agreement
+  - leave_one_block_out_selection_frequency
+  - failure_rate
+  - timeout_rate
+  - non_estimable_rate
+  - wall_time
+  - peak_memory
+reporting_strata:
+  - activation
+  - suppression
+  - transient
+  - clean
+  - composition
+  - stress
+  - partial_batch_time
+  - low_signal
+  - high_signal
+  - 4_blocks
+  - 6_blocks
+  - 10_blocks

@@ -10,7 +10,6 @@ from scipy import stats
 
 from pyfgsea.ted_schema import ted_table_is_valid, validate_ted_table
 
-
 SEED = 20260715
 
 
@@ -122,8 +121,12 @@ def call_events(activity: pd.DataFrame) -> pd.DataFrame:
         events["event_support_code"].eq("E0"), "run_not_supported", "run_supported"
     )
     events["event_q_missing_reason"] = None
-    events["validation_provenance_code"] = "V0"
-    events["evidence_boundary"] = events["event_support_code"] + "–V0"
+    events["block_support_method"] = "parametric_block_test"
+    events["minimum_attainable_p"] = None
+    events["minimum_attainable_q"] = None
+    events["permutation_resolution_pass"] = None
+    events["resampling_selection_frequency"] = None
+    events["discovery_stability_status"] = "not_evaluable"
     events["identifiability_status"] = events["event_support_code"].map({"E0": "limited", "E1": "limited", "E2": "identifiable"})
     events.loc[events["event_mode"].eq("not_identifiable"), "identifiability_status"] = "not_identifiable"
     events.loc[events["event_mode"].eq("not_identifiable"), "direction"] = "not_identifiable"
@@ -144,8 +147,9 @@ def call_events(activity: pd.DataFrame) -> pd.DataFrame:
         }
     )
 
-    # Deprecated v1 fields remain populated so downstream transition code can
-    # read the v2 table while migrating to the orthogonal E/V contract.
+    # Deprecated v1 claim-ceiling fields remain only as compatibility columns.
+    # The demo does not emit the legacy horizontal V ladder: no parallel
+    # outcome/reversal/rescue record or independent-replication facet was run.
     events["evidence_tier"] = events["event_support_code"].map(
         {"E0": 1.0, "E1": 2.0, "E2": 3.0}
     )
@@ -191,7 +195,10 @@ def main() -> None:
                 "event_report": "demo_events_v2.tsv",
                 "compatibility_alias": "demo_events.tsv",
                 "html_report": "demo_report.html",
-                "evidence_boundary": "Synthetic demo evidence is computational only (V0); no external validation is implied.",
+                "evidence_model": (
+                    "E0-E2 event support only. No parallel outcome, reversal, "
+                    "rescue, or independent-replication evidence was run."
+                ),
             },
             indent=2,
         ),

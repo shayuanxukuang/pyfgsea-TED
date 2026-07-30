@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import subprocess
+import sys
 import textwrap
 from pathlib import Path
 
@@ -16,8 +18,10 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results" / "ted_v1_submission"
 SOURCE = RESULTS / "figure_source_data"
 FIGURE_DESTINATIONS = [
+    ROOT / "results" / "bib_manuscript_revision" / "figures",
     ROOT / "GenomeBiology_known_source_submission_package" / "03_figures_final_upload",
     ROOT / "GenomeBiology_known_source_submission_package" / "03_figures",
+    ROOT / "GenomeBiology_known_source_submission_package" / "01_main_manuscript" / "figures",
     ROOT
     / "GenomeBiology_known_source_submission_package"
     / "06_latex_source"
@@ -220,105 +224,114 @@ def figure1() -> None:
     figure1_source = pd.DataFrame(
         [
             ["A", "input", "upstream_signal", "trajectory, time, perturbation or pathway activity"],
-            ["A", "target", "biological_event_mode", "activation; suppression; developmental delay; persistent loss; fate redirection"],
-            ["A", "target", "artifact_class", "none; composition; stress"],
-            ["A", "target", "identifiability", "identifiable; ambiguous; not identifiable"],
-            ["A", "target", "event_support", "E0; E1; E2"],
-            ["A", "target", "validation_provenance", "outcome; reversal; rescue; replication tags"],
-            ["C", "test_status", "not_run", "event_q is null and a stable missing reason is required"],
-            ["C", "test_status", "run_not_supported", "event_q is numeric but the event is E0"],
-            ["C", "test_status", "run_supported", "event_q is numeric and the event is E1 or E2"],
-            ["C", "E0", "label", "unsupported, non-estimable or artifact-dominated"],
-            ["C", "E1", "label", "statistically supported"],
-            ["C", "E2", "label", "robust and mode-identifiable"],
-            ["D", "E0_reason", "E0_not_supported", "declared event gate fails"],
-            ["D", "E0_reason", "E0_not_estimable", "event q cannot be estimated"],
-            ["D", "E0_reason", "E0_not_identifiable", "design does not identify event mode"],
-            ["D", "E0_reason", "E0_artifact_dominated", "composition, stress or other artifact dominates"],
-            ["D", "E0_reason", "E0_missing_required_design", "mandatory design information is absent"],
+            ["A", "inference", "event_inference", "declared family, contrast, unit, null, effect and mode"],
+            ["A", "gate", "competing_explanations", "composition, stress, state overlap and negative controls"],
+            ["B", "event_field", "identity", "dataset, contrast, family and biological unit"],
+            ["B", "event_field", "estimate", "effect, direction, timing and test status"],
+            ["B", "event_field", "support", "block support, LODO, overlap and control margin"],
+            ["B", "event_field", "interpretation", "mode, ambiguity set and claim boundary"],
+            ["C", "within_study_support", "E0", "unsupported, non-estimable, non-identifiable or artifact dominated"],
+            ["C", "within_study_support", "E1", "current-design statistical support"],
+            ["C", "within_study_support", "E2", "independent-block support and identifiable mode"],
+            ["D", "parallel_evidence", "outcome", "orthogonal outcome qualification and controls"],
+            ["D", "parallel_evidence", "reversal", "prespecified intervention reversal"],
+            ["D", "parallel_evidence", "rescue", "matched same-system rescue and recovery"],
+            ["E", "independence_context", "event_replication_eligibility_status", "pending, passed or failed under frozen prerequisites"],
+            ["E", "independence_context", "event_replication_test_status", "not_run, run_not_supported or run_supported"],
+            ["E", "independence_context", "event_replication_status", "pending, not_evaluable, failed or passed"],
+            ["E", "independence_context", "outcome_replication_status", "pending, not_tested, failed or passed"],
         ],
         columns=["panel", "element_type", "element", "definition"],
     )
     figure1_source.to_csv(SOURCE / "figure1_problem_definition.tsv", sep="\t", index=False)
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8.2))
-    fig.suptitle("Problem definition and TED algorithm", fontsize=15, fontweight="bold", x=0.04, ha="left")
+    fig = plt.figure(figsize=(13.2, 8.4))
+    gs = fig.add_gridspec(2, 6, hspace=0.48, wspace=0.48)
+    fig.suptitle("TED evidence structure", fontsize=15, fontweight="bold", x=0.04, ha="left")
 
-    ax = axes[0, 0]
-    panel(ax, "A", "From a signal to an interpretable event")
+    ax = fig.add_subplot(gs[0, :3])
+    panel(ax, "A", "Signal to event inference")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    box(ax, (0.02, 0.31), 0.22, 0.43, "Upstream signal", "Trajectory, time, perturbation or pathway activity", BLUE_LIGHT, title_size=8.0)
-    box(ax, (0.29, 0.31), 0.22, 0.43, "Event inference", "Declared family, unit, null, effect and event mode", OPEN, title_size=8.0)
-    box(ax, (0.56, 0.31), 0.20, 0.43, "Artifact audit", "Blocks, matched state, negative controls and ambiguity", OPEN, title_size=8.0)
-    box(ax, (0.81, 0.31), 0.17, 0.43, "Evidence", "E support plus V provenance", GOLD_LIGHT, title_size=8.0)
-    arrow(ax, (0.24, 0.52), (0.29, 0.52), BLUE)
-    arrow(ax, (0.51, 0.52), (0.56, 0.52), BLUE)
-    arrow(ax, (0.76, 0.52), (0.81, 0.52), GOLD)
-    ax.text(0.50, 0.14, "Detection, classification, artifact assessment and validation are separate targets", ha="center", fontsize=8, color=MID)
+    box(ax, (0.03, 0.29), 0.25, 0.48, "Upstream signal", "Trajectory, time, perturbation or pathway activity", BLUE_LIGHT, title_size=8.5)
+    box(ax, (0.37, 0.29), 0.25, 0.48, "Event inference", "Frozen family, contrast, biological unit, null, effect and mode", OPEN, title_size=8.5)
+    box(ax, (0.71, 0.29), 0.25, 0.48, "Gate audit", "State overlap, composition, stress, negative controls and robustness", GOLD_LIGHT, title_size=8.5)
+    arrow(ax, (0.28, 0.53), (0.37, 0.53), BLUE)
+    arrow(ax, (0.62, 0.53), (0.71, 0.53), GOLD)
+    ax.text(0.50, 0.11, "Signal detection does not itself establish event support or biological validation.", ha="center", fontsize=8.2, color=MID)
 
-    ax = axes[0, 1]
-    panel(ax, "B", "TED event-record fields")
+    ax = fig.add_subplot(gs[0, 3:])
+    panel(ax, "B", "Event object")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
     fields = [
-        ("Identity", "dataset; contrast; event family; analysis unit"),
-        ("Estimate", "effect; direction; timing; test status; event q/missing reason"),
-        ("Robustness", "block support; state overlap; control margin"),
-        ("Interpretation", "event mode; ambiguity set; identifiability"),
-        ("Evidence", "E code; V code; supported and unsupported interpretation"),
+        ("Identity", "dataset; contrast; event family; biological unit"),
+        ("Estimate", "effect; direction; timing; test status; q/missing reason"),
+        ("Support", "blocks; direction; LODO; overlap; control margin"),
+        ("Interpretation", "mode; ambiguity set; supported and unsupported claim"),
     ]
-    y = 0.83
+    y = 0.81
     for i, (name, value) in enumerate(fields):
-        face = BLUE_LIGHT if i < 2 else (GOLD_LIGHT if i == 4 else OPEN)
-        ax.add_patch(Rectangle((0.05, y - 0.10), 0.90, 0.12, facecolor=face, edgecolor=GRID, linewidth=0.8))
-        ax.text(0.08, y - 0.04, name, fontweight="bold", va="center")
-        ax.text(0.35, y - 0.04, value, va="center", fontsize=7.2)
-        y -= 0.15
-    ax.text(0.05, 0.05, "Missing optional evidence is recorded as unavailable, not as negative evidence.", fontsize=7.5, color=MID)
+        face = BLUE_LIGHT if i < 2 else OPEN
+        ax.add_patch(Rectangle((0.05, y - 0.11), 0.90, 0.14, facecolor=face, edgecolor=GRID, linewidth=0.8))
+        ax.text(0.08, y - 0.04, name, fontweight="bold", va="center", fontsize=8.4)
+        ax.text(0.33, y - 0.04, value, va="center", fontsize=6.9)
+        y -= 0.18
+    ax.text(0.05, 0.05, "Every failed mandatory gate is serialized with its observed value and reason.", fontsize=7.6, color=MID)
 
-    ax = axes[1, 0]
-    panel(ax, "C", "Orthogonal evidence descriptor")
-    ax.set_xlim(-0.8, 5.2)
-    ax.set_ylim(-0.7, 3.2)
-    vlabels = ["V0\ncomputational", "V1\noutcome", "V2\nreversal", "V3\nmatched\nrescue", "V4\nindependent\nreplication"]
-    elabels = ["E0\nunsupported / non-estimable /\nartifact-dominated", "E1\nsupported", "E2\nrobust + mode"]
-    for y in range(3):
-        for x in range(5):
-            face = [OPEN, BLUE_LIGHT, BLUE_MID][y]
-            alpha = 0.35 + 0.12 * x
-            ax.add_patch(Rectangle((x - 0.44, y - 0.36), 0.88, 0.72, facecolor=face, alpha=alpha, edgecolor=INK, linewidth=0.65))
-    ax.set_xticks(range(5), vlabels)
-    ax.set_yticks(range(3), elabels)
-    ax.tick_params(axis="x", length=0, labelsize=7.3)
-    ax.tick_params(axis="y", length=0)
-    ax.text(1, 2, "E2-V1", ha="center", va="center", fontweight="bold", fontsize=10)
-    ax.text(3, 2, "E2-V3", ha="center", va="center", fontweight="bold", fontsize=10)
-    ax.text(2.0, -0.58, "Validation provenance (V)", ha="center", fontweight="bold")
-    ax.set_ylabel("Event support (E)", fontweight="bold")
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-
-    ax = axes[1, 1]
-    panel(ax, "D", "Applicability and fail-closed behavior")
+    ax = fig.add_subplot(gs[1, :2])
+    panel(ax, "C", "Within-study event support")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    requirements = ["Biological blocks", "Declared event family", "Adequate state overlap", "Plausible negative controls", "Interpretable analysis unit"]
-    failures = ["E0_not_supported", "E0_not_estimable", "E0_not_identifiable", "E0_artifact_dominated", "E0_missing_required_design"]
-    ax.text(0.05, 0.88, "Minimum requirements", fontweight="bold", color=BLUE)
-    ax.text(0.55, 0.88, "Return E0 + reason / ambiguity", fontweight="bold", color=FAIL)
-    for i, label in enumerate(requirements):
-        y = 0.76 - i * 0.13
-        ax.scatter(0.07, y, s=32, color=BLUE, marker="o")
-        ax.text(0.11, y, label, va="center")
-    for i, label in enumerate(failures):
-        y = 0.76 - i * 0.13
-        ax.scatter(0.57, y, s=42, color=FAIL, marker="x", linewidths=1.5)
-        ax.text(0.61, y, label, va="center")
-    ax.text(0.05, 0.06, "not_run: q is null + missing reason; valid run: q is numeric.\nLarge cell counts do not replace independent biological units.", fontsize=7.4, color=MID)
+    levels = [
+        (0.69, "E2", "independent-block support\n+ identifiable mode", BLUE),
+        (0.42, "E1", "current-design statistical support", BLUE_MID),
+        (0.15, "E0", "unsupported / non-estimable /\nnon-identifiable /\nartifact dominated", OPEN),
+    ]
+    for y, code, body, face in levels:
+        ax.add_patch(FancyBboxPatch((0.10, y), 0.80, 0.18, boxstyle="round,pad=0.012", facecolor=face, edgecolor=INK, linewidth=0.9))
+        text_color = "white" if code == "E2" else INK
+        ax.text(0.17, y + 0.09, code, va="center", fontweight="bold", fontsize=11, color=text_color)
+        ax.text(0.38, y + 0.09, body, va="center", fontsize=7.5, color=text_color)
+    ax.text(0.50, 0.03, "Selection stability remains a separate field.", ha="center", fontsize=7.4, color=MID)
+
+    ax = fig.add_subplot(gs[1, 2:4])
+    panel(ax, "D", "Parallel evidence records")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+    records = [
+        (0.04, "Outcome", "orthogonal endpoint\n+ prespecified controls", BLUE_LIGHT),
+        (0.36, "Reversal", "intervention reversal\n+ matched controls", GOLD_LIGHT),
+        (0.68, "Rescue", "same-system rescue\n+ molecular recovery", "#E7F2E7"),
+    ]
+    for x, title, body, face in records:
+        box(ax, (x, 0.34), 0.27, 0.42, title, body, face, title_size=8.8, body_size=7.2, wrap_width=16)
+    ax.text(0.50, 0.22, "Each record stores status, basis and controls.", ha="center", fontsize=7.2, color=MID)
+    ax.text(0.50, 0.08, "Parallel evidence does not repair a failed E gate.", ha="center", fontsize=7.8, color=FAIL, fontweight="bold")
+
+    ax = fig.add_subplot(gs[1, 4:])
+    panel(ax, "E", "Independence context and replication")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+    box(ax, (0.04, 0.56), 0.34, 0.25, "Primary study", "event + evidence records", BLUE_LIGHT, title_size=8.0, body_size=6.8)
+    box(ax, (0.62, 0.56), 0.34, 0.25, "Independent cohort", "same frozen family and gates", OPEN, title_size=7.6, body_size=6.6, linestyle="--")
+    arrow(ax, (0.38, 0.68), (0.62, 0.68), MID, linestyle="--")
+    replication_rows = [
+        (0.39, "Event eligibility", "pending | passed | failed", BLUE_LIGHT),
+        (0.29, "Event test", "not_run | run_not_supported | run_supported", OPEN),
+        (0.19, "Event replication", "pending | not_evaluable | failed | passed", BLUE_LIGHT),
+        (0.09, "Outcome replication", "pending | not_tested | failed | passed", GOLD_LIGHT),
+    ]
+    for y, label, values, face in replication_rows:
+        ax.add_patch(Rectangle((0.04, y), 0.92, 0.075, facecolor=face, edgecolor=GRID))
+        ax.text(0.065, y + 0.0375, label, va="center", fontweight="bold", fontsize=5.8)
+        ax.text(0.94, y + 0.0375, values, ha="right", va="center", fontsize=4.7)
+    ax.text(0.50, 0.015, "Eligibility, test execution and result are distinct facets.", ha="center", fontsize=6.3, color=MID)
 
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     save_figure(fig, "figure1_problem_definition_ted_algorithm")
@@ -328,59 +341,54 @@ def figure2() -> None:
     split_audit = read_tsv(ROOT / "results" / "ted_current_task_benchmark" / "split_and_leakage_audit.tsv")
     split_audit.to_csv(SOURCE / "figure2_split_and_leakage_audit.tsv", sep="\t", index=False)
     fig, axes = plt.subplots(2, 2, figsize=(12, 8.3))
-    fig.suptitle("Leakage-audited benchmark design", fontsize=15, fontweight="bold", x=0.04, ha="left")
+    fig.suptitle("Leakage control and locked common-task design", fontsize=15, fontweight="bold", x=0.04, ha="left")
 
     ax = axes[0, 0]
-    panel(ax, "A", "Retrospective lock and prospective-test gap")
+    panel(ax, "A", "Lock before outcome access")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    box(ax, (0.04, 0.28), 0.25, 0.46, "Method development", "Packet generator, TED rules and several public analyses already existed", OPEN, title_size=8.2)
-    box(ax, (0.37, 0.20), 0.27, 0.62, "Version lock", "Thresholds, endpoints, controls, seeds, source hashes and failure reporting", GOLD_LIGHT, edge=GOLD, title_size=8.2)
-    box(ax, (0.72, 0.28), 0.24, 0.46, "Required next test", "Never-used dataset scored after an externally timestamped lock", BLUE_LIGHT, title_size=8.2, linestyle="--")
-    arrow(ax, (0.29, 0.51), (0.38, 0.51), MID)
-    arrow(ax, (0.64, 0.51), (0.73, 0.51), MID)
-    ax.text(0.50, 0.08, "Current evidence is retrospective; a true post-freeze dataset is not yet available", ha="center", color=FAIL, fontweight="bold", fontsize=8.5)
+    box(ax, (0.03, 0.29), 0.27, 0.45, "1  Define task", "Inputs, biological units, pathway family, contrasts and estimand", OPEN, title_size=8.2)
+    box(ax, (0.37, 0.22), 0.27, 0.59, "2  Freeze manifest", "Adapters, thresholds, seeds, QC, gates, hashes and failure rules", GOLD_LIGHT, edge=GOLD, title_size=8.2)
+    box(ax, (0.71, 0.29), 0.26, 0.45, "3  Reveal outcome", "Truth, masked ADT or cohort values opened only after the lock", BLUE_LIGHT, title_size=8.2)
+    arrow(ax, (0.30, 0.51), (0.38, 0.51), MID)
+    arrow(ax, (0.64, 0.51), (0.72, 0.51), MID)
+    ax.text(0.50, 0.075, "Future test: a direction-unknown cohort locked before any result access", ha="center", color=MID, fontsize=7.7)
 
     ax = axes[0, 1]
-    panel(ax, "B", "Development, tuning and shifted audit")
+    panel(ax, "B", "Locked components and withheld information")
     ax.axis("off")
-    split_rows = []
-    for _, row in split_audit.iterrows():
-        split_rows.append(
-            [
-                str(row["partition"]).replace("retrospective_shifted_audit", "shifted audit"),
-                str(row["n_packets"]),
-                str(row["replicate_range"]),
-                "yes" if bool(row["truth_used_for_threshold_or_model_selection"]) else "no",
-                "no",
-            ]
-        )
+    split_rows = [
+        ["Raw-count\ncommon task", "48-cell design\n+ five adapters", "Pathway +\nartifact truth", "480 held-out\nsets"],
+        ["BNT162b2\nboundary audit", "Pathway, cells,\ncontrast + gates", "CD64/CD169\nADT", "RNA frozen\nfirst"],
+        ["GSE171964\nreplication", "Corrected v2,\ntimes, QC + gates", "Expression +\neligibility", "No retuning"],
+    ]
     table = ax.table(
         cellText=split_rows,
-        colLabels=["Partition", "n", "Replicates", "Truth used\nfor selection", "Post-freeze"],
-        cellLoc="center",
-        colLoc="center",
-        bbox=[0.01, 0.25, 0.98, 0.61],
+        colLabels=["Analysis", "Frozen before access", "Withheld", "Audit point"],
+        cellLoc="left",
+        colLoc="left",
+        colWidths=[0.22, 0.34, 0.25, 0.19],
+        bbox=[0.01, 0.18, 0.98, 0.69],
     )
     table.auto_set_font_size(False)
-    table.set_fontsize(8.0)
+    table.set_fontsize(7.15)
     for (r, c), cell in table.get_celld().items():
         cell.set_edgecolor(GRID)
         if r == 0:
             cell.set_facecolor(BLUE_LIGHT)
             cell.set_text_props(weight="bold")
-    ax.text(0.02, 0.13, "Audit outcomes were masked during prediction, but the generator and TED rules pre-date the split.", fontsize=8.2, color=FAIL)
+    ax.text(0.02, 0.09, "A lock is reproducibility evidence; only the withheld field is protected from result-driven revision.", fontsize=7.8, color=MID)
 
     ax = axes[1, 0]
     panel(ax, "C", "Evidence strata and inferential units")
     ax.axis("off")
     rows = [
-        ["Controlled packets", "latent event/artifact truth", "packet"],
-        ["ZSCAPE holdout", "full-fit event object", "embryo"],
-        ["GSE153056", "PD-L1 protein readout", "replicate block"],
-        ["SCP1064", "RNA-protein + shuffles", "block/guide/target"],
-        ["GSE271399", "3-day directional\nsensitivity", "condition/day matrix;\nno independent replicate"],
+        ["Adaptive-window simulation", "null/event truth", "block profile"],
+        ["Raw-count common task", "pathway + artifact truth", "dataset"],
+        ["ZSCAPE resampling", "full-fit event object", "embryo"],
+        ["BNT162b2 outcome", "masked same-cell protein", "donor"],
+        ["GSE171964", "replication eligibility", "donor"],
     ]
     table = ax.table(cellText=rows, colLabels=["Stratum", "Truth/readout", "Unit"], cellLoc="left", colLoc="left", bbox=[0.02, 0.08, 0.96, 0.82])
     table.auto_set_font_size(False)
@@ -392,14 +400,16 @@ def figure2() -> None:
             cell.set_text_props(weight="bold")
 
     ax = axes[1, 1]
-    panel(ax, "D", "Current-task comparators and leakage audit")
+    panel(ax, "D", "Locked nearest-method common task")
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    box(ax, (0.05, 0.65), 0.90, 0.20, "Executable packet baselines", "Most-frequent dummy, multinomial logistic regression, random forest and histogram gradient boosting", BLUE_LIGHT, body_size=7.8)
-    box(ax, (0.05, 0.37), 0.90, 0.20, "Selection rule", "Hyperparameters and strongest comparator fixed from tuning results before shifted-audit scoring", OPEN, body_size=7.8)
-    box(ax, (0.05, 0.09), 0.90, 0.20, "Native upstream adapters", "tradeSeq, GSVA, AUCell and POT retain native-task evaluation; absent TED fields are coverage gaps", GOLD_LIGHT, body_size=7.8)
-    ax.text(0.50, 0.93, "No baseline or TED output is treated as post-freeze external evidence", ha="center", fontsize=8.3, color=FAIL, fontweight="bold")
+    ax.text(0.50, 0.91, "Controlled raw counts; no shared real-data comparison is claimed", ha="center", fontsize=8.0, color=MID, fontweight="bold")
+    box(ax, (0.07, 0.67), 0.86, 0.16, "Shared input", "Counts, metadata, ordered coordinate and pathway memberships", BLUE_LIGHT, body_size=7.7)
+    box(ax, (0.07, 0.39), 0.86, 0.19, "Frozen adapters", "TIPS  •  scTransient  •  tradeSeq  •  score-then-smooth  •  TED", GOLD_LIGHT, edge=GOLD, body_size=8.0)
+    box(ax, (0.07, 0.09), 0.86, 0.20, "Common evaluation after serialization", "Native outputs → harmonized pathway ranks → truth reveal → AUPRC and artifact risk", OPEN, body_size=7.7)
+    arrow(ax, (0.50, 0.67), (0.50, 0.58), MID)
+    arrow(ax, (0.50, 0.39), (0.50, 0.29), MID)
 
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     save_figure(fig, "figure2_frozen_benchmark_design")
@@ -601,84 +611,80 @@ def figure3() -> None:
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     save_figure(fig, "figure3_primary_heldout_performance")
 
-
 def figure3_factorized() -> None:
     base = ROOT / "results" / "ted_factorized_ablation"
+    ood_base = ROOT / "results" / "ted_factorized_ood_challenge"
     truth = read_tsv(base / "factorized_packet_truth.tsv")
     predictions = read_tsv(base / "factorized_predictions.tsv")
     ablation = read_tsv(base / "ablation_metrics.tsv")
     reason = read_tsv(base / "reason_code_confusion.tsv")
+    ood = read_tsv(ood_base / "ood_metrics.tsv")
     full = predictions[predictions["variant"].eq("full_ted")].merge(
         truth, on="packet_id", validate="one_to_one"
     )
 
-    truth.to_csv(SOURCE / "figure3_factorized_truth.tsv", sep="\t", index=False)
-    full.to_csv(SOURCE / "figure3_factorized_full_ted_calls.tsv", sep="\t", index=False)
+    # The complete factor grid is a rule-consistency/software test suite. Keep
+    # its calls and confusion inputs as supplementary source data, not as the
+    # main performance display.
+    truth.to_csv(SOURCE / "supplementary_rule_consistency_truth.tsv", sep="\t", index=False)
+    full.to_csv(SOURCE / "supplementary_rule_consistency_calls.tsv", sep="\t", index=False)
+    reason.to_csv(SOURCE / "supplementary_rule_consistency_reason_confusion.tsv", sep="\t", index=False)
     ablation.to_csv(SOURCE / "figure3_gate_ablation.tsv", sep="\t", index=False)
-    reason.to_csv(SOURCE / "figure3_reason_code_confusion.tsv", sep="\t", index=False)
+    overall = ood[(ood["stratum"] == "all") & (ood["level"] == "all")].iloc[0]
+    threshold = ood[ood["stratum"] == "borderline_case"].copy()
+    overlap = ood[ood["stratum"] == "gene_set_overlap"].copy()
+    pd.DataFrame(
+        {
+            "target": ["Biological mode", "Artifact", "Identifiability", "E assignment"],
+            "macro_f1": [overall["biological_mode_macro_f1"], overall["artifact_macro_f1"], overall["identifiability_macro_f1"], overall["event_support_macro_f1"]],
+        }
+    ).to_csv(SOURCE / "figure3_ood_overall_metrics.tsv", sep="\t", index=False)
+    threshold.to_csv(SOURCE / "figure3_ood_threshold_sensitivity.tsv", sep="\t", index=False)
+    overlap.to_csv(SOURCE / "figure3_ood_overlap_sensitivity.tsv", sep="\t", index=False)
 
-    def matrix(frame: pd.DataFrame, truth_col: str, pred_col: str, labels: list[str]) -> tuple[np.ndarray, np.ndarray]:
-        observed = pd.crosstab(
-            pd.Categorical(frame[truth_col], categories=labels, ordered=True),
-            pd.Categorical(frame[pred_col], categories=labels, ordered=True),
-            dropna=False,
-        ).to_numpy(dtype=float)
-        fractions = np.divide(
-            observed,
-            observed.sum(axis=1, keepdims=True),
-            out=np.zeros_like(observed),
-            where=observed.sum(axis=1, keepdims=True) > 0,
-        )
-        return observed, fractions
-
-    def draw_confusion(ax, observed: np.ndarray, fractions: np.ndarray, labels: list[str], xlabel: str = "Predicted") -> None:
-        im = ax.imshow(fractions, cmap="Blues", vmin=0, vmax=1, aspect="auto")
-        short = [x.replace("persistent_", "persist.").replace("not_identifiable", "not ident.") for x in labels]
-        ax.set_xticks(range(len(labels)), short, rotation=35, ha="right", fontsize=7.2)
-        ax.set_yticks(range(len(labels)), short, fontsize=7.2)
-        for i in range(len(labels)):
-            for j in range(len(labels)):
-                if observed[i, j] > 0:
-                    ax.text(j, i, f"{int(observed[i, j])}\n({fractions[i, j]:.2f})", ha="center", va="center", fontsize=6.7, color="white" if fractions[i, j] > 0.55 else INK)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel("Controlled truth")
-        return im
-
-    fig, axes = plt.subplots(2, 3, figsize=(13.2, 8.7))
-    fig.suptitle("Factorized controlled targets and TED gate contributions", fontsize=15, fontweight="bold", x=0.04, ha="left")
+    fig, axes = plt.subplots(2, 2, figsize=(12.6, 8.4))
+    fig.suptitle("Randomized OOD performance and TED gate sensitivity", fontsize=15, fontweight="bold", x=0.04, ha="left")
 
     ax = axes[0, 0]
-    panel(ax, "A", "Biological mode (evaluable subset)")
-    evaluable = full[full.truth_artifact_class.eq("none") & full.truth_identifiability.eq("identifiable")]
-    observed, fractions = matrix(evaluable, "truth_biological_mode", "predicted_top_mode", ["activation", "suppression", "delay", "persistent_loss", "redirection"])
-    im = draw_confusion(ax, observed, fractions, ["activation", "suppression", "delay", "persistent_loss", "redirection"], "Top mode")
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.03)
+    panel(ax, "A", "Randomized OOD stress test")
+    target_labels = ["Mode", "Artifact", "Identifiability", "E assignment"]
+    target_values = [float(overall["biological_mode_macro_f1"]), float(overall["artifact_macro_f1"]), float(overall["identifiability_macro_f1"]), float(overall["event_support_macro_f1"])]
+    bars = ax.bar(np.arange(4), target_values, color=[GOLD, BLUE, BLUE_MID, BLUE_LIGHT], edgecolor=INK, linewidth=0.6)
+    ax.set_xticks(np.arange(4), target_labels, rotation=20, ha="right")
+    ax.set_ylim(0, 1.03)
+    ax.set_ylabel("Macro-F1")
+    ax.bar_label(bars, labels=[f"{value:.3f}" for value in target_values], padding=3, fontsize=8)
+    ax.text(0.02, 0.94, f"n={int(overall['n_packets'])}; false E promotion={float(overall['false_e_promotion']):.3f}\nfalse E demotion={float(overall['false_e_demotion']):.3f}", transform=ax.transAxes, va="top", fontsize=7.2, color=MID)
+    clean_axis(ax, "y")
 
     ax = axes[0, 1]
-    panel(ax, "B", "Artifact class")
-    labels = ["none", "composition", "stress"]
-    observed, fractions = matrix(full, "truth_artifact_class", "predicted_artifact_class", labels)
-    im = draw_confusion(ax, observed, fractions, labels)
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.03)
-
-    ax = axes[0, 2]
-    panel(ax, "C", "Identifiability")
-    labels = ["identifiable", "ambiguous", "not_identifiable"]
-    observed, fractions = matrix(full, "truth_identifiability", "predicted_identifiability", labels)
-    im = draw_confusion(ax, observed, fractions, labels)
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.03)
+    panel(ax, "B", "Borderline threshold sensitivity")
+    threshold = threshold.set_index("level").loc[["False", "True"]]
+    x = np.arange(2)
+    width = 0.34
+    ax.bar(x - width / 2, threshold["event_support_macro_f1"], width, label="E macro-F1", color=BLUE, edgecolor=INK, linewidth=0.5)
+    ax.bar(x + width / 2, threshold["false_e_promotion"], width, label="False E promotion", color=FAIL, edgecolor=INK, linewidth=0.5)
+    ax.set_xticks(x, [f"Away from boundary\n(n={int(threshold.loc['False', 'n_packets'])})", f"Borderline\n(n={int(threshold.loc['True', 'n_packets'])})"])
+    ax.set_ylim(0, 1.03)
+    ax.set_ylabel("Fraction")
+    ax.legend(frameon=False, fontsize=7.5)
+    clean_axis(ax, "y")
 
     ax = axes[1, 0]
-    panel(ax, "D", "E assignment and orthogonal V tags")
-    labels = ["E0", "E1", "E2"]
-    observed, fractions = matrix(full, "truth_event_support_code", "predicted_event_support_code", labels)
-    im = draw_confusion(ax, observed, fractions, labels, "Assigned E")
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.03)
-    v_counts = truth.truth_v_tag.value_counts().reindex(["outcome", "reversal", "rescue", "replication"], fill_value=0)
-    ax.text(0.02, -0.32, "V tags are independent provenance fields: " + ", ".join(f"{name}={int(value)}" for name, value in v_counts.items()), transform=ax.transAxes, fontsize=6.6, color=MID)
+    panel(ax, "C", "Gene-set-overlap sensitivity")
+    overlap = overlap.set_index("level").loc[["low", "moderate", "high"]]
+    x = np.arange(3)
+    width = 0.34
+    ax.bar(x - width / 2, overlap["biological_mode_macro_f1"], width, label="Mode macro-F1", color=GOLD, edgecolor=INK, linewidth=0.5)
+    ax.bar(x + width / 2, overlap["event_support_macro_f1"], width, label="E macro-F1", color=BLUE, edgecolor=INK, linewidth=0.5)
+    ax.set_xticks(x, [f"Low\n(n={int(overlap.loc['low', 'n_packets'])})", f"Moderate\n(n={int(overlap.loc['moderate', 'n_packets'])})", f"High\n(n={int(overlap.loc['high', 'n_packets'])})"])
+    ax.set_ylim(0, 1.03)
+    ax.set_ylabel("Macro-F1")
+    ax.legend(frameon=False, fontsize=7.5)
+    clean_axis(ax, "y")
 
     ax = axes[1, 1]
-    panel(ax, "E", "Gate ablation")
+    panel(ax, "D", "Gate ablation on the rule-consistency suite")
     order = ["full_ted", "without_block_gate", "without_matched_state_adjustment", "without_negative_controls", "without_identifiability_gate", "without_ambiguity_set", "ev_collapsed_ladder"]
     labels = ["Full", "No block", "No matched", "No neg. ctrl", "No ident.", "No ambiguity", "E/V collapsed"]
     local = ablation.set_index("variant").loc[order]
@@ -694,24 +700,59 @@ def figure3_factorized() -> None:
     ax.legend(frameon=False, fontsize=6.8)
     clean_axis(ax, "y")
 
-    ax = axes[1, 2]
-    panel(ax, "F", "E0 reason-code confusion")
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    save_figure(fig, "figure3_primary_heldout_performance")
+
+    def confusion(frame: pd.DataFrame, truth_col: str, pred_col: str, labels: list[str]) -> tuple[np.ndarray, np.ndarray]:
+        observed = pd.crosstab(
+            pd.Categorical(frame[truth_col], categories=labels, ordered=True),
+            pd.Categorical(frame[pred_col], categories=labels, ordered=True),
+            dropna=False,
+        ).to_numpy(dtype=float)
+        fractions = np.divide(observed, observed.sum(axis=1, keepdims=True), out=np.zeros_like(observed), where=observed.sum(axis=1, keepdims=True) > 0)
+        return observed, fractions
+
+    def draw_confusion(ax, observed: np.ndarray, fractions: np.ndarray, labels: list[str]) -> None:
+        ax.imshow(fractions, cmap="Blues", vmin=0, vmax=1, aspect="auto")
+        short = [label.replace("persistent_", "persist.").replace("not_identifiable", "not ident.") for label in labels]
+        ax.set_xticks(range(len(labels)), short, rotation=35, ha="right", fontsize=7.0)
+        ax.set_yticks(range(len(labels)), short, fontsize=7.0)
+        for i in range(len(labels)):
+            for j in range(len(labels)):
+                if observed[i, j] > 0:
+                    ax.text(j, i, f"{int(observed[i, j])}\n({fractions[i, j]:.2f})", ha="center", va="center", fontsize=6.5, color="white" if fractions[i, j] > 0.55 else INK)
+        ax.set_xlabel("Assigned")
+        ax.set_ylabel("Controlled truth")
+
+    supp_fig, supp_axes = plt.subplots(2, 3, figsize=(13.2, 8.7))
+    supp_fig.suptitle("Rule-consistency suite: contract confusion matrices", fontsize=15, fontweight="bold", x=0.04, ha="left")
+    evaluable = full[full.truth_artifact_class.eq("none") & full.truth_identifiability.eq("identifiable")]
+    confusion_specs = [
+        (supp_axes[0, 0], "A", "Biological mode (evaluable subset)", evaluable, "truth_biological_mode", "predicted_top_mode", ["activation", "suppression", "delay", "persistent_loss", "redirection"]),
+        (supp_axes[0, 1], "B", "Artifact class", full, "truth_artifact_class", "predicted_artifact_class", ["none", "composition", "stress"]),
+        (supp_axes[0, 2], "C", "Identifiability", full, "truth_identifiability", "predicted_identifiability", ["identifiable", "ambiguous", "not_identifiable"]),
+        (supp_axes[1, 0], "D", "E assignment", full, "truth_event_support_code", "predicted_event_support_code", ["E0", "E1", "E2"]),
+    ]
+    for ax, letter, title, frame, truth_col, pred_col, labels in confusion_specs:
+        panel(ax, letter, title)
+        observed, fractions = confusion(frame, truth_col, pred_col, labels)
+        draw_confusion(ax, observed, fractions, labels)
+        pd.DataFrame(observed.astype(int), index=labels, columns=labels).rename_axis("truth").to_csv(SOURCE / f"supplementary_rule_consistency_{letter.lower()}_confusion.tsv", sep="\t")
+
+    ax = supp_axes[1, 1]
+    panel(ax, "E", "E0 reason code")
     reason_labels = ["not supported", "not estimable", "not identifiable", "artifact", "missing design"]
     values = reason.drop(columns=["truth_reason"]).to_numpy(float)
     fractions = values / values.sum(axis=1, keepdims=True)
-    im = ax.imshow(fractions, cmap="Blues", vmin=0, vmax=1)
-    ax.set_xticks(range(5), reason_labels, rotation=35, ha="right", fontsize=7.0)
-    ax.set_yticks(range(5), reason_labels, fontsize=7.0)
-    for i in range(5):
-        for j in range(5):
-            if values[i, j] > 0:
-                ax.text(j, i, f"{int(values[i, j])}", ha="center", va="center", fontsize=8, color="white" if fractions[i, j] > 0.55 else INK)
-    ax.set_xlabel("Predicted reason")
-    ax.set_ylabel("Controlled truth")
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.03)
+    draw_confusion(ax, values, fractions, reason_labels)
 
-    fig.tight_layout(rect=(0, 0, 1, 0.96))
-    save_figure(fig, "figure3_primary_heldout_performance")
+    ax = supp_axes[1, 2]
+    ax.axis("off")
+    ax.text(0.02, 0.92, "Interpretation boundary", fontsize=11, fontweight="bold", color=INK, transform=ax.transAxes)
+    ax.text(0.02, 0.78, "One packet represents each factor combination.\nThese matrices test software and rule consistency;\nthey do not estimate performance on new data.", fontsize=9.5, color=MID, va="top", linespacing=1.5, transform=ax.transAxes)
+    ax.text(0.02, 0.45, "Randomized OOD performance is reported in Figure 3.", fontsize=9.5, color=BLUE, va="top", transform=ax.transAxes)
+    supp_fig.tight_layout(rect=(0, 0, 1, 0.96))
+    save_figure(supp_fig, "supplementary_figure_s6_rule_consistency_confusions")
 
 
 def figure4() -> None:
@@ -978,11 +1019,11 @@ def figure5() -> None:
     gse271_family_day.to_csv(SOURCE / "figure5_gse271399_family_day_summary.tsv", sep="\t", index=False)
     evidence = pd.DataFrame(
         [
-            ["GSE153056 (STAT1)", 1, 1, "E1-V1", "independent-block q=0.0556 passes E1; protein outcome; E2 sensitivity post hoc"],
-            ["SCP1064", 1, 1, "E1-V1 partial", "guide-label shuffle 1/4"],
-            ["GSE271399", 1, 0, "E1-V0", "three-day direction consistency; no independent biological replicate"],
+            ["GSE153056 (STAT1)", 1, "outcome_passed", "E1 | protein outcome passed", "independent-block q=0.0556 passes E1; E2 sensitivity post hoc"],
+            ["SCP1064", 1, "outcome_failed", "E1 | protein outcome failed", "mandatory guide-label shuffle passed 1/4 axes"],
+            ["GSE271399", 1, "none_passed", "E1 | no qualified parallel record", "three-day direction consistency; no independent biological replicate"],
         ],
-        columns=["dataset", "event_support", "validation_provenance", "descriptor", "basis_or_limit"],
+        columns=["dataset", "event_support", "parallel_record_status", "descriptor", "basis_or_limit"],
     )
     evidence.to_csv(SOURCE / "figure5_evidence_descriptors.tsv", sep="\t", index=False)
 
@@ -1007,7 +1048,7 @@ def figure5() -> None:
     ax.text(
         0.04,
         0.94,
-        f"Across perturbations: Spearman 0.785\nDirection match 0.769\nSTAT1: event q={stat1['block_q_value']:.4f}; E1-V1\n(post-hoc E2-eligible sensitivity)",
+        f"Across perturbations: Spearman 0.785\nDirection match 0.769\nSTAT1: event q={stat1['block_q_value']:.4f}; E1\nprotein outcome passed; E2 sensitivity post hoc",
         transform=ax.transAxes,
         va="top",
         fontsize=9.0,
@@ -1043,7 +1084,7 @@ def figure5() -> None:
     ax.set_yticks(positions, labels_y, fontsize=8.8)
     ax.set_xlabel("|observed correlation| / null q95")
     ax.legend(frameon=False, fontsize=8.5, loc="lower right")
-    ax.text(0.03, 0.97, "Guide-label shuffling passed 1/4 axes;\ndescriptor remains E1-V1 partial", transform=ax.transAxes, va="top", fontsize=8.8, color=FAIL, bbox=dict(facecolor="white", edgecolor=GRID, pad=2.5))
+    ax.text(0.03, 0.97, "Event remains E1; guide-label shuffling passed 1/4 axes;\nprotein-outcome qualification failed", transform=ax.transAxes, va="top", fontsize=8.8, color=FAIL, bbox=dict(facecolor="white", edgecolor=GRID, pad=2.5))
     clean_axis(ax, "x")
 
     ax = fig.add_subplot(gs[1, :])
@@ -1051,9 +1092,9 @@ def figure5() -> None:
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    box(ax, (0.02, 0.17), 0.28, 0.56, "Observed: E1-V0", "All five erythroid-family members were negative at D7, D9 and D11.", BLUE_LIGHT, title_size=10.0, body_size=8.6, wrap_width=25)
+    box(ax, (0.02, 0.17), 0.28, 0.56, "Observed: E1 event", "All five erythroid-family members were negative at D7, D9 and D11.", BLUE_LIGHT, title_size=10.0, body_size=8.6, wrap_width=25)
     box(ax, (0.36, 0.17), 0.28, 0.56, "Design sensitivity", "Twenty-one day-by-pseudotime-bin-by-state strata; sign-flip q=0.0008. No biological-replicate inference.", OPEN, title_size=10.0, body_size=8.2, wrap_width=27)
-    box(ax, (0.70, 0.17), 0.28, 0.56, "Missing for V3", "Same-system full-length GATA1 rescue with molecular and phenotypic recovery.", GOLD_LIGHT, edge=FAIL, title_size=10.0, body_size=8.5, linestyle="--", wrap_width=25)
+    box(ax, (0.70, 0.17), 0.28, 0.56, "Missing matched rescue", "Same-system full-length GATA1 rescue with molecular and phenotypic recovery.", GOLD_LIGHT, edge=FAIL, title_size=10.0, body_size=8.5, linestyle="--", wrap_width=25)
     arrow(ax, (0.30, 0.48), (0.36, 0.48), MID)
     arrow(ax, (0.64, 0.48), (0.70, 0.48), FAIL, linestyle="--")
 
@@ -1101,8 +1142,8 @@ def graphical_abstract() -> None:
         (0.55, 0.34),
         0.18,
         0.42,
-        "Evidence descriptor",
-        "E0-E2 event support paired with V0-V4 validation provenance",
+        "Evidence records",
+        "E0-E2 event support plus parallel outcome, reversal and rescue records",
         GOLD_LIGHT,
         title_size=9.5,
         body_size=8.0,
@@ -1180,11 +1221,25 @@ def main() -> None:
     clean_legacy_outputs()
     figure1()
     figure2()
+    # Retain the factorized contract matrices as Supplementary Figure S6, then
+    # overwrite its historical main-figure rendering with the locked common task.
     figure3_factorized()
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "build_nearest_method_locked_summary.py")],
+        cwd=ROOT,
+        check=True,
+    )
     figure4()
     supplementary_scaling_figure()
     supplementary_event_grammar_figure()
+    # The historical public-case composite still emits supporting source tables;
+    # the frozen BNT162b2 builder owns the current manuscript Figure 5.
     figure5()
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "build_bnt162b2_flagship_figure.py")],
+        cwd=ROOT,
+        check=True,
+    )
     graphical_abstract()
     write_manifest()
     print(f"Wrote BIB figures and source tables under {RESULTS}")

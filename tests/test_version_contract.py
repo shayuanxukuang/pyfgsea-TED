@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_PACKAGE_VERSION = "0.1.5"
+EXPECTED_PACKAGE_VERSION = "0.2.0"
 EXPECTED_REQUIRES_PYTHON = ">=3.9,<3.14"
 
 

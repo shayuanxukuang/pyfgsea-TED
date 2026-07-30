@@ -1,0 +1,7 @@
+asset_name	asset_role	archive_location	source_ref_or_manifest	bytes	sha256	verification_status	notes
+ted-bib-companion-v1.1.0-core.zip	companion_core	pending	release/ted-v1.1.0/COMPANION_ASSET_RULES.template.tsv			pending_not_built	Generated only by scripts/build_ted_bib_companion.py from the analysis-lock source tree
+ted-bib-companion-v1.1.0-native-outputs.zip	native_outputs	pending	results/ted_manuscript_machine_readable_v2/method_native_outputs/manifest.tsv			pending_not_built	Exactly 2,400 manifest-selected method-task outputs; no recursive directory discovery
+ted-bib-companion-v1.1.0-stability-shards.zip	stability_shards	pending	release/ted-v1.1.0/STABILITY_SHARDS_MANIFEST.tsv			pending_not_built	Reconciled manifest-selected stability shards plus both reconciled and historical nested manifests
+ARCHIVE_MANIFEST.tsv	outer_attestation	pending	scripts/build_ted_bib_companion.py			pending_not_built	Generated after the three archives and BUILD_INDEX.json
+analysis_lock_commit	analysis_lock	Git commit	pending 40-character commit			pending_not_built	Must be the immutable commit used as the source for every built asset
+zenodo_version_doi	persistent_identifier	Zenodo version DOI	pending new DOI			pending_external_upload	Must be a new ted-v1.1.0 version DOI; never reuse or overwrite the ted-v1.0.0 deposit

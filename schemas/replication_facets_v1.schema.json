@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pyfgsea.local/schemas/replication_facets_v1.schema.json",
+  "title": "TED replication facets v1",
+  "description": "Independent event-replication and orthogonal-outcome-replication facets. Event replication never substitutes for outcome replication and neither facet changes the within-study E code.",
+  "type": "object",
+  "required": [
+    "event_replication_eligibility_status",
+    "event_replication_test_status",
+    "event_replication_status",
+    "outcome_replication_status",
+    "outcome_type",
+    "replication_dataset_id"
+  ],
+  "properties": {
+    "event_replication_eligibility_status": {
+      "enum": [
+        "pending",
+        "passed",
+        "failed"
+      ],
+      "description": "Whether frozen prerequisites permit the independent-cohort event test to run."
+    },
+    "event_replication_test_status": {
+      "enum": [
+        "not_run",
+        "run_not_supported",
+        "run_supported"
+      ],
+      "description": "Whether the independent-cohort event statistic was not run, run without support, or run with support."
+    },
+    "event_replication_status": {
+      "enum": [
+        "pending",
+        "not_evaluable",
+        "passed",
+        "failed"
+      ],
+      "description": "Independent-cohort event result. Eligibility failure maps to not_evaluable, never to tested failure."
+    },
+    "outcome_replication_status": {
+      "enum": [
+        "pending",
+        "not_tested",
+        "passed",
+        "failed"
+      ],
+      "description": "Optional single-outcome projection of the corresponding parallel evidence record's replication_status. Incompatible or absent readouts are not_tested, never failed or passed by RNA substitution."
+    },
+    "outcome_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Orthogonal outcome modality represented by outcome_replication_status, for example protein."
+    },
+    "replication_dataset_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Independent dataset used for the replication facets."
+    },
+    "replication_reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_replication_eligibility_status": {
+            "const": "failed"
+          }
+        },
+        "required": [
+          "event_replication_eligibility_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "event_replication_test_status": {
+            "const": "not_run"
+          },
+          "event_replication_status": {
+            "const": "not_evaluable"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_replication_test_status": {
+            "const": "run_supported"
+          }
+        },
+        "required": [
+          "event_replication_test_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "event_replication_eligibility_status": {
+            "const": "passed"
+          },
+          "event_replication_status": {
+            "const": "passed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_replication_test_status": {
+            "const": "run_not_supported"
+          }
+        },
+        "required": [
+          "event_replication_test_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "event_replication_eligibility_status": {
+            "const": "passed"
+          },
+          "event_replication_status": {
+            "const": "failed"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_replication_status": {
+            "const": "passed"
+          }
+        },
+        "required": [
+          "event_replication_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "replication_dataset_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome_replication_status": {
+            "enum": [
+              "passed",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "outcome_replication_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "replication_dataset_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}
