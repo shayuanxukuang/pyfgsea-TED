@@ -138,10 +138,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - uses: dtolnay/rust-toolchain@stable
+      - name: Resolve and check out the immutable analysis lock
+        run: |
+          set -euo pipefail
+          analysis_lock="$(
+            python -c 'import json, pathlib; print(json.loads(pathlib.Path("release/ted-v1.1.0/RELEASE_METADATA.json").read_text(encoding="utf-8"))["analysis_lock_commit"])'
+          )"
+          git checkout --detach "$analysis_lock"
+          echo "TED_ANALYSIS_LOCK=$analysis_lock" >> "$GITHUB_ENV"
       - name: Build and install the candidate package
         run: |
           python -m pip install --upgrade pip
@@ -152,7 +162,7 @@ jobs:
           cd /tmp
           python -I "$GITHUB_WORKSPACE/scripts/run_ted_bib_focused_tests.py" \
             --repository "$GITHUB_WORKSPACE" \
-            --analysis-lock-commit "$GITHUB_SHA" \
+            --analysis-lock-commit "$TED_ANALYSIS_LOCK" \
             --output-dir "$GITHUB_WORKSPACE/results/ted_bib_focused_81"
       - name: Run the seven v1.1 schema extensions
         run: |
@@ -258,3 +268,65 @@ jobs:
         with:
           name: ted-v1.0.1-release-attestation
           path: release-attestation/**
+          if-no-files-found: error
+
+  exact-v1-1-tag-source-attestation:
+    name: TED v1.1.0 exact-tag source attestation
+    if: github.ref == 'refs/tags/ted-v1.1.0'
+    needs:
+      - installed-package-compatibility
+      - locked-reproduction-environment
+      - fast-tests
+      - integration
+      - bib-companion-contract
+      - slow-tests
+      - validation-demo
+      - docker-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify exact-tag release candidate
+        run: |
+          set -euo pipefail
+          python scripts/verify_ted_v1_1_release_candidate.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --release-ref "$GITHUB_SHA" \
+            --require-publication-identifiers \
+            | tee /tmp/ted-v1.1.0-release-candidate-verification.json
+      - name: Build Git-object-backed source attestation
+        run: |
+          set -euo pipefail
+          analysis_lock="$(
+            python -c 'import json, pathlib; print(json.loads(pathlib.Path("release/ted-v1.1.0/RELEASE_METADATA.json").read_text(encoding="utf-8"))["analysis_lock_commit"])'
+          )"
+          python scripts/build_release_manifests.py \
+            --repository "$GITHUB_WORKSPACE" \
+            --baseline-ref "$analysis_lock" \
+            --release-ref "$GITHUB_SHA" \
+            --external-assets-template release/ted-v1.1.0/EXTERNAL_ARCHIVE_ASSETS.tsv \
+            --outdir release-attestation
+          for file in \
+            release-attestation/FROZEN_SCIENTIFIC_ARTIFACTS.tsv \
+            release-attestation/RELEASE_TREE_MANIFEST.tsv \
+            release-attestation/EXTERNAL_ARCHIVE_ASSETS.tsv \
+            release-attestation/manifest_summary.json
+          do
+            test -s "$file"
+          done
+          cp /tmp/ted-v1.1.0-release-candidate-verification.json \
+            release-attestation/
+          cp release/ted-v1.1.0/ANALYSIS_LOCK.json \
+            release/ted-v1.1.0/RELEASE_METADATA.json \
+            release/ted-v1.1.0/ARCHIVE_MANIFEST.tsv \
+            release-attestation/
+      - name: Upload exact-tag source attestation
+        uses: actions/upload-artifact@v4
+        with:
+          name: ted-v1.1.0-source-attestation
+          path: release-attestation/**
+          if-no-files-found: error

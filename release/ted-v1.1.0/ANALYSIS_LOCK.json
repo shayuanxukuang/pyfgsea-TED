@@ -1,0 +1,49 @@
+{
+  "schema_version": "ted_v1.1.0_analysis_lock_v1",
+  "analysis_lock_commit": "32e099c780bf0103bbcfadb2993e59254c6d9e12",
+  "analysis_lock_tree": "8cf20d4d4cddbf0056880d7daaa8caac62b68a2e",
+  "repository_dirty": false,
+  "release_candidate": "ted-v1.1.0",
+  "python_distribution": "pyfgsea==0.2.0",
+  "recorded_date": "2026-07-30",
+  "claim_boundary": {
+    "event_support_code": "E0",
+    "parallel_protein_outcome_status": "passed",
+    "event_replication_eligibility_status": "failed",
+    "event_replication_test_status": "not_run",
+    "event_replication_status": "not_evaluable",
+    "protein_outcome_replication_status": "not_tested",
+    "parallel_evidence_never_upgrades_event_e": true
+  },
+  "contract_sha256": {
+    "release/ted-v1.1.0/CLAIM_BOUNDARY.md": "40f0a584fb2e3678287fdb3208953498ac034ceb161c3a121c601f45e2474707",
+    "release/ted-v1.1.0/COMPANION_ASSET_RULES.template.tsv": "6074cac638f1b95963d87a876cdf6274151ec1ebbd103a64a2546fa8d2ae83e2",
+    "config/ted_nearest_method_common_task_v1.yml": "ba1db53f782b393204d6321be983ba738c4cb8d9b2d834673fd5132b98ade812",
+    "config/ted_bnt162b2_flagship_v1.yaml": "f98f579a9db224406352baa20744d794afaa5c9f7fb64aef1a328dfd035f774d",
+    "config/ted_gse171964_replication_v1.yaml": "28f4b39a8421baeaa13490c90eb09ec1e94170ec2e64f9d6569aa83f2f5db867",
+    "scripts/run_nearest_method_locked_grid.py": "b7b2d454759c8763a93a58a26c39498573b54b3f2965a0b1aede135550adf6ad",
+    "scripts/run_bnt162b2_flagship_rna.py": "7280908daffd6fd04f185186eb43d7677f3776e227d293e84846749eea4c2847",
+    "scripts/run_bnt162b2_flagship_adt.py": "6393a0cc386feb361be5c24e7c7cfe1ff62cb97271b63df1aa62417d4ff55219",
+    "scripts/run_gse171964_replication.py": "3b94d713b4c6922d79733e731bd6346b2c65269eb1a5e44b6d3e1b00a2809639",
+    "scripts/build_bib_companion_evidence_contracts.py": "fee20a7e847e04eca717b701c7b5e78e349eccb1ffdb53fc557c2f6a2499e1e3",
+    "scripts/run_ted_bib_focused_tests.py": "5259f9207b31198d64ca62827b9f23fe1a7042651abc019d41c502a8efde9bff",
+    "scripts/build_ted_bib_companion.py": "ec25e5e4b792b94465def987fb2f9a7e9e088602943ea799d46cf562d0f2e870",
+    "scripts/verify_ted_bib_companion.py": "058870d6d7eda11c4ddeb86392af789eab0cf370eed81422f642eee450f7f280",
+    "reproduce/verify_and_reproduce_figures.py": "f4a186664569e3cce83f491332ab429231008e72bc44318ab98ae4e41ce636a3",
+    "schemas/parallel_evidence_record_v1.schema.json": "5cfcaaea96a0ae2407a0b3c8fe7875ab1f853dc2c6e515f672722ebaab673e94",
+    "schemas/replication_facets_v1.schema.json": "d22c1ee90e6e89151201191c44aa788a600200d475f469cdadd77f9f5a3a96ff"
+  },
+  "external_evidence": {
+    "focused_tests": {
+      "tests": 81,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "common_tasks": 480,
+    "native_method_task_outputs": 2400,
+    "figure3_source_tables": 4,
+    "figure5_source_tables": 7,
+    "canonical_claim_contract_manifest_sha256": "ad28ab712a089e2eff809d62b1d3243e5fff06fa13d1616463ab6c380e4f16be"
+  }
+}

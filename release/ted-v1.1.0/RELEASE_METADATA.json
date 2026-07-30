@@ -1,0 +1,69 @@
+{
+  "schema_version": "ted_v1.1.0_release_metadata_v1",
+  "release_tag": "ted-v1.1.0",
+  "python_distribution": "pyfgsea==0.2.0",
+  "analysis_lock_commit": "32e099c780bf0103bbcfadb2993e59254c6d9e12",
+  "analysis_lock_tree": "8cf20d4d4cddbf0056880d7daaa8caac62b68a2e",
+  "release_candidate_status": "verified_not_published",
+  "recorded_date": "2026-07-30",
+  "baseline_tag": "ted-v1.0.0",
+  "baseline_tag_object": "992e7569e2a7cb47fc06557302f7480496f7eeab",
+  "baseline_commit": "5cb7b25458b41437b54623488d37b4872e79f474",
+  "baseline_doi": "10.5281/zenodo.21403133",
+  "zenodo_version_doi": null,
+  "publication_state": {
+    "tag_created": false,
+    "github_release_created": false,
+    "external_assets_uploaded": false,
+    "zenodo_version_published": false
+  },
+  "release_commit_binding": "resolved_from_clean_HEAD_and_exact_tag_at_verification",
+  "post_lock_allowed_paths": [
+    ".github/workflows/ci.yml",
+    "release/ted-v1.1.0/ANALYSIS_LOCK.json",
+    "release/ted-v1.1.0/ARCHIVE_MANIFEST.tsv",
+    "release/ted-v1.1.0/BUILD_INDEX.json",
+    "release/ted-v1.1.0/EXTERNAL_ARCHIVE_ASSETS.template.tsv",
+    "release/ted-v1.1.0/EXTERNAL_ARCHIVE_ASSETS.tsv",
+    "release/ted-v1.1.0/FOCUSED_81_EVIDENCE.tsv",
+    "release/ted-v1.1.0/GITHUB_RELEASE_BODY.md",
+    "release/ted-v1.1.0/README.md",
+    "release/ted-v1.1.0/RELEASE_METADATA.json",
+    "scripts/verify_ted_v1_1_release_candidate.py"
+  ],
+  "tracked_attestation_sha256": {
+    ".github/workflows/ci.yml": "1110b5ccfece566549a9893864b1d12afbbe137dce7815f6dae8ae74bc44614b",
+    "release/ted-v1.1.0/ANALYSIS_LOCK.json": "eac201c43cccee7f205eac700521fc8f86a921f6582ee5fc9b60baf88caff011",
+    "release/ted-v1.1.0/ARCHIVE_MANIFEST.tsv": "8fa1ef4e413ac781d0d74f70f1b5266253456ed0a727066c6b8a0e9747077b29",
+    "release/ted-v1.1.0/BUILD_INDEX.json": "ff17ee586ab9e30ac87514d73a27a5212a98cd8c120b7107574ff0339b7d0db8",
+    "release/ted-v1.1.0/EXTERNAL_ARCHIVE_ASSETS.template.tsv": "154dcd4512d9815f0c3583356f668bf24bdf6aa93712273c76bf544f70af7747",
+    "release/ted-v1.1.0/EXTERNAL_ARCHIVE_ASSETS.tsv": "b48a8339a71e92bb02f213671160463c88203eaa8720e04d32a8e87558d2406e",
+    "release/ted-v1.1.0/FOCUSED_81_EVIDENCE.tsv": "42bf605678871e1476c1c8f2e7067fe5ba01cdb63141bda418a655315242dc1b",
+    "release/ted-v1.1.0/GITHUB_RELEASE_BODY.md": "6fe5eccaf71e332923da268aa82e0e34da6dd25e61243bb91e0846443d3139a6",
+    "release/ted-v1.1.0/README.md": "9e8fe6f26909e04ed6b9f9aca42ebd11fa4f9889920b4871fdafec561cda8877",
+    "scripts/verify_ted_v1_1_release_candidate.py": "f8c2a91b06e768d7240ae7a1ee6fb248442116509179b46272833c4628cd3e20"
+  },
+  "verified_external_evidence": {
+    "common_tasks": 480,
+    "native_method_task_outputs": 2400,
+    "figure3_source_tables": 4,
+    "figure5_source_tables": 7,
+    "focused_tests": {
+      "tests": 81,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "figure3_semantic_checks": 15,
+    "figure5_semantic_checks": 13
+  },
+  "claim_boundary": {
+    "event_support_code": "E0",
+    "parallel_protein_outcome_status": "passed",
+    "event_replication_eligibility_status": "failed",
+    "event_replication_test_status": "not_run",
+    "event_replication_status": "not_evaluable",
+    "protein_outcome_replication_status": "not_tested",
+    "parallel_evidence_never_upgrades_event_e": true
+  }
+}

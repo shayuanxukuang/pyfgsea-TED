@@ -147,7 +147,10 @@ Do not publish the companion until all of the following hold:
 2. a dry run and a completed-bundle verification pass from the same immutable
    analysis-lock commit;
 3. `EXTERNAL_ARCHIVE_ASSETS.template.tsv` is copied to a final manifest and
-   filled with actual archive sizes, SHA-256 values, analysis-lock commit, and
-   the newly minted Zenodo version DOI;
-4. the GitHub release and Zenodo deposit use `ted-v1.1.0`, not the immutable
+   filled with the exact file-asset sizes and SHA-256 values; the resulting
+   `BUILD_INDEX.json` and `RELEASE_METADATA.json` bind those assets to the
+   immutable analysis-lock commit;
+4. `RELEASE_METADATA.json` records a newly reserved v1.1.0 Zenodo version DOI
+   and the exact-tag source-attestation gate succeeds; and
+5. the GitHub release and Zenodo deposit use `ted-v1.1.0`, not the immutable
    baseline tag or DOI.

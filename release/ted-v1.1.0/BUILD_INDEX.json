@@ -1,0 +1,21 @@
+{
+  "analysis_lock_commit": "32e099c780bf0103bbcfadb2993e59254c6d9e12",
+  "archives": [
+    {
+      "file": "ted-bib-companion-v1.1.0-core.zip",
+      "package": "core"
+    },
+    {
+      "file": "ted-bib-companion-v1.1.0-native-outputs.zip",
+      "package": "native_outputs"
+    },
+    {
+      "file": "ted-bib-companion-v1.1.0-stability-shards.zip",
+      "package": "stability_shards"
+    }
+  ],
+  "asset_spec_sha256": "6074cac638f1b95963d87a876cdf6274151ec1ebbd103a64a2546fa8d2ae83e2",
+  "release": "ted-v1.1.0",
+  "status": "built_not_published",
+  "zenodo_version_doi": null
+}

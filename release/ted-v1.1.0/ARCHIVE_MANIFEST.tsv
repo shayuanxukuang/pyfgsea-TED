@@ -1,0 +1,5 @@
+file	bytes	sha256	role
+BUILD_INDEX.json	584	ff17ee586ab9e30ac87514d73a27a5212a98cd8c120b7107574ff0339b7d0db8	build_index
+ted-bib-companion-v1.1.0-core.zip	26728542	c46b0a12ad81c7c9e1158d409a3ed4d9e68a02f30c02e9f09ad81d76fc858260	core
+ted-bib-companion-v1.1.0-native-outputs.zip	280935304	654fe21ff418bd723479d7a33af20d0498e1dd2a89688a924717f21e68006b2a	native_outputs
+ted-bib-companion-v1.1.0-stability-shards.zip	41247178	cf76e9c090429c5af3fd7ef7293f1e0226b35ba30721d601c5e46a140826971b	stability_shards
